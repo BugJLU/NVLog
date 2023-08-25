@@ -302,6 +302,14 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
 	return __pmem_direct_access(pmem, pgoff, nr_pages, kaddr, pfn);
 }
 
+static long pmem_map_whole_dev(struct dax_device *dax_dev, void **kaddr)
+{
+	long size_p;
+	struct pmem_device *pmem = dax_get_private(dax_dev);
+	size_p = pmem->size / PAGE_SIZE;
+	return __pmem_direct_access(pmem, 0, size_p, kaddr, NULL);
+}
+
 /*
  * Use the 'no check' versions of copy_from_iter_flushcache() and
  * copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
@@ -326,6 +334,7 @@ static const struct dax_operations pmem_dax_ops = {
 	.copy_from_iter = pmem_copy_from_iter,
 	.copy_to_iter = pmem_copy_to_iter,
 	.zero_page_range = pmem_dax_zero_page_range,
+	.map_whole_dev = pmem_map_whole_dev,
 };
 
 static const struct attribute_group *pmem_attribute_groups[] = {

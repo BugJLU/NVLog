@@ -897,6 +897,12 @@ config IO_MAPPING
 config SECRETMEM
 	def_bool ARCH_HAS_SET_DIRECT_MAP && !EMBEDDED
 
+config NVPC
+    bool "NVPC core functions support"
+    default y
+    depends on DEV_DAX_PMEM
+    depends on FS_DAX
+
 source "mm/damon/Kconfig"
 
 endmenu

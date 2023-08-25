@@ -229,6 +229,8 @@ enum dax_device_flags {
 	DAXDEV_WRITE_CACHE,
 	/* flag to check if device supports synchronous flush */
 	DAXDEV_SYNC,
+	/* device is occupied by nvpc (mm/nvpc.c) */
+	DAXDEV_OCCUPIED,
 };
 
 static ssize_t write_cache_show(struct device *dev,
@@ -365,6 +367,16 @@ int dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
 }
 EXPORT_SYMBOL_GPL(dax_zero_page_range);
 
+long dax_map_whole_dev(struct dax_device *dax_dev, void ** kaddr)
+{
+	if (!dax_alive(dax_dev))
+	{
+		return -ENXIO;
+	}
+	return dax_dev->ops->map_whole_dev(dax_dev, kaddr);
+}
+EXPORT_SYMBOL_GPL(dax_map_whole_dev);
+
 #ifdef CONFIG_ARCH_HAS_PMEM_API
 void arch_wb_cache_pmem(void *addr, size_t size);
 void dax_flush(struct dax_device *dax_dev, void *addr, size_t size)
@@ -414,6 +426,19 @@ bool dax_alive(struct dax_device *dax_dev)
 	return test_bit(DAXDEV_ALIVE, &dax_dev->flags);
 }
 EXPORT_SYMBOL_GPL(dax_alive);
+
+bool dax_occupied(struct dax_device *dax_dev)
+{
+	return test_bit(DAXDEV_OCCUPIED, &dax_dev->flags);
+}
+EXPORT_SYMBOL_GPL(dax_occupied);
+
+// TODO: may need a lock
+void set_dax_occupied(struct dax_device *dax_dev)
+{
+	set_bit(DAXDEV_OCCUPIED, &dax_dev->flags);
+}
+EXPORT_SYMBOL_GPL(set_dax_occupied);
 
 /*
  * Note, rcu is not protecting the liveness of dax_dev, rcu is ensuring
