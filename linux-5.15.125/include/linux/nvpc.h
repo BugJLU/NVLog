@@ -32,3 +32,7 @@ size_t nvpc_write_nv_iter(struct iov_iter *from, loff_t off, bool flush);
 // size_t nvpc_write_nv_iter_noflush(struct iov_iter *from, loff_t off, size_t len);
 /* copy data from nvpc to user */
 size_t nvpc_read_nv_iter(struct iov_iter *to, loff_t off);
+
+static inline void nvpc_wmb(void) {
+    pmem_wmb();
+}

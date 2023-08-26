@@ -140,10 +140,23 @@ int main(int argc, char *argv[])
                 set_flag = atoi(argv[3]);
                 flag = 6;
             }
-            
         }
-        
-        
+        /* nvpcctl wbarrier */
+        /* wbarrier only works when flush is set to 1 */
+        else if (!strcmp(argv[1], "wbarrier"))
+        {
+            /* nvpcctl wbarrier show */
+            if (argc == 3 && !strcmp(argv[2], "show"))
+            {
+                flag = 7;
+            }
+            /* nvpcctl wbarrier set <0/1> */
+            else if (argc == 4 && !strcmp(argv[2], "set"))
+            {
+                set_flag = atoi(argv[3]);
+                flag = 8;
+            }
+        }
     }
 
     switch (flag)
@@ -177,7 +190,7 @@ int main(int argc, char *argv[])
         printf("nvpcctl: nvpc write ok, %zd bytes written\n", ret);
         break;
     case 5:
-        printf("nvpcctl: nvpc flush state: ");
+        printf("nvpcctl: nvpc flush state: \n");
         system("cat /sys/module/libnvpc/parameters/nvpc_flush");
         break;
     case 6:
@@ -185,6 +198,16 @@ int main(int argc, char *argv[])
         printf("nvpcctl: running cmd: %s\n", tmp);
         system(tmp);
         printf("nvpcctl: nvpc flush set state to: %d\n", set_flag);
+        break;
+    case 7:
+        printf("nvpcctl: nvpc wbarrier state: \n");
+        system("cat /sys/module/libnvpc/parameters/nvpc_wbarrier");
+        break;
+    case 8:
+        sprintf(tmp, "echo %d > /sys/module/libnvpc/parameters/nvpc_wbarrier", set_flag);
+        printf("nvpcctl: running cmd: %s\n", tmp);
+        system(tmp);
+        printf("nvpcctl: nvpc wbarrier set state to: %d\n", set_flag);
         break;
     default:
         printf(
@@ -195,6 +218,8 @@ int main(int argc, char *argv[])
             "\tnvpcctl write <off> <string>:\tlen(string)<=255\n"
             "\tnvpcctl flush show\n"
             "\tnvpcctl flush set <0/1>\n"
+            "\tnvpcctl wbarrier show\n"
+            "\tnvpcctl wbarrier set <0/1>\n"
         );
         break;
     }

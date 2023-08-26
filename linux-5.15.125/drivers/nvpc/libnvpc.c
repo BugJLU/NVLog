@@ -19,8 +19,13 @@ typedef unsigned char u8;
 
 #define PATH_MAX 4096
 
+/* flush write or cached write */
 static bool nvpc_flush = true;
+/* memory write */
+static bool nvpc_wbarrier = true;
+
 module_param(nvpc_flush, bool, S_IRUGO|S_IWUSR);
+module_param(nvpc_wbarrier, bool, S_IRUGO|S_IWUSR);
 
 static int set_nvpc_device_with_path(char *path);
 static void release_nvpc_device(void);
@@ -50,12 +55,19 @@ static int set_nvpc_device_with_path(char *path)
     struct dax_device *dax_dev;
 
     pr_info("Libnvpc: setting libnvpc device to %s.\n", path);
+
     nvpc = get_nvpc();
     if (!nvpc)
     {
         pr_err("Libnvpc error: Cannot get nvpc reference.\n");
         goto err;
     }
+    if (nvpc->enabled)
+    {
+        pr_err("Libnvpc error: nvpc is already enabled.\n");
+        goto err;
+    }
+    
     nvpc_bdev = blkdev_get_by_path(path, 
                 FMODE_READ|FMODE_WRITE|FMODE_EXCL, nvpc);
     if (IS_ERR(nvpc_bdev) || !nvpc_bdev)
@@ -65,12 +77,14 @@ static int set_nvpc_device_with_path(char *path)
         goto err;
     }
     pr_info("Libnvpc: bdev: %s\n", nvpc_bdev->bd_disk->disk_name);
+
     dax_dev = fs_dax_get_by_bdev(nvpc_bdev);
     if (!dax_dev)
     {
         pr_err("Libnvpc error: Cannot get dax device with name %s.\n", path);
         goto err1;
     }
+
     init_nvpc(dax_dev);
     pr_info("Libnvpc: libnvpc initialized on device %s with size %zu.\n", path, nvpc->len_pg<<PAGE_SHIFT);
     return 0;
@@ -125,7 +139,12 @@ ssize_t libnvpc_read_iter(struct kiocb *iocb, struct iov_iter *to)
 }
 ssize_t libnvpc_write_iter(struct kiocb *iocb, struct iov_iter *from)
 {
-    return nvpc_write_nv_iter(from, iocb->ki_pos, nvpc_flush);
+    size_t ret;
+
+    ret = nvpc_write_nv_iter(from, iocb->ki_pos, nvpc_flush);
+    if (nvpc_flush && nvpc_wbarrier) nvpc_wmb();
+    
+    return ret;
 }
 
 static dev_t dev = 0;

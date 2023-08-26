@@ -152,7 +152,3 @@ size_t nvpc_read_nv_iter(struct iov_iter *to, loff_t off)
 
     return len;
 }
-
-void nvpc_wmb(void) {
-    pmem_wmb();
-}
