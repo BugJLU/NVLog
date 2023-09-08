@@ -118,6 +118,8 @@ static int set_nvpc_device_with_path(char *path)
     opts.promote_level = 4;
     init_nvpc(&opts);
     pr_info("Libnvpc: libnvpc initialized on device %s with size %zu.\n", path, nvpc->len_pg<<PAGE_SHIFT);
+    pr_info("Libnvpc: get dev from dev_to_node: %d\n", nvpc_bdev->bd_device.numa_node);
+
     return 0;
 
 err1:

@@ -6,7 +6,7 @@ if [ -f $VM_DIR/ubuntu-20.04.6-live-server-amd64.iso ]
 then 
 	echo "System CDROM exists."
 else
-	echo `sudo wget --no-check-certificate -P $VM_DIR https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/focal/ubuntu-20.04.6-live-server-amd64.iso`
+	echo `sudo wget --no-check-certificate -P $VM_DIR https://mirrors4.jlu.edu.cn/ubuntu-releases/focal/ubuntu-20.04.6-live-server-amd64.iso`
 fi
 
 sudo qemu-img create -f raw $VM_DIR/disk.img 100G
