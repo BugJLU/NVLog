@@ -18,8 +18,17 @@ typedef unsigned char u8;
 
 #define LIBNVPC_IOC_INIT    _IOR(LIBNVPC_IOCTL_BASE, 0, u8*)  
 #define LIBNVPC_IOC_FINI    _IOR(LIBNVPC_IOCTL_BASE, 1, u8*)
+#define LIBNVPC_IOC_USAGE   _IOR(LIBNVPC_IOCTL_BASE, 2, u8*)
 
 #define PATH_MAX 4096
+
+typedef struct nvpc_usage_s
+{
+    size_t lru_sz;
+    size_t lru_free;
+    size_t syn_sz;
+    size_t syn_free;
+} nvpc_usage_t;
 
 static int ln_fd;
 
@@ -82,6 +91,17 @@ static ssize_t write_nvpc(char *buf, size_t len, off64_t off)
     return ret;
 }
 
+static void get_nvpc_usage(nvpc_usage_t *usage)
+{
+    int ret;
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_USAGE, usage)) < 0)
+    {
+        // this should not happen
+        fprintf(stderr, "Libnvpc error: ioctl failed to get nvpc usage: %d\n", ret);
+        exit(-1);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     char nvm_dev_path[PATH_MAX];
@@ -92,6 +112,7 @@ int main(int argc, char *argv[])
     ssize_t ret;
     int set_flag; // for flush set
     char tmp[255];
+    nvpc_usage_t usage;
 
     if (argc >= 2)
     {
@@ -157,6 +178,11 @@ int main(int argc, char *argv[])
                 flag = 8;
             }
         }
+        /* nvpcctl usage */
+        else if (!strcmp(argv[1], "usage"))
+        {
+            flag = 9;
+        }
     }
 
     switch (flag)
@@ -209,6 +235,13 @@ int main(int argc, char *argv[])
         system(tmp);
         printf("nvpcctl: nvpc wbarrier set state to: %d\n", set_flag);
         break;
+    case 9:
+        open_libnvpc();
+        get_nvpc_usage(&usage);
+        close_libnvpc();
+        printf("nvpcctl: lru usage: \t%ld \tof %ld \tpages free\n", usage.lru_free, usage.lru_sz);
+        printf("nvpcctl: syn usage: \t%ld \tof %ld \tpages free\n", usage.syn_free, usage.syn_sz);
+        break;
     default:
         printf(
             "usage: \n"
@@ -220,6 +253,7 @@ int main(int argc, char *argv[])
             "\tnvpcctl flush set <0/1>\n"
             "\tnvpcctl wbarrier show\n"
             "\tnvpcctl wbarrier set <0/1>\n"
+            "\tnvpcctl usage\n"
         );
         break;
     }

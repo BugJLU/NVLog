@@ -57,6 +57,8 @@
 #include <linux/swapops.h>
 #include <linux/balloon_compaction.h>
 
+#include <linux/nvpc.h>
+
 #include "internal.h"
 
 #define CREATE_TRACE_POINTS
@@ -1359,6 +1361,42 @@ static unsigned int demote_page_list(struct list_head *demote_pages,
 }
 
 /*
+ * Like demote_page_list, take pages and migrate to nvpc.
+ */
+static unsigned int migrate_pages_to_nvpc(struct list_head *nvpc_pages)
+{
+	unsigned int nr_succeeded;
+	struct nvpc *nvpc;
+	int err;
+
+	nvpc = get_nvpc();
+
+	if (list_empty(nvpc_pages))
+		return 0;
+
+	read_lock_irq(&nvpc->meta_lock);
+	if (!nvpc->enabled && !nvpc->extend_lru)
+	{
+		nr_succeeded = 0;
+		read_unlock_irq(&nvpc->meta_lock);
+		goto out;
+	}
+	
+	// TODO: we may need to save the information of previous node of page?
+	err = migrate_pages(nvpc_pages, nvpc_get_new_page, nvpc_free_page, 0, 
+						MIGRATE_ASYNC, MR_NVPC_LRU_DEMOTE, &nr_succeeded);
+	read_unlock_irq(&nvpc->meta_lock);
+
+	if (current_is_kswapd())
+		__count_vm_events(PGNVPC_DEMOTE_KSWAPD, nr_succeeded);
+	else
+		__count_vm_events(PGNVPC_DEMOTE_DIRECT, nr_succeeded);
+
+out:
+	return nr_succeeded;
+}
+
+/*
  * shrink_page_list() returns the number of reclaimed pages
  */
 static unsigned int shrink_page_list(struct list_head *page_list,
@@ -1370,13 +1408,17 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 	LIST_HEAD(ret_pages);
 	LIST_HEAD(free_pages);
 	LIST_HEAD(demote_pages);
+	LIST_HEAD(nvpc_pages);
 	unsigned int nr_reclaimed = 0;
 	unsigned int pgactivate = 0;
 	bool do_demote_pass;
+	bool do_nvpc_pass;
+	struct nvpc *nvpc = get_nvpc();
 
 	memset(stat, 0, sizeof(*stat));
 	cond_resched();
 	do_demote_pass = can_demote(pgdat->node_id, sc);
+	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
 
 retry:
 	while (!list_empty(page_list)) {
@@ -1526,6 +1568,30 @@ retry:
 		case PAGEREF_RECLAIM_CLEAN:
 			; /* try to reclaim the page below */
 		}
+
+#ifdef CONFIG_NVPC
+		/*
+		 * If nvpc is enabled, try to migrate pages to nvpc first.
+		 * NVPC only accept file-backed pages, and the behavior
+		 * of migrating to nvpc is basically the same as demoting.
+		 * However, even if no_demotion is set, or to say, we are 
+		 * in a reclaim progress, it is ok to move pages to nvpc 
+		 * because the NVM is now isolated from the whole memory.
+		 */
+		if (do_nvpc_pass)
+		{
+			// TODO: add more logic here to judge if migration is good
+
+			if (page_is_file_lru(page) && // this line is redundant
+				!PageAnon(page) && !PageSwapBacked(page) &&	// only move file-backed pages
+				!PageTransHuge(page))	// TODO: huge pages not support yet
+			{
+				list_add(&page->lru, &nvpc_pages);
+				unlock_page(page);
+				continue;
+			}
+		}
+#endif
 
 		/*
 		 * Before reclaiming the page, try to relocate
@@ -1793,6 +1859,16 @@ keep:
 		VM_BUG_ON_PAGE(PageLRU(page) || PageUnevictable(page), page);
 	}
 	/* 'page_list' is always empty here */
+
+	/* Migrate pages to nvpc lru */
+	// TODO: deal with nvpc_pages
+	nr_reclaimed += migrate_pages_to_nvpc(&nvpc_pages);
+	if (!list_empty(&nvpc_pages))
+	{
+		list_splice_init(&nvpc_pages, page_list);
+		do_nvpc_pass = false;
+		goto retry;
+	}
 
 	/* Migrate pages selected for demotion */
 	nr_reclaimed += demote_page_list(&demote_pages, pgdat);

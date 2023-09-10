@@ -269,6 +269,8 @@ enum lru_list {
 	LRU_INACTIVE_FILE = LRU_BASE + LRU_FILE,
 	LRU_ACTIVE_FILE = LRU_BASE + LRU_FILE + LRU_ACTIVE,
 	LRU_UNEVICTABLE,
+	/* NVPC LRU list */
+	LRU_NVPC_FILE, 
 	NR_LRU_LISTS
 };
 
@@ -479,6 +481,9 @@ enum zone_type {
 #ifdef CONFIG_ZONE_DEVICE
 	ZONE_DEVICE,
 #endif
+// #ifdef CONFIG_NVPC
+// 	ZONE_NVPC,
+// #endif
 	__MAX_NR_ZONES
 
 };

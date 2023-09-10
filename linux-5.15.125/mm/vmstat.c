@@ -1274,6 +1274,12 @@ const char * const vmstat_text[] = {
 	"pgscan_file",
 	"pgsteal_anon",
 	"pgsteal_file",
+#ifdef CONFIG_NVPC
+	"pgnvpc_demote_kswapd",
+	"pgnvpc_demote_direct",
+	"pgnvpc_promote_kswapd",
+	"pgnvpc_promote_direct",
+#endif
 
 #ifdef CONFIG_NUMA
 	"zone_reclaim_failed",

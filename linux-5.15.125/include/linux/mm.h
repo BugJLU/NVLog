@@ -1093,6 +1093,7 @@ vm_fault_t finish_mkwrite_fault(struct vm_fault *vmf);
 #define ZONES_PGOFF		(NODES_PGOFF - ZONES_WIDTH)
 #define LAST_CPUPID_PGOFF	(ZONES_PGOFF - LAST_CPUPID_WIDTH)
 #define KASAN_TAG_PGOFF		(LAST_CPUPID_PGOFF - KASAN_TAG_WIDTH)
+#define NVPC_LRU_PGOFF		(KASAN_TAG_PGOFF - NVPC_LRU_WIDTH)
 
 /*
  * Define the bit shifts to access each section.  For non-existent
@@ -1104,6 +1105,7 @@ vm_fault_t finish_mkwrite_fault(struct vm_fault *vmf);
 #define ZONES_PGSHIFT		(ZONES_PGOFF * (ZONES_WIDTH != 0))
 #define LAST_CPUPID_PGSHIFT	(LAST_CPUPID_PGOFF * (LAST_CPUPID_WIDTH != 0))
 #define KASAN_TAG_PGSHIFT	(KASAN_TAG_PGOFF * (KASAN_TAG_WIDTH != 0))
+#define NVPC_LRU_PGSHIFT	(NVPC_LRU_PGOFF * (NVPC_LRU_WIDTH != 0))
 
 /* NODE:ZONE or SECTION:ZONE is used to ID a zone for the buddy allocator */
 #ifdef NODE_NOT_IN_PAGE_FLAGS
@@ -1123,6 +1125,7 @@ vm_fault_t finish_mkwrite_fault(struct vm_fault *vmf);
 #define SECTIONS_MASK		((1UL << SECTIONS_WIDTH) - 1)
 #define LAST_CPUPID_MASK	((1UL << LAST_CPUPID_SHIFT) - 1)
 #define KASAN_TAG_MASK		((1UL << KASAN_TAG_WIDTH) - 1)
+#define NVPC_LRU_MASK		((1UL << NVPC_LRU_WIDTH) - 1)
 #define ZONEID_MASK		((1UL << ZONEID_SHIFT) - 1)
 
 static inline enum zone_type page_zonenum(const struct page *page)
@@ -1542,6 +1545,70 @@ static inline void page_kasan_tag_set(struct page *page, u8 tag) { }
 static inline void page_kasan_tag_reset(struct page *page) { }
 
 #endif /* CONFIG_KASAN_SW_TAGS || CONFIG_KASAN_HW_TAGS */
+
+#ifdef CONFIG_NVPC
+/* check if nvpc enabled by caller */
+
+/* get page nvpc lru counter */
+static inline u8 page_nvpc_lru_cnt(const struct page *page)
+{
+	// if (!nvpc.enabled)
+	// 	return 0;
+
+	return (page->flags >> NVPC_LRU_PGSHIFT) & NVPC_LRU_MASK;
+}
+/* set page nvpc lru counter */
+static inline void page_nvpc_lru_cnt_set(struct page *page, u8 cnt)
+{
+	unsigned long old_flags, new_flags;
+
+	VM_WARN_ON_ONCE(cnt > NVPC_LRU_LEVEL_MAX);
+	// if (!nvpc.enabled)
+	// 	return;
+	/* clear high bits */
+	cnt &= (1<<(NVPC_LRU_LEVEL_SHIFT+1))-1;
+
+	old_flags = READ_ONCE(page->flags);
+
+	/* atomic update */
+	do {
+		new_flags &= ~(NVPC_LRU_MASK << NVPC_LRU_PGSHIFT);
+		new_flags |= (cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
+	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));
+
+}
+/* atomic increase if cnt is less than promote_level, return the val after inc */
+static inline u8 page_nvpc_lru_cnt_inc(struct page *page)
+{
+	u8 old_cnt, new_cnt;
+	unsigned long old_flags, new_flags;
+
+	// if (!nvpc.enabled)
+	// 	return;
+	
+	old_flags = READ_ONCE(page->flags);
+
+	do {
+		old_cnt = (old_flags >> NVPC_LRU_PGSHIFT) & NVPC_LRU_MASK;
+		new_cnt = min((old_cnt + 1), NVPC_LRU_LEVEL_MAX);
+
+		new_flags &= ~(NVPC_LRU_MASK << NVPC_LRU_PGSHIFT);
+		new_flags |= (new_cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
+	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));
+
+	return new_flags;
+}
+#else
+static inline u8 page_nvpc_lru_cnt(const struct page *page)
+{
+	return 0;
+}
+static inline void page_nvpc_lru_cnt_set(struct page *page, u8 cnt) { }
+static inline u8 page_nvpc_lru_cnt_inc(struct page *page, u8 cnt)
+{
+	return 0;
+}
+#endif
 
 static inline struct zone *page_zone(const struct page *page)
 {

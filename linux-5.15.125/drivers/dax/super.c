@@ -229,8 +229,6 @@ enum dax_device_flags {
 	DAXDEV_WRITE_CACHE,
 	/* flag to check if device supports synchronous flush */
 	DAXDEV_SYNC,
-	/* device is occupied by nvpc (mm/nvpc.c) */
-	DAXDEV_OCCUPIED,
 };
 
 static ssize_t write_cache_show(struct device *dev,
@@ -426,19 +424,6 @@ bool dax_alive(struct dax_device *dax_dev)
 	return test_bit(DAXDEV_ALIVE, &dax_dev->flags);
 }
 EXPORT_SYMBOL_GPL(dax_alive);
-
-bool dax_occupied(struct dax_device *dax_dev)
-{
-	return test_bit(DAXDEV_OCCUPIED, &dax_dev->flags);
-}
-EXPORT_SYMBOL_GPL(dax_occupied);
-
-// TODO: may need a lock
-void set_dax_occupied(struct dax_device *dax_dev)
-{
-	set_bit(DAXDEV_OCCUPIED, &dax_dev->flags);
-}
-EXPORT_SYMBOL_GPL(set_dax_occupied);
 
 /*
  * Note, rcu is not protecting the liveness of dax_dev, rcu is ensuring

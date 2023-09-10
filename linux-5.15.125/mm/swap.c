@@ -37,6 +37,7 @@
 #include <linux/page_idle.h>
 #include <linux/local_lock.h>
 #include <linux/buffer_head.h>
+#include <linux/nvpc.h>
 
 #include "internal.h"
 
@@ -67,6 +68,10 @@ struct lru_pvecs {
 	struct pagevec lru_lazyfree;
 #ifdef CONFIG_SMP
 	struct pagevec activate_page;
+#endif
+#ifdef CONFIG_NVPC
+	struct pagevec nvpc_lru_add;
+	struct pagevec nvpc_lru_activate;
 #endif
 };
 static DEFINE_PER_CPU(struct lru_pvecs, lru_pvecs) = {
@@ -178,6 +183,106 @@ int get_kernel_pages(const struct kvec *kiov, int nr_segs, int write,
 	return seg;
 }
 EXPORT_SYMBOL_GPL(get_kernel_pages);
+
+#ifdef CONFIG_NVPC
+// TODO: fix this with migration on nvpc, or see L441
+static unsigned int promote_pages_from_nvpc_to_active(struct list_head *promote_pages,
+				     int nid)
+{
+	unsigned int nr_succeeded;
+	int err;
+
+	if (list_empty(promote_pages))
+		return 0;
+
+	/* Demotion ignores all cpuset and mempolicy settings */
+	err = migrate_pages(promote_pages, nvpc_alloc_promote_page, NULL,
+			    nid, MIGRATE_ASYNC, MR_NVPC_LRU_PROMOTE, &nr_succeeded);
+
+	if (current_is_kswapd())
+		__count_vm_events(PGNVPC_PROMOTE_KSWAPD, nr_succeeded);
+	else
+		__count_vm_events(PGNVPC_PROMOTE_DIRECT, nr_succeeded);
+
+	return nr_succeeded;
+}
+// static void __activate_page_from_nvpc(struct page *page, struct lruvec *lruvec)
+// {
+// 	/* migrate pages from nvpc back to dram, set PageActive */
+	
+// 	if (!PageActive(page) && !PageUnevictable(page)) {
+// 		int nr_pages = thp_nr_pages(page);
+
+// 		del_page_from_lru_list(page, lruvec);
+// 		SetPageActive(page);
+// 		add_page_to_lru_list(page, lruvec);
+// 		trace_mm_lru_activate(page);
+
+// 		__count_vm_events(PGACTIVATE, nr_pages);
+// 		__count_memcg_events(lruvec_memcg(lruvec), PGACTIVATE,
+// 				     nr_pages);
+// 	}
+// }
+static void pagevec_lru_move_from_nvpc_fn(struct pagevec *pvec)
+{
+	//TODO: 
+	/*
+	 * take page out from pvec, take page out from current lru (nvpc), 
+	 * put page into an isolated list, migrate the page to the active
+	 * list on dram, then return old page to nvpc's free list
+	 */
+	int i;
+	struct lruvec *lruvec = NULL;
+	unsigned long flags = 0;
+	int err;
+	struct page *p_it;
+	int cnt = 0;
+
+	LIST_HEAD(promote_list);
+
+	for (i = 0; i < pagevec_count(pvec); i++) {
+		struct page *page = pvec->pages[i];
+		// TODO: print page flags here
+		
+
+		/* block memcg migration during page moving between lru */
+		if (!TestClearPageLRU(page)) 
+			continue;
+
+		SetPageActive(page);
+
+		lruvec = relock_page_lruvec_irqsave(page, lruvec, &flags);
+		
+		list_move(&page->lru, &promote_list);
+		
+	}
+	err = promote_pages_from_nvpc_to_active(&promote_list, get_nvpc()->nid);
+
+	/* reinit pvec first because lru_cache_add will use the pvec */
+	pagevec_reinit(pvec);
+
+	if (!list_empty(&promote_list)) {
+		/* 
+		 * go through the residue in promote_list and SetPageLRU(page), 
+		 * then put the page back to nvpc lru
+		 */
+		list_for_each_entry(p_it, &promote_list, lru) {
+			ClearPageActive(p_it);
+			SetPageLRU(p_it);
+			// lru_cache_add(p_it);
+			cnt++;
+		}
+
+		// update_lru_size(lruvec, LRU_NVPC_FILE, ZONE_NVPC, cnt);
+		list_splice(&promote_list, &lruvec->lists[LRU_NVPC_FILE]);
+	}
+
+	if (lruvec)
+		unlock_page_lruvec_irqrestore(lruvec, flags);
+	// release_pages(pvec->pages, pvec->nr);
+	// pagevec_reinit(pvec);
+}
+#endif
 
 static void pagevec_lru_move_fn(struct pagevec *pvec,
 	void (*move_fn)(struct page *page, struct lruvec *lruvec))
@@ -328,6 +433,18 @@ static bool need_activate_page_drain(int cpu)
 static void activate_page(struct page *page)
 {
 	page = compound_head(page);
+#ifdef CONFIG_NVPC
+	if (PageNVPC(page) && PageLRU(page)) {
+		struct pagevec *pvec;
+		local_lock(&lru_pvecs.lock);
+        pvec = this_cpu_ptr(&lru_pvecs.nvpc_lru_activate);
+		get_page(page);
+		if (pagevec_add_and_need_flush(pvec, page))
+			pagevec_lru_move_from_nvpc_fn(pvec);
+		local_unlock(&lru_pvecs.lock);
+
+	} else 
+#endif
 	if (PageLRU(page) && !PageActive(page) && !PageUnevictable(page)) {
 		struct pagevec *pvec;
 
@@ -401,6 +518,7 @@ static void __lru_cache_activate_page(struct page *page)
  */
 void mark_page_accessed(struct page *page)
 {
+	u8 nvpc_lru_cnt;
 	page = compound_head(page);
 
 	if (!PageReferenced(page)) {
@@ -411,6 +529,19 @@ void mark_page_accessed(struct page *page)
 		 * this list is never rotated or maintained, so marking an
 		 * evictable page accessed has no effect.
 		 */
+	} else if(PageNVPC(page)) {
+		/* if this is an nvpc managed file-backed lru page */
+		
+		// XXX: test page flags here, {PageNVPC, PageLRU, PageActive, PageCompound}
+		nvpc_lru_cnt = page_nvpc_lru_cnt_inc(page);
+		if (get_nvpc()->promote_level != 0 && 
+			nvpc_lru_cnt >= get_nvpc()->promote_level) {
+			
+			activate_page(page);
+			ClearPageReferenced(page);
+			// TODO: deal with workingset?
+		}
+		
 	} else if (!PageActive(page)) {
 		/*
 		 * If the page is on the LRU, queue it for activation via
@@ -448,7 +579,15 @@ void lru_cache_add(struct page *page)
 
 	get_page(page);
 	local_lock(&lru_pvecs.lock);
+
+#ifdef CONFIG_NVPC
+	if (PageNVPC(page)) {
+		pvec = this_cpu_ptr(&lru_pvecs.nvpc_lru_add);
+		goto add;
+	}
+#endif
 	pvec = this_cpu_ptr(&lru_pvecs.lru_add);
+add:
 	if (pagevec_add_and_need_flush(pvec, page))
 		__pagevec_lru_add(pvec);
 	local_unlock(&lru_pvecs.lock);

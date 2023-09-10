@@ -4,6 +4,7 @@
 
 #include <linux/numa.h>
 #include <generated/bounds.h>
+#include <linux/nvpc_flag.h>
 
 /*
  * When a memory allocation must conform to specific limitations (such
@@ -75,6 +76,12 @@
 #define KASAN_TAG_WIDTH 8
 #else
 #define KASAN_TAG_WIDTH 0
+#endif
+
+#ifdef CONFIG_NVPC
+#define NVPC_LRU_WIDTH NVPC_LRU_LEVEL_SHIFT
+#else
+#define NVPC_LRU_WIDTH 0
 #endif
 
 #ifdef CONFIG_NUMA_BALANCING

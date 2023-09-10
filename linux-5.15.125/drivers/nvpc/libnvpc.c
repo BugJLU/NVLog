@@ -15,7 +15,7 @@ typedef unsigned char u8;
 
 #define LIBNVPC_IOC_INIT    _IOR(LIBNVPC_IOCTL_BASE, 0, u8*)  
 #define LIBNVPC_IOC_FINI    _IOR(LIBNVPC_IOCTL_BASE, 1, u8*)
-// #define LIBNVPC_IOC_SETFLUSH    _IOR(LIBNVPC_IOCTL_BASE, 2, u8*)
+#define LIBNVPC_IOC_USAGE   _IOR(LIBNVPC_IOCTL_BASE, 2, u8*)
 
 #define PATH_MAX 4096
 
@@ -27,8 +27,25 @@ static bool nvpc_wbarrier = true;
 module_param(nvpc_flush, bool, S_IRUGO|S_IWUSR);
 module_param(nvpc_wbarrier, bool, S_IRUGO|S_IWUSR);
 
+typedef struct nvpc_init_s
+{
+    char dev_name[PATH_MAX];
+    size_t lru_sz;
+    size_t syn_sz;
+    u8 promote_level;
+} nvpc_init_t;
+
+typedef struct nvpc_usage_s
+{
+    size_t lru_sz;
+    size_t lru_free;
+    size_t syn_sz;
+    size_t syn_free;
+} nvpc_usage_t;
+
 static int set_nvpc_device_with_path(char *path);
 static void release_nvpc_device(void);
+static void get_nvpc_usage(nvpc_usage_t *usage);
 
 #ifndef CONFIG_NVPC
 
@@ -37,6 +54,7 @@ static void release_nvpc_device(void);
 static int set_nvpc_device_with_path(char *path)
 {
     pr_info(NO_NVPC_INFO);
+    return 0;
 }
 
 static void release_nvpc_device()
@@ -44,15 +62,21 @@ static void release_nvpc_device()
     pr_info(NO_NVPC_INFO);
 }
 
+static void get_nvpc_usage(nvpc_usage_t *usage)
+{
+    pr_info(NO_NVPC_INFO);
+}
+
 #else
 
-static struct nvpc *nvpc;
 static struct block_device *nvpc_bdev;
 static char nvpc_dev_name[PATH_MAX];
 
 static int set_nvpc_device_with_path(char *path)
 {
+    struct nvpc *nvpc;
     struct dax_device *dax_dev;
+    struct nvpc_opts opts;
 
     pr_info("Libnvpc: setting libnvpc device to %s.\n", path);
 
@@ -85,7 +109,14 @@ static int set_nvpc_device_with_path(char *path)
         goto err1;
     }
 
-    init_nvpc(dax_dev);
+    opts.dev = dax_dev;
+    opts.nid = nvpc_bdev->bd_device.numa_node;
+    opts.lru = true;
+    opts.syn = true;
+    opts.lru_sz = 0x80000;
+    opts.syn_sz = 0x80000;
+    opts.promote_level = 4;
+    init_nvpc(&opts);
     pr_info("Libnvpc: libnvpc initialized on device %s with size %zu.\n", path, nvpc->len_pg<<PAGE_SHIFT);
     return 0;
 
@@ -102,6 +133,12 @@ static void release_nvpc_device(void)
     pr_info("Libnvpc: libnvpc device released.\n");
 }
 
+static void get_nvpc_usage(nvpc_usage_t *usage)
+{
+    nvpc_lru_size(&usage->lru_free, &usage->lru_sz);
+    nvpc_syn_size(&usage->syn_free, &usage->syn_sz);
+}
+
 #endif
 
 static int libnvpc_open(struct inode *inode, struct file *file)
@@ -112,6 +149,7 @@ static int libnvpc_open(struct inode *inode, struct file *file)
 static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
     int ret;
+    nvpc_usage_t usage;
 
     ret = 0;
     switch (cmd)
@@ -123,6 +161,11 @@ static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
         break;
     case LIBNVPC_IOC_FINI:
         release_nvpc_device();
+        break;
+    case LIBNVPC_IOC_USAGE:
+        get_nvpc_usage(&usage);
+        if (copy_to_user((nvpc_usage_t *)arg, &usage, sizeof(nvpc_usage_t)))
+            ret = -EFAULT;
         break;
     default:
         ret = -EPERM;
