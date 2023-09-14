@@ -19,6 +19,7 @@ typedef unsigned char u8;
 #define LIBNVPC_IOC_INIT    _IOR(LIBNVPC_IOCTL_BASE, 0, u8*)  
 #define LIBNVPC_IOC_FINI    _IOR(LIBNVPC_IOCTL_BASE, 1, u8*)
 #define LIBNVPC_IOC_USAGE   _IOR(LIBNVPC_IOCTL_BASE, 2, u8*)
+#define LIBNVPC_IOC_TEST    _IOR(LIBNVPC_IOCTL_BASE, 3, u8*)
 
 #define PATH_MAX 4096
 
@@ -98,6 +99,17 @@ static void get_nvpc_usage(nvpc_usage_t *usage)
     {
         // this should not happen
         fprintf(stderr, "Libnvpc error: ioctl failed to get nvpc usage: %d\n", ret);
+        exit(-1);
+    }
+}
+
+static void nvpc_test()
+{
+    int ret;
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_TEST, 0)) < 0)
+    {
+        // this should not happen
+        fprintf(stderr, "Libnvpc error: ioctl failed\n");
         exit(-1);
     }
 }
@@ -183,6 +195,11 @@ int main(int argc, char *argv[])
         {
             flag = 9;
         }
+        /* nvpcctl test */
+        else if (!strcmp(argv[1], "test"))
+        {
+            flag = 10;
+        }
     }
 
     switch (flag)
@@ -241,6 +258,11 @@ int main(int argc, char *argv[])
         close_libnvpc();
         printf("nvpcctl: lru usage: \t%ld \tof %ld \tpages free\n", usage.lru_free, usage.lru_sz);
         printf("nvpcctl: syn usage: \t%ld \tof %ld \tpages free\n", usage.syn_free, usage.syn_sz);
+        break;
+    case 10:
+        open_libnvpc();
+        nvpc_test();
+        close_libnvpc();
         break;
     default:
         printf(

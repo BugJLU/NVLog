@@ -365,13 +365,13 @@ int dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
 }
 EXPORT_SYMBOL_GPL(dax_zero_page_range);
 
-long dax_map_whole_dev(struct dax_device *dax_dev, void ** kaddr)
+long dax_map_whole_dev(struct dax_device *dax_dev, void ** kaddr, pfn_t *pfn)
 {
 	if (!dax_alive(dax_dev))
 	{
 		return -ENXIO;
 	}
-	return dax_dev->ops->map_whole_dev(dax_dev, kaddr);
+	return dax_dev->ops->map_whole_dev(dax_dev, kaddr, pfn);
 }
 EXPORT_SYMBOL_GPL(dax_map_whole_dev);
 

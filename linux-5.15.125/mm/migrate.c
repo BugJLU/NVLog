@@ -457,7 +457,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
 
 	xas_unlock(&xas);
 	/* Leave irq disabled to prevent preemption while updating stats */
-
+	
 	/*
 	 * If moved to a different zone then also account
 	 * the page for that zone. Other VM counters will be
@@ -471,29 +471,72 @@ int migrate_page_move_mapping(struct address_space *mapping,
 	if (newzone != oldzone) {
 		struct lruvec *old_lruvec, *new_lruvec;
 		struct mem_cgroup *memcg;
+		bool new_state, old_state;
+		new_state = !PageNVPC(newpage);
+		old_state = !PageNVPC(page);
 
-		memcg = page_memcg(page);
-		old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
-		new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
+		if (old_state)
+		{
+			memcg = page_memcg(page);
+			old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
 
-		__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
-		__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
-		if (PageSwapBacked(page) && !PageSwapCache(page)) {
-			__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
-			__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
-		}
+			__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
+			if (PageSwapBacked(page) && !PageSwapCache(page)) {
+				__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
+			}
 #ifdef CONFIG_SWAP
-		if (PageSwapCache(page)) {
-			__mod_lruvec_state(old_lruvec, NR_SWAPCACHE, -nr);
-			__mod_lruvec_state(new_lruvec, NR_SWAPCACHE, nr);
-		}
+			if (PageSwapCache(page)) {
+				__mod_lruvec_state(old_lruvec, NR_SWAPCACHE, -nr);
+			}
 #endif
-		if (dirty && mapping_can_writeback(mapping)) {
-			__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
-			__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
-			__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
-			__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
+			if (dirty && mapping_can_writeback(mapping)) {
+				__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
+				__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
+			}
 		}
+		
+		if (new_state)
+		{
+			memcg = page_memcg(newpage);
+			new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
+
+			__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
+			if (PageSwapBacked(page) && !PageSwapCache(page)) {
+				__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
+			}
+#ifdef CONFIG_SWAP
+			if (PageSwapCache(page)) {
+				__mod_lruvec_state(new_lruvec, NR_SWAPCACHE, nr);
+			}
+#endif
+			if (dirty && mapping_can_writeback(mapping)) {
+				__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
+				__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
+			}
+		}
+
+// 		memcg = page_memcg(page);
+// 		old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
+// 		new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
+
+// 		__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
+// 		__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
+// 		if (PageSwapBacked(page) && !PageSwapCache(page)) {
+// 			__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
+// 			__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
+// 		}
+// #ifdef CONFIG_SWAP
+// 		if (PageSwapCache(page)) {
+// 			__mod_lruvec_state(old_lruvec, NR_SWAPCACHE, -nr);
+// 			__mod_lruvec_state(new_lruvec, NR_SWAPCACHE, nr);
+// 		}
+// #endif
+// 		if (dirty && mapping_can_writeback(mapping)) {
+// 			__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
+// 			__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
+// 			__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
+// 			__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
+// 		}
 	}
 	local_irq_enable();
 

@@ -1382,7 +1382,9 @@ static unsigned int migrate_pages_to_nvpc(struct list_head *nvpc_pages)
 		goto out;
 	}
 	
-	// TODO: we may need to save the information of previous node of page?
+	pr_debug("[NVPC DEBUG].DEMOTE: Inactive pages are being demoted to NVPC lru.\n");
+
+	// NVTODO: we may need to save the information of previous node of page?
 	err = migrate_pages(nvpc_pages, nvpc_get_new_page, nvpc_free_page, 0, 
 						MIGRATE_ASYNC, MR_NVPC_LRU_DEMOTE, &nr_succeeded);
 	read_unlock_irq(&nvpc->meta_lock);
@@ -1392,6 +1394,7 @@ static unsigned int migrate_pages_to_nvpc(struct list_head *nvpc_pages)
 	else
 		__count_vm_events(PGNVPC_DEMOTE_DIRECT, nr_succeeded);
 
+	pr_debug("[NVPC DEBUG].DEMOTE: %d pages are demoted to NVPC lru.\n", nr_succeeded);
 out:
 	return nr_succeeded;
 }
@@ -1580,11 +1583,11 @@ retry:
 		 */
 		if (do_nvpc_pass)
 		{
-			// TODO: add more logic here to judge if migration is good
+			// NVTODO: add more logic here to judge if migration is good
 
 			if (page_is_file_lru(page) && // this line is redundant
 				!PageAnon(page) && !PageSwapBacked(page) &&	// only move file-backed pages
-				!PageTransHuge(page))	// TODO: huge pages not support yet
+				!PageTransHuge(page))	// huge pages not support yet
 			{
 				list_add(&page->lru, &nvpc_pages);
 				unlock_page(page);
@@ -1861,7 +1864,6 @@ keep:
 	/* 'page_list' is always empty here */
 
 	/* Migrate pages to nvpc lru */
-	// TODO: deal with nvpc_pages
 	nr_reclaimed += migrate_pages_to_nvpc(&nvpc_pages);
 	if (!list_empty(&nvpc_pages))
 	{

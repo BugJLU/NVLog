@@ -1566,12 +1566,13 @@ static inline void page_nvpc_lru_cnt_set(struct page *page, u8 cnt)
 	// if (!nvpc.enabled)
 	// 	return;
 	/* clear high bits */
-	cnt &= (1<<(NVPC_LRU_LEVEL_SHIFT+1))-1;
+	cnt &= (1<<NVPC_LRU_LEVEL_SHIFT)-1;
 
 	old_flags = READ_ONCE(page->flags);
 
 	/* atomic update */
 	do {
+		new_flags = old_flags;
 		new_flags &= ~(NVPC_LRU_MASK << NVPC_LRU_PGSHIFT);
 		new_flags |= (cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
 	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));
@@ -1592,6 +1593,7 @@ static inline u8 page_nvpc_lru_cnt_inc(struct page *page)
 		old_cnt = (old_flags >> NVPC_LRU_PGSHIFT) & NVPC_LRU_MASK;
 		new_cnt = min((old_cnt + 1), NVPC_LRU_LEVEL_MAX);
 
+		new_flags = old_flags;
 		new_flags &= ~(NVPC_LRU_MASK << NVPC_LRU_PGSHIFT);
 		new_flags |= (new_cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
 	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));

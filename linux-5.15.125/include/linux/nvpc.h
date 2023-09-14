@@ -23,15 +23,16 @@ struct nvpc_opts
 
 struct nvpc
 {
-    // TODO: make these flages atomic
+    // NVTODO: make these flages atomic
     bool enabled;
     struct dax_device *dax_dev;
     /* kernel address that the dax_dev is mapped to */
     void *dax_kaddr;
+    unsigned long pfn;
     /* mapped length in pages */
     size_t len_pg;
     /* node id */
-    // TODO: set this
+    // NVTODO: set this
     int nid;
 
     /* add an lru list inside pmem after the inactive list */
@@ -48,7 +49,7 @@ struct nvpc
     size_t syn_sz;
 
     /* free lists: just per-page free list, we don't need buddy here */
-    // TODO: should we manage free pages on nvm, or should we do that on dram?
+    // NVTODO: should we manage free pages on nvm, or should we do that on dram?
     struct list_head lru_free_list;
     struct list_head syn_free_list;
     /* how many free pages */
@@ -80,7 +81,7 @@ struct nvpc
      * 
      */
     
-    // TODO: reconsider the locks
+    // NVTODO: reconsider the locks
     rwlock_t meta_lock;
     spinlock_t lru_lock;
     spinlock_t lru_free_lock;
@@ -145,11 +146,6 @@ static inline void nvpc_wmb(void) {
 
 void nvpc_lru_size(size_t *free, size_t *total);
 void nvpc_syn_size(size_t *free, size_t *total);
-
-// void nvpc_lru_init();
-// /* copy pages from mem to nvpc lru zone */
-// void nvpc_lru_add_pg_list(struct list_head *page_list);
-
 
 
 /* 

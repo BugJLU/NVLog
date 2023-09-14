@@ -6,6 +6,10 @@
 #include <linux/device.h>
 #include <linux/cdev.h>
 #include <linux/stat.h>
+#include <linux/mm.h>
+
+// NVTODO: remove this
+#define DEBUG
 
 #define NVPC_NAME "libnvpc"
 
@@ -16,6 +20,7 @@ typedef unsigned char u8;
 #define LIBNVPC_IOC_INIT    _IOR(LIBNVPC_IOCTL_BASE, 0, u8*)  
 #define LIBNVPC_IOC_FINI    _IOR(LIBNVPC_IOCTL_BASE, 1, u8*)
 #define LIBNVPC_IOC_USAGE   _IOR(LIBNVPC_IOCTL_BASE, 2, u8*)
+#define LIBNVPC_IOC_TEST    _IOR(LIBNVPC_IOCTL_BASE, 3, u8*)
 
 #define PATH_MAX 4096
 
@@ -77,6 +82,7 @@ static int set_nvpc_device_with_path(char *path)
     struct nvpc *nvpc;
     struct dax_device *dax_dev;
     struct nvpc_opts opts;
+    int ret;
 
     pr_info("Libnvpc: setting libnvpc device to %s.\n", path);
 
@@ -116,7 +122,13 @@ static int set_nvpc_device_with_path(char *path)
     opts.lru_sz = 0x80000;
     opts.syn_sz = 0x80000;
     opts.promote_level = 4;
-    init_nvpc(&opts);
+    ret = init_nvpc(&opts);
+    if (ret < 0)
+    {
+        pr_err("Libnvpc error: Cannot init nvpc: %d.\n", ret);
+        goto err1;
+    }
+    
     pr_info("Libnvpc: libnvpc initialized on device %s with size %zu.\n", path, nvpc->len_pg<<PAGE_SHIFT);
     return 0;
 
@@ -137,6 +149,39 @@ static void get_nvpc_usage(nvpc_usage_t *usage)
 {
     nvpc_lru_size(&usage->lru_free, &usage->lru_sz);
     nvpc_syn_size(&usage->syn_free, &usage->syn_sz);
+}
+
+static void do_nvpc_test(long x)
+{
+    LIST_HEAD(list);
+    struct page *p;
+    int n = 0;
+    pr_info("Libnvpc TEST: pfn:\t%lx\n", nvpc.pfn);
+    pr_info("Libnvpc TEST: phys:\t%llx\n", PFN_PHYS(nvpc.pfn));
+    pr_info("Libnvpc TEST: page:\t%p\n", pfn_to_page(nvpc.pfn));
+    // pr_info("Libnvpc TEST: pfn2v:\t%p\n", pfn_to_virt(nvpc.pfn));
+    pr_info("Libnvpc TEST: pfn2v:\t%p\n", __va((nvpc.pfn) << PAGE_SHIFT));
+    pr_info("Libnvpc TEST: virt:\t%p\n", nvpc.dax_kaddr);
+    pr_info("Libnvpc TEST: v2pg:\t%p\n", virt_to_page(nvpc.dax_kaddr));
+    // pr_info("Libnvpc TEST: v2pfn:\t%p\n", virt_to_pfn(nvpc.dax_kaddr));
+    pr_info("Libnvpc TEST: v2pfn:\t%lx\n", (__pa(nvpc.dax_kaddr) >> PAGE_SHIFT));
+    pr_info("Libnvpc TEST: ---\n");
+    pr_info("Libnvpc TEST: start\n");
+    // while (p=nvpc_get_new_page(NULL, 0))
+    // {
+        p=nvpc_get_new_page(NULL, 0);
+        list_add(&p->lru, &list);
+        n++;
+    // }
+    pr_info("Libnvpc TEST: all pages (%d) taken from free list\n", n);
+    n=0;
+    while (!list_empty(&list))
+    {
+        p = list_first_entry(&list, struct page, lru);
+        list_del(&p->lru);
+        n++;
+    }
+    pr_info("Libnvpc TEST: all pages (%d) returned to free list\n", n);
 }
 
 #endif
@@ -166,6 +211,9 @@ static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
         get_nvpc_usage(&usage);
         if (copy_to_user((nvpc_usage_t *)arg, &usage, sizeof(nvpc_usage_t)))
             ret = -EFAULT;
+        break;
+    case LIBNVPC_IOC_TEST:
+        do_nvpc_test(arg);
         break;
     default:
         ret = -EPERM;

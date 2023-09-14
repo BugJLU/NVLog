@@ -11,8 +11,6 @@
  * be accessed via any other method (like fs). 
  */
 
-// TODO: remove DEBUG
-#define DEBUG
 
 #include <linux/nvpc.h>
 #include <linux/uio.h>
@@ -22,6 +20,9 @@
 #include <linux/local_lock.h>
 #include <linux/percpu.h>
 #include <linux/percpu_counter.h>
+#include <linux/pfn_t.h>
+#include <linux/memcontrol.h>
+
 #include "internal.h"
 
 /* NVPC is global, use get_nvpc to get the pointer to this instance */
@@ -66,6 +67,8 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
 int init_nvpc(struct nvpc_opts *opts)
 {
     loff_t lru_idx, syn_idx;
+    pfn_t pfn;
+    unsigned long irq_flags;
     support_clwb = static_cpu_has(X86_FEATURE_CLWB);
 
     rwlock_init(&nvpc.meta_lock);
@@ -74,11 +77,16 @@ int init_nvpc(struct nvpc_opts *opts)
     spin_lock_init(&nvpc.syn_lock);
     spin_lock_init(&nvpc.syn_free_lock);
 
-    // TODO: do we need to lock anything here?
+    // NVTODO: do we need to lock anything here?
 
     nvpc.dax_dev = opts->dev;
-    // XXX: maybe we don't really need to map the whole device into kaddr?
-    nvpc.len_pg = dax_map_whole_dev(nvpc.dax_dev, &nvpc.dax_kaddr);
+    nvpc.nid = opts->nid;
+    nvpc.promote_level = opts->promote_level;
+    // NVXXX: maybe we don't really need to map the whole device into kaddr?
+
+    nvpc.len_pg = dax_map_whole_dev(nvpc.dax_dev, &nvpc.dax_kaddr, &pfn);
+    nvpc.pfn = pfn_t_to_pfn(pfn);
+    pr_info("NVPC: pfn_t: %llx, pfn: %lx\n", pfn.val, nvpc.pfn);
 
     if (opts->lru_sz + opts->syn_sz > nvpc.len_pg)
         return -EINVAL;
@@ -96,8 +104,15 @@ int init_nvpc(struct nvpc_opts *opts)
     INIT_LIST_HEAD(&nvpc.lru_free_list);
     INIT_LIST_HEAD(&nvpc.syn_free_list);
     lru_idx = 0;
+
+    spin_lock_irqsave(&nvpc.lru_free_lock, irq_flags);
     syn_idx = __init_free_list(&nvpc.lru_free_list, lru_idx, opts->lru_sz);
+    spin_unlock_irqrestore(&nvpc.lru_free_lock, irq_flags);
+
+    spin_lock_irqsave(&nvpc.syn_free_lock, irq_flags);
     __init_free_list(&nvpc.syn_free_list, syn_idx, opts->syn_sz);
+    spin_unlock_irqrestore(&nvpc.syn_free_lock, irq_flags);
+
     nvpc.lru_begin = nvpc_get_addr_pg(lru_idx);
     nvpc.syn_begin = nvpc_get_addr_pg(syn_idx);
 
@@ -141,7 +156,7 @@ static inline size_t _nvpc_write_nv_iter(struct iov_iter *from, loff_t off, size
  */
 static inline size_t _nvpc_write_nv_iter_noflush(struct iov_iter *from, loff_t off, size_t len)
 {
-    // TODO: evaluate the performance between this and nvpc_write_nv_iter()
+    // NVTODO: evaluate the performance between this and nvpc_write_nv_iter()
     /*
      * In NVPC sometimes we don't care about the persistency of the data, like 
      * when we are dealing with the lru. This function can be used to provide a
@@ -215,18 +230,25 @@ void nvpc_syn_size(size_t *free, size_t *total)
     *free = nvpc.syn_free;
 }
 
-static void __init_single_page_nvpc(struct page *page)
+static inline void __init_single_page_nvpc(struct page *page)
 {
-	mm_zero_struct_page(page);
-	// set_page_zone(page, ZONE_NVPC);
-	init_page_count(page);
-	page_mapcount_reset(page);
-	page_cpupid_reset_last(page);
-	page_kasan_tag_reset(page);
+    struct lruvec *lruvec;
+    pg_data_t *pgdat;
+    struct mem_cgroup *memcg;
+    unsigned long irq_flags;
+
+    // set_page_links(page, ZONE_DEVICE, nvpc.nid, page_to_pfn(page));
     page_nvpc_lru_cnt_set(page, 0);
 
-	INIT_LIST_HEAD(&page->lru);
+    pgdat = page_pgdat(page);
+	memcg = page_memcg(page);
+	// VM_WARN_ON_ONCE_PAGE(!memcg && !mem_cgroup_disabled(), page);
+	lruvec = mem_cgroup_lruvec(memcg, pgdat);
+    get_page(page);
 
+    spin_lock_irqsave(&lruvec->lru_lock, irq_flags);
+    list_del(&page->lru);
+    spin_unlock_irqrestore(&lruvec->lru_lock, irq_flags);
 }
 
 /* 
@@ -237,7 +259,7 @@ static void __init_single_page_nvpc(struct page *page)
  */
 struct page *nvpc_get_new_page(struct page *page, unsigned long private)
 {
-    // TODO: maybe we can use __init_single_page()
+    // NVTODO: maybe we can use __init_single_page()
     /* we don't care about the old page, caller ensures that it's not a huge page */
     unsigned long irq_flags;
     struct page *newpage;
@@ -259,16 +281,17 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
     fl = list_last_entry(list, struct nvpc_free_list, free_list);
     newpage = virt_to_page((void*)fl);
 
-    __init_single_page_nvpc(newpage);
-
     list_del(&fl->free_list);
 
 out:
     spin_unlock_irqrestore(lock, irq_flags);
+    if (newpage)
+        __init_single_page_nvpc(newpage);
+    
     return newpage;
 }
 
-// TODO: we can apply per_cpu_pages here
+// NVTODO: we can apply per_cpu_pages here
 void nvpc_free_page(struct page *page, unsigned long private)
 {
     unsigned long irq_flags;
@@ -276,6 +299,7 @@ void nvpc_free_page(struct page *page, unsigned long private)
     spinlock_t *lock;
     list = private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
     lock = private ? &nvpc.syn_free_lock : &nvpc.lru_free_lock;
+    put_page(page);
     spin_lock_irqsave(lock, irq_flags);
 
     if (private) nvpc.syn_free++;
@@ -294,7 +318,7 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long private)
          * the page we are promoting is accessed more frequently than
          * those pages in inactive list. 
          */
-        // TODO: set GFP_NOIO so that only clean pages can be reclaimed?
+        // NVTODO: set GFP_NOIO so that only clean pages can be reclaimed?
         .gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_RECLAIM |
 			    __GFP_THISNODE | __GFP_NOWARN |
 			    __GFP_NOMEMALLOC,
