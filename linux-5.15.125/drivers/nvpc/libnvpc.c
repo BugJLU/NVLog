@@ -179,6 +179,7 @@ static void do_nvpc_test(long x)
     {
         p = list_first_entry(&list, struct page, lru);
         list_del(&p->lru);
+        nvpc_free_page(p, 0);
         n++;
     }
     pr_info("Libnvpc TEST: all pages (%d) returned to free list\n", n);
