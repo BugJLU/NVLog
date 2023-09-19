@@ -170,6 +170,7 @@ static void do_nvpc_test(long x)
     // while (p=nvpc_get_new_page(NULL, 0))
     // {
         p=nvpc_get_new_page(NULL, 0);
+        pr_info("Libnvpc TEST: refcnt:\t%d\n", atomic_read(&p->_refcount));
         list_add(&p->lru, &list);
         n++;
     // }

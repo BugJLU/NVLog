@@ -32,15 +32,9 @@ struct nvpc nvpc = {
     .absorb_syn = false, 
     .promote_level = 4
 };
+EXPORT_SYMBOL_GPL(nvpc);
 
 static bool support_clwb;
-
-struct nvpc_free_list
-{
-    struct list_head free_list;
-};
-
-#define NVPC_PG_FREE_LIST(addr) ((struct nvpc_free_list*)addr)
 
 /*
  * l: the list
@@ -53,11 +47,16 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
 {
     size_t i;
     void *addr;
+    struct page *pg;
 
     /* init lru or syn free list */
     for (i = begin_pg; i < begin_pg+sz_pg; i++) {
         addr = nvpc_get_addr_pg(i);
-        list_add(&NVPC_PG_FREE_LIST(addr)->free_list, l);
+        pg = virt_to_page(addr);
+
+        /* turn the refcnt of page into 2 */
+        get_page(pg);
+        list_add(&pg->lru, l);
     }
 
     return i;
@@ -93,14 +92,10 @@ int init_nvpc(struct nvpc_opts *opts)
 
     nvpc.extend_lru = opts->lru;
     nvpc.absorb_syn = opts->syn;
-    /* align sep to page */
-    // nvpc.sep_lru_syn = nvpc.dax_kaddr + (sep & PAGE_MASK);
+
     nvpc.lru_free = nvpc.lru_sz = opts->lru_sz;
     nvpc.syn_free = nvpc.syn_sz = opts->syn_sz;
     
-
-    // INIT_LIST_HEAD(&nvpc.lru_list);
-
     INIT_LIST_HEAD(&nvpc.lru_free_list);
     INIT_LIST_HEAD(&nvpc.syn_free_list);
     lru_idx = 0;
@@ -230,27 +225,6 @@ void nvpc_syn_size(size_t *free, size_t *total)
     *free = nvpc.syn_free;
 }
 
-static inline void __init_single_page_nvpc(struct page *page)
-{
-    struct lruvec *lruvec;
-    pg_data_t *pgdat;
-    struct mem_cgroup *memcg;
-    unsigned long irq_flags;
-
-    // set_page_links(page, ZONE_DEVICE, nvpc.nid, page_to_pfn(page));
-    page_nvpc_lru_cnt_set(page, 0);
-
-    pgdat = page_pgdat(page);
-	memcg = page_memcg(page);
-	// VM_WARN_ON_ONCE_PAGE(!memcg && !mem_cgroup_disabled(), page);
-	lruvec = mem_cgroup_lruvec(memcg, pgdat);
-    get_page(page);
-
-    spin_lock_irqsave(&lruvec->lru_lock, irq_flags);
-    list_del(&page->lru);
-    spin_unlock_irqrestore(&lruvec->lru_lock, irq_flags);
-}
-
 /* 
  * caller should hold meta_lock as a read lock 
  * 
@@ -263,7 +237,6 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
     /* we don't care about the old page, caller ensures that it's not a huge page */
     unsigned long irq_flags;
     struct page *newpage;
-    struct nvpc_free_list *fl;
     struct list_head *list;
     spinlock_t *lock;
     list = private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
@@ -275,18 +248,19 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
         newpage = NULL;
         goto out;
     }
+
     if (private) nvpc.syn_free--;
     else nvpc.lru_free--;
-    
-    fl = list_last_entry(list, struct nvpc_free_list, free_list);
-    newpage = virt_to_page((void*)fl);
-
-    list_del(&fl->free_list);
+    newpage = list_last_entry(list, struct page, lru);
+    list_del(&newpage->lru);
 
 out:
     spin_unlock_irqrestore(lock, irq_flags);
-    if (newpage)
-        __init_single_page_nvpc(newpage);
+    if (newpage) {
+        /* setup the page */
+        page_nvpc_lru_cnt_set(newpage, 0);
+        get_page(newpage);
+    }
     
     return newpage;
 }
@@ -304,7 +278,7 @@ void nvpc_free_page(struct page *page, unsigned long private)
 
     if (private) nvpc.syn_free++;
     else nvpc.lru_free++;
-    list_add(&((struct nvpc_free_list *)page_address(page))->free_list, list);
+    list_add(&page->lru, list);
 
     spin_unlock_irqrestore(lock, irq_flags);
 }
@@ -318,7 +292,7 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long private)
          * the page we are promoting is accessed more frequently than
          * those pages in inactive list. 
          */
-        // NVTODO: set GFP_NOIO so that only clean pages can be reclaimed?
+        // NVXXX: set GFP_NOIO so that only clean pages can be reclaimed?
         .gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_RECLAIM |
 			    __GFP_THISNODE | __GFP_NOWARN |
 			    __GFP_NOMEMALLOC,
