@@ -8,6 +8,14 @@ sudo mount $VM_DIR/share.img $VM_DIR/mnt/
 sudo cp $KERNEL_DIR/arch/x86_64/boot/bzImage $VM_DIR/mnt/
 sudo cp $KERNEL_DIR/System.map $VM_DIR/mnt/
 sudo cp $KERNEL_DIR/vmlinux $VM_DIR/mnt/
+
+if [[ ! -z "$1" ]] && [[ "$1" == "withmod" ]]; 
+then
+    sudo cp -r -u  $KERNEL_DIR/modules_build $VM_DIR/mnt/
+else
+    echo "modules are not copied"
+fi
+
 sudo cp $VM_DIR/_install_kernel.sh $VM_DIR/mnt/install_kernel.sh
 sudo chmod 755 $VM_DIR/mnt/install_kernel.sh
 

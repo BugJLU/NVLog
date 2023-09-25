@@ -121,7 +121,7 @@ static int set_nvpc_device_with_path(char *path)
     opts.syn = true;
     opts.lru_sz = 0x80000;
     opts.syn_sz = 0x80000;
-    opts.promote_level = 4;
+    opts.promote_level = 1;
     ret = init_nvpc(&opts);
     if (ret < 0)
     {

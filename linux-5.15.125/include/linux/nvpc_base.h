@@ -15,7 +15,6 @@ struct nvpc
     /* mapped length in pages */
     size_t len_pg;
     /* node id */
-    // NVTODO: set this
     int nid;
 
     /* add an lru list inside pmem after the inactive list */
@@ -32,7 +31,7 @@ struct nvpc
     size_t syn_sz;
 
     /* free lists: just per-page free list, we don't need buddy here */
-    // NVTODO: should we manage free pages on nvm, or should we do that on dram?
+    // NVTODO: add some bits in page->flags, so that we don't need to seperate lru and syn here
     struct list_head lru_free_list;
     struct list_head syn_free_list;
     /* how many free pages */

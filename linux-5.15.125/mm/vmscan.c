@@ -1374,27 +1374,27 @@ static unsigned int migrate_pages_to_nvpc(struct list_head *nvpc_pages)
 	if (list_empty(nvpc_pages))
 		return 0;
 
-	read_lock_irq(&nvpc->meta_lock);
+	// read_lock_irq(&nvpc->meta_lock);
 	if (!nvpc->enabled && !nvpc->extend_lru)
 	{
 		nr_succeeded = 0;
-		read_unlock_irq(&nvpc->meta_lock);
+		// read_unlock_irq(&nvpc->meta_lock);
 		goto out;
 	}
 	
-	pr_debug("[NVPC DEBUG].DEMOTE: Inactive pages are being demoted to NVPC lru.\n");
+	pr_info("[NVPC DEBUG].DEMOTE: Inactive pages are being demoted to NVPC lru., kswapd:%d\n", current_is_kswapd());
 
 	// NVTODO: we may need to save the information of previous node of page?
 	err = migrate_pages(nvpc_pages, nvpc_get_new_page, nvpc_free_page, 0, 
 						MIGRATE_ASYNC, MR_NVPC_LRU_DEMOTE, &nr_succeeded);
-	read_unlock_irq(&nvpc->meta_lock);
+	// read_unlock_irq(&nvpc->meta_lock);
 
 	if (current_is_kswapd())
 		__count_vm_events(PGNVPC_DEMOTE_KSWAPD, nr_succeeded);
 	else
 		__count_vm_events(PGNVPC_DEMOTE_DIRECT, nr_succeeded);
 
-	pr_debug("[NVPC DEBUG].DEMOTE: %d pages are demoted to NVPC lru.\n", nr_succeeded);
+	pr_info("[NVPC DEBUG].DEMOTE: %d pages are demoted to NVPC lru.\n", nr_succeeded);
 out:
 	return nr_succeeded;
 }

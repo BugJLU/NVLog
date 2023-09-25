@@ -1600,7 +1600,7 @@ static inline u8 page_nvpc_lru_cnt_inc(struct page *page)
 		new_flags |= (new_cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
 	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));
 
-	return new_flags;
+	return new_cnt;
 }
 #else
 static inline u8 page_nvpc_lru_cnt(const struct page *page)

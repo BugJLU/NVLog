@@ -85,7 +85,6 @@ int init_nvpc(struct nvpc_opts *opts)
 
     nvpc.len_pg = dax_map_whole_dev(nvpc.dax_dev, &nvpc.dax_kaddr, &pfn);
     nvpc.pfn = pfn_t_to_pfn(pfn);
-    pr_info("NVPC: pfn_t: %llx, pfn: %lx\n", pfn.val, nvpc.pfn);
 
     if (opts->lru_sz + opts->syn_sz > nvpc.len_pg)
         return -EINVAL;
