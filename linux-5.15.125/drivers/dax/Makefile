@@ -2,6 +2,7 @@
 obj-$(CONFIG_DAX) += dax.o
 obj-$(CONFIG_DEV_DAX) += device_dax.o
 obj-$(CONFIG_DEV_DAX_KMEM) += kmem.o
+obj-$(CONFIG_DEV_DAX_NVPC) += nvpc.o
 
 dax-y := super.o
 dax-y += bus.o

@@ -203,8 +203,6 @@ int dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
 			size_t nr_pages);
 long dax_map_whole_dev(struct dax_device *dax_dev, void ** kaddr, pfn_t *pfn);
 void dax_flush(struct dax_device *dax_dev, void *addr, size_t size);
-bool dax_occupied(struct dax_device *dax_dev);
-void set_dax_occupied(struct dax_device *dax_dev);
 
 ssize_t dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
 		const struct iomap_ops *ops);
