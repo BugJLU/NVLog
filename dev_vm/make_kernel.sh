@@ -4,6 +4,7 @@ source $(dirname "$0")/env.sh
 
 cd $KERNEL_DIR
 sudo make -j88
+echo "kernels built"
 
 if [[ ! -z "$1" ]] && [[ "$1" == "withmod" ]]; 
 then
@@ -11,3 +12,4 @@ then
 else
     echo "modules are not extracted"
 fi
+echo "done"

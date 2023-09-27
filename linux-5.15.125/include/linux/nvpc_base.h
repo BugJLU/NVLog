@@ -24,19 +24,20 @@ struct nvpc
     // /* the separator of lru zone and syn zone */
     // void *sep_lru_syn;
 
-    void *lru_begin;
-    void *syn_begin;
+    void *nvpc_begin;
+    // void *syn_begin;
 
-    size_t lru_sz;
-    size_t syn_sz;
+    size_t nvpc_sz;
+    // size_t syn_sz;
 
     /* free lists: just per-page free list, we don't need buddy here */
     // NVTODO: add some bits in page->flags, so that we don't need to seperate lru and syn here
-    struct list_head lru_free_list;
-    struct list_head syn_free_list;
+    struct list_head nvpc_free_list;
+    // struct list_head syn_free_list;
     /* how many free pages */
-    size_t lru_free;
-    size_t syn_free;
+    size_t nvpc_free_pgnum;
+    // size_t syn_free;
+    size_t syn_used_pgnum;
 
     /* working lists */
     /* the extension of file-backed lru, after the inactive list */
@@ -65,10 +66,11 @@ struct nvpc
     
     // NVTODO: reconsider the locks
     rwlock_t meta_lock;
+    spinlock_t nvpc_free_lock;
     spinlock_t lru_lock;
-    spinlock_t lru_free_lock;
+    // spinlock_t lru_free_lock;
     spinlock_t syn_lock;
-    spinlock_t syn_free_lock;
+    // spinlock_t syn_free_lock;
 };
 
 extern struct nvpc nvpc;

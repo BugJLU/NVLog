@@ -54,6 +54,13 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
         addr = nvpc_get_addr_pg(i);
         pg = virt_to_page(addr);
 
+        // pr_info("[KMEM TEST]: __init_free_list. flags: %lx zone: %d nid: %d ncnt: %d\n", 
+        //         pg->flags, page_zone_id(pg), page_to_nid(pg), page_nvpc_lru_cnt(pg)
+        //         );
+        // pr_info("[KMEM TEST]: __init_free_list. \n");
+
+        // NVTODO: maybe we need set_page_links and setup other flags here
+
         /* turn the refcnt of page into 2 */
         get_page(pg);
         list_add(&pg->lru, l);
@@ -65,16 +72,14 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
 /* sizes are in pages */
 int init_nvpc(struct nvpc_opts *opts)
 {
-    loff_t lru_idx, syn_idx;
     pfn_t pfn;
     unsigned long irq_flags;
     support_clwb = static_cpu_has(X86_FEATURE_CLWB);
 
     rwlock_init(&nvpc.meta_lock);
     spin_lock_init(&nvpc.lru_lock);
-    spin_lock_init(&nvpc.lru_free_lock);
     spin_lock_init(&nvpc.syn_lock);
-    spin_lock_init(&nvpc.syn_free_lock);
+    spin_lock_init(&nvpc.nvpc_free_lock);
 
     // NVTODO: do we need to lock anything here?
 
@@ -86,31 +91,34 @@ int init_nvpc(struct nvpc_opts *opts)
     nvpc.len_pg = dax_map_whole_dev(nvpc.dax_dev, &nvpc.dax_kaddr, &pfn);
     nvpc.pfn = pfn_t_to_pfn(pfn);
 
-    if (opts->lru_sz + opts->syn_sz > nvpc.len_pg)
-        return -EINVAL;
+    if (opts->extend_lru && opts->nvpc_sz > nvpc.len_pg)
+    {
+        pr_info("NVPC init: nvpc_sz is larger than the available length of dax device, using the whole device for NVPC.\n");
+        opts->nvpc_sz = nvpc.len_pg;
+        // return -EINVAL;
+    }
 
-    nvpc.extend_lru = opts->lru;
-    nvpc.absorb_syn = opts->syn;
+    nvpc.extend_lru = opts->extend_lru;
+    nvpc.absorb_syn = opts->absorb_syn;
 
-    nvpc.lru_free = nvpc.lru_sz = opts->lru_sz;
-    nvpc.syn_free = nvpc.syn_sz = opts->syn_sz;
+    nvpc.nvpc_free_pgnum = nvpc.nvpc_sz = opts->nvpc_sz;
+    // nvpc.syn_free = nvpc.syn_sz = opts->syn_sz;
     
-    INIT_LIST_HEAD(&nvpc.lru_free_list);
-    INIT_LIST_HEAD(&nvpc.syn_free_list);
-    lru_idx = 0;
+    INIT_LIST_HEAD(&nvpc.nvpc_free_list);
 
-    spin_lock_irqsave(&nvpc.lru_free_lock, irq_flags);
-    syn_idx = __init_free_list(&nvpc.lru_free_list, lru_idx, opts->lru_sz);
-    spin_unlock_irqrestore(&nvpc.lru_free_lock, irq_flags);
+    spin_lock_irqsave(&nvpc.nvpc_free_lock, irq_flags);
+    __init_free_list(&nvpc.nvpc_free_list, 0, nvpc.nvpc_sz);
+    spin_unlock_irqrestore(&nvpc.nvpc_free_lock, irq_flags);
 
-    spin_lock_irqsave(&nvpc.syn_free_lock, irq_flags);
-    __init_free_list(&nvpc.syn_free_list, syn_idx, opts->syn_sz);
-    spin_unlock_irqrestore(&nvpc.syn_free_lock, irq_flags);
+    // spin_lock_irqsave(&nvpc.syn_free_lock, irq_flags);
+    // __init_free_list(&nvpc.syn_free_list, syn_idx, opts->syn_sz);
+    // spin_unlock_irqrestore(&nvpc.syn_free_lock, irq_flags);
 
-    nvpc.lru_begin = nvpc_get_addr_pg(lru_idx);
-    nvpc.syn_begin = nvpc_get_addr_pg(syn_idx);
+    nvpc.nvpc_begin = nvpc_get_addr_pg(0);
+    // nvpc.syn_begin = nvpc_get_addr_pg(syn_idx);
 
     nvpc.enabled = true;
+    pr_info("NVPC init: NVPC started with %zu pages.\n", nvpc.nvpc_sz);
 
     return 0;
 }
@@ -213,16 +221,23 @@ size_t nvpc_read_nv_iter(struct iov_iter *to, loff_t off)
     return len;
 }
 
-void nvpc_lru_size(size_t *free, size_t *total)
+void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total)
 {
-    *total = nvpc.lru_sz;
-    *free = nvpc.lru_free;
+    *free = nvpc.nvpc_free_pgnum;
+    *syn_usage = nvpc.syn_used_pgnum;
+    *total = nvpc.nvpc_sz;
 }
-void nvpc_syn_size(size_t *free, size_t *total)
-{
-    *total = nvpc.syn_sz;
-    *free = nvpc.syn_free;
-}
+
+// void nvpc_lru_size(size_t *free, size_t *total)
+// {
+//     *total = nvpc.nvpc_sz;
+//     *free = nvpc.nvpc_free_pgnum;
+// }
+// void nvpc_syn_size(size_t *free, size_t *total)
+// {
+//     *total = nvpc.syn_sz;
+//     *free = nvpc.syn_free;
+// }
 
 /* 
  * caller should hold meta_lock as a read lock 
@@ -238,8 +253,8 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
     struct page *newpage;
     struct list_head *list;
     spinlock_t *lock;
-    list = private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
-    lock = private ? &nvpc.syn_free_lock : &nvpc.lru_free_lock;
+    list = &nvpc.nvpc_free_list; // private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
+    lock = &nvpc.nvpc_free_lock; // private ? &nvpc.syn_free_lock : &nvpc.lru_free_lock;
     spin_lock_irqsave(lock, irq_flags);
 
     if (list_empty(list))
@@ -248,8 +263,9 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
         goto out;
     }
 
-    if (private) nvpc.syn_free--;
-    else nvpc.lru_free--;
+    // if (private) nvpc.syn_free--;
+    // else nvpc.lru_free--;
+    nvpc.nvpc_free_pgnum--;
     newpage = list_last_entry(list, struct page, lru);
     list_del(&newpage->lru);
 
@@ -270,13 +286,16 @@ void nvpc_free_page(struct page *page, unsigned long private)
     unsigned long irq_flags;
     struct list_head *list;
     spinlock_t *lock;
-    list = private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
-    lock = private ? &nvpc.syn_free_lock : &nvpc.lru_free_lock;
+    list = &nvpc.nvpc_free_list;
+    lock = &nvpc.nvpc_free_lock;
+    // list = private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
+    // lock = private ? &nvpc.syn_free_lock : &nvpc.lru_free_lock;
     put_page(page);
     spin_lock_irqsave(lock, irq_flags);
 
-    if (private) nvpc.syn_free++;
-    else nvpc.lru_free++;
+    // if (private) nvpc.syn_free++;
+    // else nvpc.lru_free++;
+    nvpc.nvpc_free_pgnum++;
     list_add(&page->lru, list);
 
     spin_unlock_irqrestore(lock, irq_flags);

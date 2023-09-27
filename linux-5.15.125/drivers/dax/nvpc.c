@@ -61,12 +61,10 @@ static int nvpc_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff, size_
 static long nvpc_map_whole_dev(struct dax_device *dax_dev, void **kaddr, pfn_t *pfn)
 {
 	struct dev_dax_nvpc *dax_nvpc = (struct dev_dax_nvpc *)dax_get_private(dax_dev);
-	pr_info("[KMEM TEST]: nvpc_map_whole_dev\n");
 	
 	*kaddr = __va(dax_nvpc->phys_start);
 	*pfn = phys_to_pfn_t(dax_nvpc->phys_start, PFN_MAP);
 	
-	pr_info("[KMEM TEST]: nvpc_map_whole_dev kaddr: %p, pfn: %llx\n", *kaddr, pfn->val);
 	return PHYS_PFN(dax_nvpc->size);
 }
 
@@ -87,12 +85,7 @@ static int dev_dax_nvpc_probe(struct dev_dax *dev_dax)
 	struct resource *res;
 	struct dev_dax_nvpc *dax_nvpc;
 
-	void* kaddr;
-	pfn_t pfn;
-	long len;
 	struct nvpc_opts init_opts;
-
-	pr_info("[KMEM TEST]: dev_dax_nvpc_probe\n");
 
 	/*
 	 * Ensure good NUMA information for the persistent memory.
@@ -205,27 +198,15 @@ static int dev_dax_nvpc_probe(struct dev_dax *dev_dax)
 	dax_nvpc->phys_start = range.start;
 	dax_nvpc->size = total_len;
 
-	pr_info("[KMEM TEST]: numa_node %d\n", numa_node);
-	pr_info("[KMEM TEST]: nvpc_dax_ops %p\n", &nvpc_dax_ops);
-
 	dev_dax->dax_dev = alloc_dax(dax_nvpc, "nvpc", &nvpc_dax_ops, 0);
-
-	len = dax_map_whole_dev(dev_dax->dax_dev, &kaddr, &pfn);
 	
-	pr_info("[KMEM TEST]: kaddr %p\n", kaddr);
-	pr_info("[KMEM TEST]: pfn %lx\n", pfn_t_to_pfn(pfn));
-	pr_info("[KMEM TEST]: len %ld\n", len);
-
 	init_opts.dev = dev_dax->dax_dev;
 	init_opts.nid = numa_node;
-	init_opts.lru = true;
-	init_opts.lru_sz = 0x80000;
-	init_opts.syn = true;
-	init_opts.syn_sz = 0;
+	init_opts.extend_lru = true;
+	init_opts.absorb_syn = true;
+	init_opts.nvpc_sz = -1;
 	init_opts.promote_level = 1;
 	rc = init_nvpc(&init_opts);
-
-	pr_info("[KMEM TEST]: init_nvpc return: %d\n", rc);
 
 	return 0;
 

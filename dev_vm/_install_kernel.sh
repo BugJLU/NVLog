@@ -14,3 +14,4 @@ sudo installkernel 5.15.125-nvpc $MY_DIR/bzImage $MY_DIR/System.map /boot
 
 sudo mkinitramfs -o /boot/initrd.img-5.15.125-nvpc
 sudo update-grub
+echo "kernels installed, done"

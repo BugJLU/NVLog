@@ -25,10 +25,10 @@ typedef unsigned char u8;
 
 typedef struct nvpc_usage_s
 {
-    size_t lru_sz;
-    size_t lru_free;
-    size_t syn_sz;
-    size_t syn_free;
+    size_t nvpc_pgs;
+    size_t free_pgs;
+    size_t syn_used;
+
 } nvpc_usage_t;
 
 static int ln_fd;
@@ -256,8 +256,12 @@ int main(int argc, char *argv[])
         open_libnvpc();
         get_nvpc_usage(&usage);
         close_libnvpc();
-        printf("nvpcctl: lru usage: \t%ld \tof %ld \tpages free\n", usage.lru_free, usage.lru_sz);
-        printf("nvpcctl: syn usage: \t%ld \tof %ld \tpages free\n", usage.syn_free, usage.syn_sz);
+        // printf("nvpcctl: lru usage: \t%ld \tof %ld \tpages free\n", usage.lru_free, usage.lru_sz);
+        // printf("nvpcctl: syn usage: \t%ld \tof %ld \tpages free\n", usage.syn_free, usage.syn_sz);
+        printf("nvpcctl: total\t%ld pages\n", usage.nvpc_pgs);
+        printf("nvpcctl: used\t%ld pages\n", usage.nvpc_pgs-usage.free_pgs);
+        printf("nvpcctl: syn used\t%ld pages\n", usage.syn_used);
+        printf("nvpcctl: free\t%ld pages\n", usage.free_pgs);
         break;
     case 10:
         open_libnvpc();

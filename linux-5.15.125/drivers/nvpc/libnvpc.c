@@ -42,10 +42,10 @@ typedef struct nvpc_init_s
 
 typedef struct nvpc_usage_s
 {
-    size_t lru_sz;
-    size_t lru_free;
-    size_t syn_sz;
-    size_t syn_free;
+    size_t nvpc_pgs;
+    size_t free_pgs;
+    size_t syn_used;
+
 } nvpc_usage_t;
 
 static int set_nvpc_device_with_path(char *path);
@@ -117,10 +117,9 @@ static int set_nvpc_device_with_path(char *path)
 
     opts.dev = dax_dev;
     opts.nid = nvpc_bdev->bd_device.numa_node;
-    opts.lru = true;
-    opts.syn = true;
-    opts.lru_sz = 0x80000;
-    opts.syn_sz = 0x80000;
+    opts.extend_lru = true;
+    opts.absorb_syn = true;
+    opts.nvpc_sz = -1;
     opts.promote_level = 1;
     ret = init_nvpc(&opts);
     if (ret < 0)
@@ -147,8 +146,7 @@ static void release_nvpc_device(void)
 
 static void get_nvpc_usage(nvpc_usage_t *usage)
 {
-    nvpc_lru_size(&usage->lru_free, &usage->lru_sz);
-    nvpc_syn_size(&usage->syn_free, &usage->syn_sz);
+    nvpc_get_usage(&usage->free_pgs, &usage->syn_used, &usage->nvpc_pgs);
 }
 
 static void do_nvpc_test(long x)

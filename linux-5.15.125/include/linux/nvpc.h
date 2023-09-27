@@ -13,10 +13,10 @@ struct nvpc_opts
 {
     struct dax_device *dev;
     int nid;        /* numa node id */
-    bool lru;
-    bool syn;
-    size_t lru_sz;  /* in pages */
-    size_t syn_sz;  /* in pages */
+    bool extend_lru;
+    bool absorb_syn;
+    size_t nvpc_sz;  /* in pages */
+    // size_t syn_sz;  /* in pages */
     u8 promote_level;
 };
 
@@ -56,9 +56,9 @@ static inline void nvpc_wmb(void) {
 }
 
 
-void nvpc_lru_size(size_t *free, size_t *total);
-void nvpc_syn_size(size_t *free, size_t *total);
-
+// void nvpc_lru_size(size_t *free, size_t *total);
+// void nvpc_syn_size(size_t *free, size_t *total);
+void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);
 
 /* 
  * get a new page when inactive lru migrate to nvpc lru
