@@ -13,6 +13,7 @@ echo "kernels are copied"
 if [[ ! -z "$1" ]] && [[ "$1" == "withmod" ]]; 
 then
     sudo cp -r -u  $KERNEL_DIR/modules_build $VM_DIR/mnt/
+    echo "modules are copied"
 else
     echo "modules are not copied"
 fi
