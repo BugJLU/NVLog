@@ -2,7 +2,7 @@
 
 source $(dirname "$0")/env.sh
 
-sudo qemu-system-x86_64 -smp 8 -m 16G,slots=4,maxmem=128G -cpu host \
+sudo qemu-system-x86_64 -smp 8 -m 8G,slots=4,maxmem=128G -cpu host \
     -machine pc,accel=kvm,nvdimm=on \
 	-hda $VM_DIR/disk.img \
 	-hdb $VM_DIR/share.img \

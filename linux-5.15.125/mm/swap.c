@@ -118,6 +118,13 @@ static void __put_compound_page(struct page *page)
 
 void __put_page(struct page *page)
 {
+#ifdef CONFIG_NVPC
+	if (PageNVPC(page))
+	{
+		nvpc_free_page(page, 0);
+		return;
+	}
+#endif
 	if (is_zone_device_page(page)) {
 		put_dev_pagemap(page->pgmap);
 
@@ -195,6 +202,7 @@ static unsigned int promote_pages_from_nvpc_to_active(struct list_head *promote_
 		return 0;
 
 	/* Demotion ignores all cpuset and mempolicy settings */
+	// NVTODO: where to promote? active or inactive?
 	err = migrate_pages(promote_pages, nvpc_alloc_promote_page, NULL,
 			    nid, MIGRATE_ASYNC, MR_NVPC_LRU_PROMOTE, &nr_succeeded);
 
@@ -218,12 +226,13 @@ static void pagevec_lru_move_from_nvpc_fn(struct pagevec *pvec)
 	struct lruvec *lruvec = NULL;
 	unsigned long flags = 0;
 	int nr_mig;
-	struct page *p_it;
+	struct page *p_it, *p_next;
 	int cnt = 0;
 
 	LIST_HEAD(promote_list);
 
 	pr_info("[NVPC DEBUG].PROMOTE: NVPC promote pvec is being migrated to dram active list.\n");
+	pr_info("[NVPC DEBUG].PROMOTE: before num=%d\n", pagevec_count(pvec));
 
 	for (i = 0; i < pagevec_count(pvec); i++) {
 		struct page *page = pvec->pages[i];		
@@ -236,17 +245,17 @@ static void pagevec_lru_move_from_nvpc_fn(struct pagevec *pvec)
 		/* set active here, it will be removed during migration */
 		SetPageActive(page);
 
-		pr_info("[NVPC DEBUG].PROMOTE: NVPC migrate to dram 11111.\n");
 		lruvec = relock_page_lruvec_irqsave(page, lruvec, &flags);
-		pr_info("[NVPC DEBUG].PROMOTE: NVPC migrate to dram 22222.\n");
 		
-		list_move(&page->lru, &promote_list);
+		// NVTODO: potential bug here, maybe we need a lock, refer to __activate_page
+		del_page_from_lru_list(page, lruvec);
+		list_add(&page->lru, &promote_list);
 		
 	}
+	// set_debug_print_on();
 	nr_mig = promote_pages_from_nvpc_to_active(&promote_list, get_nvpc()->nid);
+	// set_debug_print_off();
 	pr_info("[NVPC DEBUG].PROMOTE: NVPC migrate to dram 121212 nr_mig=%d.\n", nr_mig);
-	/* reinit pvec first because lru_cache_add will use the pvec */
-	pagevec_reinit(pvec);
 
 	if (!list_empty(&promote_list)) {
 		
@@ -254,24 +263,29 @@ static void pagevec_lru_move_from_nvpc_fn(struct pagevec *pvec)
 		 * go through the residue in promote_list and SetPageLRU(page), 
 		 * then put the page back to nvpc lru
 		 */
-		list_for_each_entry(p_it, &promote_list, lru) {
+		list_for_each_entry_safe(p_it, p_next, &promote_list, lru) {
+			WARN_ON(!PageNVPC(p_it));
+
 			ClearPageActive(p_it);
-			SetPageLRU(p_it);
-			// lru_cache_add(p_it);
 			
+			// lru_cache_add(p_it);
+			add_page_to_lru_list(p_it, lruvec);
+			SetPageLRU(p_it);
+
 			cnt++;
 		}
 
-		// update_lru_size(lruvec, LRU_NVPC_FILE, ZONE_NVPC, cnt);
-		list_splice(&promote_list, &lruvec->lists[LRU_NVPC_FILE]);
-		pr_info("[NVPC DEBUG].PROMOTE: %d pages of NVPC promote pvec is not promoted and is returned.\n", cnt);
+		nv_pr_info("[NVPC DEBUG].PROMOTE: %d pages of NVPC promote pvec is not promoted and is returned.\n", cnt);
 	}
 
-	pr_info("[NVPC DEBUG].PROMOTE: NVPC migrate to dram 33333.\n");
+	release_pages(pvec->pages, pvec->nr);
+	pagevec_reinit(pvec);
+
+	nv_pr_info("[NVPC DEBUG].PROMOTE: NVPC migrate to dram 33333.\n");
 	if (lruvec)
 		unlock_page_lruvec_irqrestore(lruvec, flags);
 	
-	pr_info("[NVPC DEBUG].PROMOTE: NVPC migrate to dram finished.\n");
+	nv_pr_info("[NVPC DEBUG].PROMOTE: NVPC migrate to dram finished.\n");
 	// release_pages(pvec->pages, pvec->nr);
 	// pagevec_reinit(pvec);
 }
@@ -432,7 +446,6 @@ static void activate_page(struct page *page)
 		local_lock(&lru_pvecs.lock);
         pvec = this_cpu_ptr(&lru_pvecs.nvpc_lru_activate);
 		get_page(page);
-		pr_info("[NVPC DEBUG].PROMOTE: A new nvpc lru page is put into promote pvec.\n");
 		if (pagevec_add_and_need_flush(pvec, page))
 			pagevec_lru_move_from_nvpc_fn(pvec);
 		local_unlock(&lru_pvecs.lock);
@@ -527,7 +540,6 @@ void mark_page_accessed(struct page *page)
 		/* if this is an nvpc managed file-backed lru page */
 		
 		nvpc_lru_cnt = page_nvpc_lru_cnt_inc(page);
-		pr_info("[NVPC DEBUG].PROMOTE: NVPC page is accessed, cnt %d, plevel %d.\n", nvpc_lru_cnt, get_nvpc()->promote_level);
 		if (get_nvpc()->promote_level != 0 && 
 			nvpc_lru_cnt >= get_nvpc()->promote_level) {
 			
@@ -1093,6 +1105,11 @@ void release_pages(struct page **pages, int nr)
 		unlock_page_lruvec_irqrestore(lruvec, flags);
 
 	mem_cgroup_uncharge_list(&pages_to_free);
+
+#ifdef CONFIG_NVPC
+	nvpc_free_pages(&pages_to_free);
+#endif
+
 	free_unref_page_list(&pages_to_free);
 }
 EXPORT_SYMBOL(release_pages);

@@ -50,6 +50,7 @@
 #include <linux/ptrace.h>
 #include <linux/oom.h>
 #include <linux/memory.h>
+#include <linux/nvpc.h>
 
 #include <asm/tlbflush.h>
 
@@ -681,11 +682,13 @@ int migrate_page(struct address_space *mapping,
 		struct page *newpage, struct page *page,
 		enum migrate_mode mode)
 {
-	int rc;
+	int rc, extra_cnt;
 
 	BUG_ON(PageWriteback(page));	/* Writeback must be complete */
 
-	rc = migrate_page_move_mapping(mapping, newpage, page, 0);
+    extra_cnt = 0;
+
+	rc = migrate_page_move_mapping(mapping, newpage, page, extra_cnt);
 
 	if (rc != MIGRATEPAGE_SUCCESS)
 		return rc;
@@ -742,14 +745,16 @@ static int __buffer_migrate_page(struct address_space *mapping,
 		bool check_refs)
 {
 	struct buffer_head *bh, *head;
-	int rc;
+	int rc, extra_cnt;
 	int expected_count;
 
 	if (!page_has_buffers(page))
 		return migrate_page(mapping, newpage, page, mode);
 
+    extra_cnt = 0;
+
 	/* Check whether page does not have extra refs before we do more work */
-	expected_count = expected_page_refs(mapping, page);
+	expected_count = expected_page_refs(mapping, page) + extra_cnt;
 	if (page_count(page) != expected_count)
 		return -EAGAIN;
 
@@ -784,7 +789,7 @@ recheck_buffers:
 		}
 	}
 
-	rc = migrate_page_move_mapping(mapping, newpage, page, 0);
+	rc = migrate_page_move_mapping(mapping, newpage, page, extra_cnt);
 	if (rc != MIGRATEPAGE_SUCCESS)
 		goto unlock_buffers;
 
@@ -889,6 +894,7 @@ static int fallback_migrate_page(struct address_space *mapping,
 	struct page *newpage, struct page *page, enum migrate_mode mode)
 {
 	if (PageDirty(page)) {
+		// NVTODO: permit dirty pmem page to promote in NVPC
 		/* Only writeback pages in full synchronous migration */
 		switch (mode) {
 		case MIGRATE_SYNC:
@@ -904,6 +910,7 @@ static int fallback_migrate_page(struct address_space *mapping,
 	 * Buffers may be managed in a filesystem specific way.
 	 * We must have no buffers or drop them.
 	 */
+	// NVXXX: how's it working on NVPC?
 	if (page_has_private(page) &&
 	    !try_to_release_page(page, GFP_KERNEL))
 		return mode == MIGRATE_SYNC ? -EAGAIN : -EBUSY;
@@ -1237,6 +1244,7 @@ static int unmap_and_move(new_page_t get_new_page,
 	if (!thp_migration_supported() && PageTransHuge(page))
 		return -ENOSYS;
 
+	// NVTODO: which ref count should it be here for NVPC?
 	if (page_count(page) == 1) {
 		/* page was freed from under us. So we are done. */
 		ClearPageActive(page);
@@ -1283,6 +1291,18 @@ out:
 			mod_node_page_state(page_pgdat(page), NR_ISOLATED_ANON +
 					page_is_file_lru(page), -thp_nr_pages(page));
 
+#ifdef CONFIG_NVPC
+		if (reason == MR_NVPC_LRU_PROMOTE)
+		{
+			/*
+			 * Return this page back to NVPC's free list.
+			 */
+			pr_info("[NVPC DEBUG].migrate unmap_and_move free put pg=%p ref=%d\n", page, page_count(page));
+			put_page(page);
+			// nvpc_free_page(page, 0);
+		}
+		else
+#endif 
 		if (reason != MR_MEMORY_FAILURE)
 			/*
 			 * We release the page in page_handle_poison.

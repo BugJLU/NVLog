@@ -22,6 +22,7 @@
 #include <linux/percpu_counter.h>
 #include <linux/pfn_t.h>
 #include <linux/memcontrol.h>
+#include <linux/mm_inline.h>
 
 #include "internal.h"
 
@@ -54,15 +55,10 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
         addr = nvpc_get_addr_pg(i);
         pg = virt_to_page(addr);
 
-        // pr_info("[KMEM TEST]: __init_free_list. flags: %lx zone: %d nid: %d ncnt: %d\n", 
-        //         pg->flags, page_zone_id(pg), page_to_nid(pg), page_nvpc_lru_cnt(pg)
-        //         );
-        // pr_info("[KMEM TEST]: __init_free_list. \n");
-
-        // NVTODO: maybe we need set_page_links and setup other flags here
-
-        /* turn the refcnt of page into 2 */
-        get_page(pg);
+        /* turn the refcnt of page into 0 and add to free list */
+        pr_info("[NVPC TEST]: init0 ref=%d\n", page_count(pg));
+        // put_page(pg);
+        page_ref_dec(pg);
         list_add(&pg->lru, l);
     }
 
@@ -70,7 +66,7 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
 }
 
 /* sizes are in pages */
-int init_nvpc(struct nvpc_opts *opts)
+int __ref init_nvpc(struct nvpc_opts *opts)
 {
     pfn_t pfn;
     unsigned long irq_flags;
@@ -86,7 +82,6 @@ int init_nvpc(struct nvpc_opts *opts)
     nvpc.dax_dev = opts->dev;
     nvpc.nid = opts->nid;
     nvpc.promote_level = opts->promote_level;
-    // NVXXX: maybe we don't really need to map the whole device into kaddr?
 
     nvpc.len_pg = dax_map_whole_dev(nvpc.dax_dev, &nvpc.dax_kaddr, &pfn);
     nvpc.pfn = pfn_t_to_pfn(pfn);
@@ -95,27 +90,24 @@ int init_nvpc(struct nvpc_opts *opts)
     {
         pr_info("NVPC init: nvpc_sz is larger than the available length of dax device, using the whole device for NVPC.\n");
         opts->nvpc_sz = nvpc.len_pg;
-        // return -EINVAL;
     }
 
     nvpc.extend_lru = opts->extend_lru;
     nvpc.absorb_syn = opts->absorb_syn;
 
     nvpc.nvpc_free_pgnum = nvpc.nvpc_sz = opts->nvpc_sz;
-    // nvpc.syn_free = nvpc.syn_sz = opts->syn_sz;
+
+    /* page ref count is 1 after init */
+    memmap_init_range(nvpc.nvpc_sz, nvpc.nid, ZONE_NORMAL, nvpc.pfn, 0, MEMINIT_HOTPLUG, NULL, MIGRATE_ISOLATE);
     
+    nvpc.nvpc_begin = nvpc_get_addr_pg(0);
+
     INIT_LIST_HEAD(&nvpc.nvpc_free_list);
 
     spin_lock_irqsave(&nvpc.nvpc_free_lock, irq_flags);
+    /* page ref count is dropped to 0 here */
     __init_free_list(&nvpc.nvpc_free_list, 0, nvpc.nvpc_sz);
     spin_unlock_irqrestore(&nvpc.nvpc_free_lock, irq_flags);
-
-    // spin_lock_irqsave(&nvpc.syn_free_lock, irq_flags);
-    // __init_free_list(&nvpc.syn_free_list, syn_idx, opts->syn_sz);
-    // spin_unlock_irqrestore(&nvpc.syn_free_lock, irq_flags);
-
-    nvpc.nvpc_begin = nvpc_get_addr_pg(0);
-    // nvpc.syn_begin = nvpc_get_addr_pg(syn_idx);
 
     nvpc.enabled = true;
     pr_info("NVPC init: NVPC started with %zu pages.\n", nvpc.nvpc_sz);
@@ -228,33 +220,21 @@ void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total)
     *total = nvpc.nvpc_sz;
 }
 
-// void nvpc_lru_size(size_t *free, size_t *total)
-// {
-//     *total = nvpc.nvpc_sz;
-//     *free = nvpc.nvpc_free_pgnum;
-// }
-// void nvpc_syn_size(size_t *free, size_t *total)
-// {
-//     *total = nvpc.syn_sz;
-//     *free = nvpc.syn_free;
-// }
-
 /* 
- * caller should hold meta_lock as a read lock 
  * 
- * private = 0: lru_free_list
- * private = 1: syn_free_list
+ * page reference count is set to 1
+ * 
  */
 struct page *nvpc_get_new_page(struct page *page, unsigned long private)
 {
-    // NVTODO: maybe we can use __init_single_page()
     /* we don't care about the old page, caller ensures that it's not a huge page */
     unsigned long irq_flags;
     struct page *newpage;
     struct list_head *list;
     spinlock_t *lock;
-    list = &nvpc.nvpc_free_list; // private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
-    lock = &nvpc.nvpc_free_lock; // private ? &nvpc.syn_free_lock : &nvpc.lru_free_lock;
+    list = &nvpc.nvpc_free_list;
+    lock = &nvpc.nvpc_free_lock;
+    pr_info("[NVPC TEST]: nvpc_get_new_page @cpu%d\n", smp_processor_id());
     spin_lock_irqsave(lock, irq_flags);
 
     if (list_empty(list))
@@ -263,24 +243,21 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
         goto out;
     }
 
-    // if (private) nvpc.syn_free--;
-    // else nvpc.lru_free--;
     nvpc.nvpc_free_pgnum--;
     newpage = list_last_entry(list, struct page, lru);
     list_del(&newpage->lru);
+    page_ref_inc(newpage);
+    page_nvpc_lru_cnt_set(newpage, 0);
+    ClearPageReserved(newpage);
+    pr_info("[NVPC TEST]: nvpc_get_new_page new=%p page_reserved=%d @cpu%d\n", newpage, PageReserved(newpage), smp_processor_id());
 
 out:
     spin_unlock_irqrestore(lock, irq_flags);
-    if (newpage) {
-        /* setup the page */
-        page_nvpc_lru_cnt_set(newpage, 0);
-        get_page(newpage);
-    }
-    
+
     return newpage;
 }
 
-// NVTODO: we can apply per_cpu_pages here
+// NVTODO: we can apply per_cpu_pages (pcp) bulk free here
 void nvpc_free_page(struct page *page, unsigned long private)
 {
     unsigned long irq_flags;
@@ -288,17 +265,73 @@ void nvpc_free_page(struct page *page, unsigned long private)
     spinlock_t *lock;
     list = &nvpc.nvpc_free_list;
     lock = &nvpc.nvpc_free_lock;
-    // list = private ? &nvpc.syn_free_list : &nvpc.lru_free_list;
-    // lock = private ? &nvpc.syn_free_lock : &nvpc.lru_free_lock;
-    put_page(page);
+    pr_info("[NVPC TEST]: nvpc_free_page pg=%p page_reserved=%d @cpu%d\n", page, PageReserved(page), smp_processor_id());
+    
     spin_lock_irqsave(lock, irq_flags);
 
-    // if (private) nvpc.syn_free++;
-    // else nvpc.lru_free++;
+    // NVTODO: do some clean up here
+
+    if (TestSetPageReserved(page)) {
+        /* if page is already returned (reserved is set), just quit */
+        goto out;
+    }
+
+    /* reset page reference count to 0 */
+    init_page_count(page);
+    page_ref_dec(page);
+
     nvpc.nvpc_free_pgnum++;
     list_add(&page->lru, list);
-
+    pr_info("[NVPC TEST]: nvpc_free_page nvpc_free_pgnum=%zu @cpu%d\n", nvpc.nvpc_free_pgnum, smp_processor_id());
+out:
     spin_unlock_irqrestore(lock, irq_flags);
+}
+
+// NVTODO: big problem here...
+void nvpc_free_lru_page(struct page *page)
+{
+    unsigned long flags;
+    struct lruvec *lruvec = NULL;
+    /*
+     * 2 references are holded: 
+     * lru is holding 1, nvpc is holding 1
+     */
+
+    if (!trylock_page(page))
+        return;
+
+    if (!TestClearPageLRU(page)) 
+        goto out;
+
+    put_page(page);
+    if (!put_page_testzero(page))
+    {
+        page_ref_add(page, 2);
+        SetPageLRU(page);
+        goto out;
+    }
+    
+    lruvec = lock_page_lruvec_irqsave(page, &flags);
+    del_page_from_lru_list(page, lruvec);
+    unlock_page_lruvec_irqrestore(lruvec, flags);
+
+    nvpc_free_page(page, 0); 
+
+out:
+    unlock_page(page);
+}
+
+void nvpc_free_pages(struct list_head *list)
+{
+    struct page *page, *next;
+    list_for_each_entry_safe(page, next, list, lru) {
+        if (!PageNVPC(page))
+            continue;
+        
+        list_del(&page->lru);
+        // NVTODO: if page is in persistance domain, do not free!!!
+        nvpc_free_page(page, 0);
+    }
 }
 
 /* derived from vmscan.c: alloc_demote_page() */
@@ -319,3 +352,8 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long private)
 
 	return alloc_migration_target(page, (unsigned long)&mtc);
 }
+
+
+// NVTODO: debug, remove this
+int debug_print = 0;
+EXPORT_SYMBOL_GPL(debug_print);

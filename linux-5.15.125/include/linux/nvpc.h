@@ -66,8 +66,25 @@ void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);
  */
 struct page *nvpc_get_new_page(struct page *page, unsigned long private);
 void nvpc_free_page(struct page *page, unsigned long private);
+void nvpc_free_lru_page(struct page *page);
+void nvpc_free_pages(struct list_head *list);
 
 /* alloc dram page when nvpc page promote back */
 struct page *nvpc_alloc_promote_page(struct page *page, unsigned long node);
 
+// NVTODO: for debug, remove these
+extern int debug_print;
+#define nv_pr_info(fmt, ...) \
+	debug_print?printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__):1==1;
+
+#define nv_dump_stack() debug_print?dump_stack():1==1;
+
+static inline void set_debug_print_on(void)
+{
+    debug_print=1;
+}
+static inline void set_debug_print_off(void)
+{
+    debug_print=0;
+}
 #endif
