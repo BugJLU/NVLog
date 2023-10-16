@@ -239,10 +239,10 @@ static void page_cache_free_page(struct address_space *mapping,
 	void (*freepage)(struct page *);
 
 	freepage = mapping->a_ops->freepage;
-	if (PageNVPC(page))
-	{
-		 pr_info("[NVPC DEBUG].page_cache_free_page pg=%p lru=%d ref=%d\n", page, PageLRU(page), page_count(page));
-	}
+	// if (PageNVPC(page))
+	// {
+	// 	 pr_info("[NVPC DEBUG].page_cache_free_page pg=%p lru=%d ref=%d\n", page, PageLRU(page), page_count(page));
+	// }
 	
 	if (freepage)
 		freepage(page);
@@ -254,17 +254,17 @@ static void page_cache_free_page(struct address_space *mapping,
 		put_page(page);
 	}
 
-#ifdef CONFIG_NVPC
-	/* 
-	 * NVTODO: this is a slow way to free NVPC pages. 
-	 * Use kthread (like kswapd) to take the page out 
-	 * from lru and free it, also make it per-cpu and 
-	 * bulk free.
-	 */
-	if (PageNVPC(page) && PageLRU(page)) {
-		nvpc_free_lru_page(page);
-	}
-#endif
+// #ifdef CONFIG_NVPC
+// 	/* 
+// 	 * NVTODO: this is a slow way to free NVPC pages. 
+// 	 * Use kthread (like kswapd) to take the page out 
+// 	 * from lru and free it, also make it per-cpu and 
+// 	 * bulk free.
+// 	 */
+// 	if (PageNVPC(page) && PageLRU(page)) {
+// 		nvpc_free_lru_page(page);
+// 	}
+// #endif
 }
 
 /**

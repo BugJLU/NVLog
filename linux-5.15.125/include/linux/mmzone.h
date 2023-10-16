@@ -150,6 +150,7 @@ enum zone_stat_item {
 	NR_ZONE_INACTIVE_FILE,
 	NR_ZONE_ACTIVE_FILE,
 	NR_ZONE_UNEVICTABLE,
+	NR_ZONE_NVPC_FILE,
 	NR_ZONE_WRITE_PENDING,	/* Count of dirty, writeback and unstable pages */
 	NR_MLOCK,		/* mlock()ed pages found and moved off LRU */
 	/* Second 128 byte cacheline */
@@ -167,10 +168,12 @@ enum node_stat_item {
 	NR_INACTIVE_FILE,	/*  "     "     "   "       "         */
 	NR_ACTIVE_FILE,		/*  "     "     "   "       "         */
 	NR_UNEVICTABLE,		/*  "     "     "   "       "         */
+	NR_NVPC_FILE,
 	NR_SLAB_RECLAIMABLE_B,
 	NR_SLAB_UNRECLAIMABLE_B,
 	NR_ISOLATED_ANON,	/* Temporary isolated pages from anon lru */
 	NR_ISOLATED_FILE,	/* Temporary isolated pages from file lru */
+	NR_ISOLATED_NVPC,
 	WORKINGSET_NODES,
 	WORKINGSET_REFAULT_BASE,
 	WORKINGSET_REFAULT_ANON = WORKINGSET_REFAULT_BASE,
@@ -286,6 +289,11 @@ static inline bool is_file_lru(enum lru_list lru)
 static inline bool is_active_lru(enum lru_list lru)
 {
 	return (lru == LRU_ACTIVE_ANON || lru == LRU_ACTIVE_FILE);
+}
+
+static inline bool is_nvpc_lru(enum lru_list lru)
+{
+	return lru == LRU_NVPC_FILE;
 }
 
 #define ANON_AND_FILE 2

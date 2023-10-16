@@ -56,7 +56,7 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
         pg = virt_to_page(addr);
 
         /* turn the refcnt of page into 0 and add to free list */
-        pr_info("[NVPC TEST]: init0 ref=%d\n", page_count(pg));
+        // pr_info("[NVPC TEST]: init0 ref=%d\n", page_count(pg));
         // put_page(pg);
         page_ref_dec(pg);
         list_add(&pg->lru, l);
@@ -234,7 +234,7 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
     spinlock_t *lock;
     list = &nvpc.nvpc_free_list;
     lock = &nvpc.nvpc_free_lock;
-    pr_info("[NVPC TEST]: nvpc_get_new_page @cpu%d\n", smp_processor_id());
+    // pr_info("[NVPC TEST]: nvpc_get_new_page @cpu%d\n", smp_processor_id());
     spin_lock_irqsave(lock, irq_flags);
 
     if (list_empty(list))
@@ -249,7 +249,7 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
     page_ref_inc(newpage);
     page_nvpc_lru_cnt_set(newpage, 0);
     ClearPageReserved(newpage);
-    pr_info("[NVPC TEST]: nvpc_get_new_page new=%p page_reserved=%d @cpu%d\n", newpage, PageReserved(newpage), smp_processor_id());
+    // pr_info("[NVPC TEST]: nvpc_get_new_page new=%p page_reserved=%d @cpu%d\n", newpage, PageReserved(newpage), smp_processor_id());
 
 out:
     spin_unlock_irqrestore(lock, irq_flags);
@@ -265,7 +265,7 @@ void nvpc_free_page(struct page *page, unsigned long private)
     spinlock_t *lock;
     list = &nvpc.nvpc_free_list;
     lock = &nvpc.nvpc_free_lock;
-    pr_info("[NVPC TEST]: nvpc_free_page pg=%p page_reserved=%d @cpu%d\n", page, PageReserved(page), smp_processor_id());
+    // pr_info("[NVPC TEST]: nvpc_free_page pg=%p page_reserved=%d @cpu%d\n", page, PageReserved(page), smp_processor_id());
     
     spin_lock_irqsave(lock, irq_flags);
 
@@ -282,12 +282,12 @@ void nvpc_free_page(struct page *page, unsigned long private)
 
     nvpc.nvpc_free_pgnum++;
     list_add(&page->lru, list);
-    pr_info("[NVPC TEST]: nvpc_free_page nvpc_free_pgnum=%zu @cpu%d\n", nvpc.nvpc_free_pgnum, smp_processor_id());
+    // pr_info("[NVPC TEST]: nvpc_free_page nvpc_free_pgnum=%zu @cpu%d\n", nvpc.nvpc_free_pgnum, smp_processor_id());
 out:
     spin_unlock_irqrestore(lock, irq_flags);
 }
 
-// NVTODO: big problem here...
+// NVXXX: big problem here... deprecated
 void nvpc_free_lru_page(struct page *page)
 {
     unsigned long flags;
@@ -344,9 +344,10 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long private)
          * those pages in inactive list. 
          */
         // NVXXX: set GFP_NOIO so that only clean pages can be reclaimed?
+        // NVTODO: if can't get a page here, just fucking return
         .gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_RECLAIM |
 			    __GFP_THISNODE | __GFP_NOWARN |
-			    __GFP_NOMEMALLOC,
+			    __GFP_NOMEMALLOC | GFP_NOWAIT,
 		.nid = nvpc.nid
 	};
 

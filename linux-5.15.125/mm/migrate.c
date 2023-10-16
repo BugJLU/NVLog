@@ -1297,7 +1297,7 @@ out:
 			/*
 			 * Return this page back to NVPC's free list.
 			 */
-			pr_info("[NVPC DEBUG].migrate unmap_and_move free put pg=%p ref=%d\n", page, page_count(page));
+			pr_info("[NVPC DEBUG].PROMOTE migrate unmap_and_move free put pg=%p ref=%d\n", page, page_count(page));
 			put_page(page);
 			// nvpc_free_page(page, 0);
 		}
