@@ -3068,6 +3068,12 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 			}
 		}
 
+// NVTODO: shrink in balance_pgdat()
+#ifdef CONFIG_NVPC
+		if (nvpc_enabled())
+			shrink_list(LRU_NVPC_FILE, 300, lruvec, sc); // NVTODO: num
+#endif /* CONFIG_NVPC */
+
 		cond_resched();
 
 		if (nr_reclaimed < nr_to_reclaim || proportional_reclaim)

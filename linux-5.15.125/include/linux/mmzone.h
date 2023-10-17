@@ -293,7 +293,7 @@ static inline bool is_active_lru(enum lru_list lru)
 
 static inline bool is_nvpc_lru(enum lru_list lru)
 {
-	return lru == LRU_NVPC_FILE;
+	return (lru == LRU_NVPC_FILE);
 }
 
 #define ANON_AND_FILE 2
