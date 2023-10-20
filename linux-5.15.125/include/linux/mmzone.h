@@ -272,14 +272,17 @@ enum lru_list {
 	LRU_INACTIVE_FILE = LRU_BASE + LRU_FILE,
 	LRU_ACTIVE_FILE = LRU_BASE + LRU_FILE + LRU_ACTIVE,
 	LRU_UNEVICTABLE,
-	/* NVPC LRU list */
-	LRU_NVPC_FILE, 
+	LRU_NVPC_FILE, /* NVPC LRU list */
 	NR_LRU_LISTS
 };
 
 #define for_each_lru(lru) for (lru = 0; lru < NR_LRU_LISTS; lru++)
 
 #define for_each_evictable_lru(lru) for (lru = 0; lru <= LRU_ACTIVE_FILE; lru++)
+
+#ifdef CONFIG_NVPC
+#define for_each_nvpc_lru(lru) for (lru = LRU_NVPC_FILE; lru <= LRU_NVPC_FILE; lru++)
+#endif /* CONFIG_NVPC */
 
 static inline bool is_file_lru(enum lru_list lru)
 {
