@@ -8,6 +8,7 @@
 
 #include <linux/nvpc_flag.h>
 #include <linux/nvpc_base.h>
+#include <linux/nvpc_rw.h>
 
 struct nvpc_opts
 {
@@ -40,24 +41,6 @@ static inline void *nvpc_get_addr_pg(loff_t off_pg)
     return nvpc.dax_kaddr + (off_pg << PAGE_SHIFT);
 }
 
-/* copy data from kernel to nvpc */
-void nvpc_write_nv(void *from, loff_t off, size_t len);
-/* copy data from nvpc to kernel */
-void nvpc_read_nv(void *to, loff_t off, size_t len);
-
-/* copy data from user to nvpc */
-size_t nvpc_write_nv_iter(struct iov_iter *from, loff_t off, bool flush);
-// size_t nvpc_write_nv_iter_noflush(struct iov_iter *from, loff_t off, size_t len);
-/* copy data from nvpc to user */
-size_t nvpc_read_nv_iter(struct iov_iter *to, loff_t off);
-
-static inline void nvpc_wmb(void) {
-    pmem_wmb();
-}
-
-
-// void nvpc_lru_size(size_t *free, size_t *total);
-// void nvpc_syn_size(size_t *free, size_t *total);
 void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);
 
 /* 
@@ -71,6 +54,14 @@ void nvpc_free_pages(struct list_head *list);
 
 /* alloc dram page when nvpc page promote back */
 struct page *nvpc_alloc_promote_page(struct page *page, unsigned long node);
+
+int nvpc_promote_vec_put_page(struct page * page);
+void nvpc_promote_vec_clear(void);
+int nvpc_promote_vec_isolate(struct list_head *page_list);
+// bool nvpc_should_promote(void);
+int nvpc_promote_vec_nr(void);
+void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat);
+
 
 // NVTODO: for debug, remove these
 extern int debug_print;

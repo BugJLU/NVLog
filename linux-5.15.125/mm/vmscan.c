@@ -4626,6 +4626,27 @@ void wakeup_kswapd(struct zone *zone, gfp_t gfp_flags, int order,
 	wake_up_interruptible(&pgdat->kswapd_wait);
 }
 
+void wakeup_nvpc_promote()
+{
+    // wakeup_kswapd();
+
+    /* 
+     * wake up kswapd on node 0 
+     * 
+     * pgdat->kswapd_highest_zoneidx is set to ZONE_NORMAL;
+     * pgdat->kswapd_order is set to the order of pages 
+     * prepared to promote;
+     * when kswapd runs, it will shrink dram lru lists to 
+     * prepare #order pages on ZONE_NORMAL for promotion
+     */
+	pg_data_t *pgdat = NODE_DATA(0);
+    nvpc_wakeup_nvpc_promote(pgdat);
+
+    trace_mm_vmscan_wakeup_kswapd(0, ZONE_NORMAL, 0,
+				      0);
+	wake_up_interruptible(&pgdat->kswapd_wait);
+}
+
 #ifdef CONFIG_HIBERNATION
 /*
  * Try to free `nr_to_reclaim' of memory, system-wide, and return the number of

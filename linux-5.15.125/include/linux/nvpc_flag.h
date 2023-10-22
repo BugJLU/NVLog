@@ -5,4 +5,6 @@
 #define NVPC_LRU_LEVEL_MAX 15
 #define NVPC_LRU_LEVEL_SHIFT 4  /* order_base_2(NVPC_LRU_LEVEL_MAX+1) */
 
+#define NVPC_PROMOTE_VEC_SZ 100
+
 #endif

@@ -37,6 +37,11 @@ EXPORT_SYMBOL_GPL(nvpc);
 
 static bool support_clwb;
 
+/* vector that temporarily stores NVPC pages that reach the promote level */
+static struct page *promote_vec[NVPC_PROMOTE_VEC_SZ];
+static atomic_t nr_promote_vec;
+int promote_order = order_base_2(NVPC_PROMOTE_VEC_SZ);
+
 /*
  * l: the list
  * begin_pg: the begining page index, relative in the dax device
@@ -97,6 +102,9 @@ int __ref init_nvpc(struct nvpc_opts *opts)
 
     nvpc.nvpc_free_pgnum = nvpc.nvpc_sz = opts->nvpc_sz;
 
+    /* init promote vec */
+    atomic_set(&nr_promote_vec, 0);
+
     /* page ref count is 1 after init */
     memmap_init_range(nvpc.nvpc_sz, nvpc.nid, ZONE_NORMAL, nvpc.pfn, 0, MEMINIT_HOTPLUG, NULL, MIGRATE_ISOLATE);
     
@@ -119,98 +127,6 @@ void fini_nvpc(void)
 {
     /* don't need to lock */
     nvpc.enabled = false;
-}
-
-/* copy data to nvpc */
-void nvpc_write_nv(void *from, loff_t off, size_t len)
-{
-    /* movnt for bulk, clwb for residue on x86*/
-    memcpy_flushcache(nvpc.dax_kaddr+off, from, len);
-}
-
-/* copy data from nvpc */
-void nvpc_read_nv(void *to, loff_t off, size_t len)
-{
-    memcpy(to, nvpc.dax_kaddr+off, len);
-}
-
-/* 
- * return number of bytes copied 
- */
-static inline size_t _nvpc_write_nv_iter(struct iov_iter *from, loff_t off, size_t len)
-{
-    // dax_copy_from_iter(nvpc.dax_dev, 0, nvpc.dax_kaddr + off, len, from);
-    /* movnt for bulk, clwb for residue on x86*/
-    return _copy_from_iter_flushcache(nvpc.dax_kaddr + off, len, from);
-}
-
-/* 
- * copy data from iov to nvpc, without cache flush
- * return number of bytes copied
- */
-static inline size_t _nvpc_write_nv_iter_noflush(struct iov_iter *from, loff_t off, size_t len)
-{
-    // NVTODO: evaluate the performance between this and nvpc_write_nv_iter()
-    /*
-     * In NVPC sometimes we don't care about the persistency of the data, like 
-     * when we are dealing with the lru. This function can be used to provide a
-     * higher speed...?
-     */
-    return _copy_from_iter(nvpc.dax_kaddr + off, len, from);
-}
-
-/* 
- * return number of bytes copied
- */
-static inline size_t _nvpc_read_nv_iter(struct iov_iter *to, loff_t off, size_t len)
-{
-    // dax_copy_to_iter(nvpc.dax_dev, 0, nvpc.dax_kaddr + off, len, to);
-    return _copy_mc_to_iter(nvpc.dax_kaddr + off, len, to);
-}
-
-/*
- * copy data from iov to nvpc
- * if flush == true, cache will be flushed after copy
- * return number of bytes copied
- */
-size_t nvpc_write_nv_iter(struct iov_iter *from, loff_t off, bool flush)
-{
-    size_t len;
-
-    len = iov_iter_count(from);
-    if (off + len > (nvpc.len_pg << PAGE_SHIFT))
-    {
-        len = (nvpc.len_pg << PAGE_SHIFT) - off;
-    }
-    
-    pr_debug("Libnvpc: prepared write len %zu\n", len);
-    if (flush)
-        len = _nvpc_write_nv_iter(from, off, len);
-    else
-        len = _nvpc_write_nv_iter_noflush(from, off, len);
-    pr_debug("Libnvpc: actual write len %zu\n", len);
-    
-    return len;
-}
-
-/* 
- * copy data from nvpc to iov 
- * return number of bytes copied
- */
-size_t nvpc_read_nv_iter(struct iov_iter *to, loff_t off)
-{
-    size_t len;
-
-    len = iov_iter_count(to);
-    if (off + len > (nvpc.len_pg << PAGE_SHIFT))
-    {
-        len = (nvpc.len_pg << PAGE_SHIFT) - off;
-    }
-    pr_debug("Libnvpc: prepared read len %zu\n", len);
-    len = _nvpc_read_nv_iter(to, off, len);
-    pr_debug("Libnvpc: actual read len %zu\n", len);
-
-    return len;
 }
 
 void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total)
@@ -352,6 +268,118 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long private)
 	};
 
 	return alloc_migration_target(page, (unsigned long)&mtc);
+}
+
+/* return the old val if success, return -1 if fail */
+static inline int atomic_fetch_inc_test_upperbound(atomic_t *val, int upper)
+{
+    int old, new;
+    old = atomic_read(&nr_promote_vec);
+
+    do
+    {
+        if (old >= upper)
+            return -1;
+        new = old+1;
+    } while (!atomic_try_cmpxchg(val, &old, new));
+
+    return old;
+}
+
+/* return number of pages in promote vec */
+int nvpc_promote_vec_put_page(struct page * page)
+{
+    int idx = atomic_fetch_inc_test_upperbound(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+    
+    if (idx < 0)
+        return -1;
+
+    promote_vec[idx] = page;
+    return idx+1;
+}
+
+// NVTODO: periodically do this
+/* clear the vec and the access count of its members */
+void nvpc_promote_vec_clear()
+{
+    int i;
+    int num = atomic_read(&nr_promote_vec);
+    /* refuse other processes to update the promote vec */
+    atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+
+    for (i = 0; i < num; i++)
+    {
+        page_nvpc_lru_cnt_set(promote_vec[i], 0);
+    }
+    atomic_set(&nr_promote_vec, 0);
+}
+
+/* caller must ensure that this function can manipulate NVPC lru!!! */
+int nvpc_promote_vec_isolate(struct list_head *page_list)
+{
+    int i;
+    int num = atomic_read(&nr_promote_vec);
+    /* refuse other processes to update the promote vec */
+    atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+
+    for (i = 0; i < num; i++)
+    {
+        list_move(&promote_vec[i]->lru, page_list);
+    }
+    
+    atomic_set(&nr_promote_vec, 0);
+    return num;
+}
+
+int nvpc_promote_vec_nr()
+{
+    return atomic_read(&nr_promote_vec);
+}
+
+// bool nvpc_should_promote()
+// {
+//     /*
+//      * 1) if nvpc promote vec is full, promote
+//      * 
+//      * 2) if nvpc promote vec page number is less than
+//      *    dram unreached page number, promote
+//      */
+//     int n_pv_num = atomic_read(&nr_promote_vec);
+//     int d_ur_num;   // NVTODO: track this /* use inactive list !PageReferenced page num */
+
+//     return n_pv_num == PROMOTE_VEC_SZ || n_pv_num < d_ur_num;
+// }
+
+void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat)
+{
+    // wakeup_kswapd();
+
+    /* 
+     * wake up kswapd on node 0 
+     * 
+     * pgdat->kswapd_highest_zoneidx is set to ZONE_NORMAL;
+     * pgdat->kswapd_order is set to the order of pages 
+     * prepared to promote;
+     * when kswapd runs, it will shrink dram lru lists to 
+     * prepare #order pages on ZONE_NORMAL for promotion
+     */
+    enum zone_type curr_idx;
+    // pg_data_t *pgdat = NODE_DATA(0);
+
+    if (!waitqueue_active(&pgdat->kswapd_wait))
+		return;
+
+    curr_idx = READ_ONCE(pgdat->kswapd_highest_zoneidx);
+
+	if (curr_idx == MAX_NR_ZONES || curr_idx < ZONE_NORMAL)
+		WRITE_ONCE(pgdat->kswapd_highest_zoneidx, ZONE_NORMAL);
+
+	if (READ_ONCE(pgdat->kswapd_order) < promote_order)
+		WRITE_ONCE(pgdat->kswapd_order, promote_order);
+
+    // trace_mm_vmscan_wakeup_kswapd(0, ZONE_NORMAL, 0,
+	// 			      0);
+	// wake_up_interruptible(&pgdat->kswapd_wait);
 }
 
 

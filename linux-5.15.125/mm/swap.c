@@ -531,15 +531,10 @@ void mark_page_accessed(struct page *page)
 	// u8 nvpc_lru_cnt;
 	page = compound_head(page);
 
-	if (!PageReferenced(page)) {
-		SetPageReferenced(page);
-	} else if (PageUnevictable(page)) {
-		/*
-		 * Unevictable pages are on the "LRU_UNEVICTABLE" list. But,
-		 * this list is never rotated or maintained, so marking an
-		 * evictable page accessed has no effect.
-		 */
-	} else if(PageNVPC(page)) {
+#ifdef CONFIG_NVPC
+	if(PageNVPC(page)) {
+		u8 nvpc_lru_cnt;
+		int nr_promote;
 		/* 
 		 * If this is an nvpc managed file-backed lru page, add the 
 		 * access counter. The page will be promoted asynchronously 
@@ -548,8 +543,26 @@ void mark_page_accessed(struct page *page)
 		 * always less than NVPC_LRU_LEVEL_MAX. PageReferenced should
 		 * also be cleared in kswapd.
 		 */
-		page_nvpc_lru_cnt_inc(page);
+		SetPageReferenced(page);
+		nvpc_lru_cnt = page_nvpc_lru_cnt_inc(page);
+		if (nvpc.promote_level && nvpc_lru_cnt >= nvpc.promote_level)
+		{
+			nr_promote = nvpc_promote_vec_put_page(page);
+			if (nr_promote >= NVPC_PROMOTE_VEC_SZ)
+				wakeup_nvpc_promote();
+		}
 		
+	}
+	else
+#endif
+	if (!PageReferenced(page)) {
+		SetPageReferenced(page);
+	} else if (PageUnevictable(page)) {
+		/*
+		 * Unevictable pages are on the "LRU_UNEVICTABLE" list. But,
+		 * this list is never rotated or maintained, so marking an
+		 * evictable page accessed has no effect.
+		 */
 	} else if (!PageActive(page)) {
 		/*
 		 * If the page is on the LRU, queue it for activation via
