@@ -1,3 +1,4 @@
 ubuntu-*.iso
 *.img
 nvdimm*
+mnt/*
