@@ -603,8 +603,9 @@ static bool can_demote(int nid, struct scan_control *sc)
 
 static bool nvpc_can_promote(int nid, struct scan_control *sc) 
 {
-	if (!numa_demotion_enabled)
-		return false;
+	/* NVPC is independent to NUMA subsystem, switch can not be used here */
+	// if (!numa_demotion_enabled)
+	// 	return false;
 	if (sc) {
 		if (sc->nvpc_no_promotion)
 			return false;
@@ -1541,6 +1542,7 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 	do_demote_pass = can_demote(pgdat->node_id, sc);
 
 #ifdef CONFIG_NVPC
+	/* judge only by sc->nvpc_no_promotion */
 	do_promote_pass = nvpc_can_promote(pgdat->node_id, sc);
 	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
 
@@ -3201,6 +3203,7 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 					break;
 
 				case NVPC_OP_DRAM_SHRINK:
+				case NVPC_OP_NVPC_DEMOTE:
 					while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
 						nr[LRU_INACTIVE_FILE]) {
 						unsigned long nr_anon, nr_file, percentage;
@@ -3272,10 +3275,8 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 					}
 					break;
 
-				case NVPC_OP_NVPC_DEMOTE:
 				case NVPC_OP_NVPC_PROMOTE:
 				case NVPC_OP_NVPC_WRITEBACK:
-					// nr_reclaimed += shrink_nvpc_list(nr_to_scan, );
 					while (nr[LRU_NVPC_FILE]) {
 						for_each_nvpc_lru(lru) {
 							if (nr[lru]) {
@@ -4199,7 +4200,6 @@ unsigned long try_to_free_pages(struct zonelist *zonelist, int order,
 		.may_writepage = !laptop_mode,
 		.may_unmap = 1,
 		.may_swap = 1,
-		.nvpc_nr_to_reclaim = SWAP_CLUSTER_MAX,
 	};
 
 	/*
@@ -5157,7 +5157,6 @@ static int __node_reclaim(struct pglist_data *pgdat, gfp_t gfp_mask, unsigned in
 		.may_unmap = !!(node_reclaim_mode & RECLAIM_UNMAP),
 		.may_swap = 1,
 		.reclaim_idx = gfp_zone(gfp_mask),
-		.nvpc_nr_to_reclaim = 0, // NVTODO: TODO!!!
 	};
 	unsigned long pflags;
 
