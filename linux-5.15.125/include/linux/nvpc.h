@@ -61,6 +61,7 @@ int nvpc_promote_vec_isolate(struct list_head *page_list);
 // bool nvpc_should_promote(void);
 int nvpc_promote_vec_nr(void);
 void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat);
+void nvpc_wakeup_nvpc_evict(void);
 
 
 // NVTODO: for debug, remove these

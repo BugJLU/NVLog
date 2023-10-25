@@ -101,6 +101,8 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     nvpc.absorb_syn = opts->absorb_syn;
 
     nvpc.nvpc_free_pgnum = nvpc.nvpc_sz = opts->nvpc_sz;
+    nvpc.warning_pgnum = max(nvpc.nvpc_sz / 100, (size_t)1) * NVPC_EVICT_WATERMARK;
+    nvpc.evict_order   = order_base_2(max(nvpc.nvpc_sz / 100, (size_t)1) * NVPC_EVICT_PERCENT);
 
     /* init promote vec */
     atomic_set(&nr_promote_vec, 0);
@@ -148,6 +150,8 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
     struct page *newpage;
     struct list_head *list;
     spinlock_t *lock;
+    bool should_evict = false;
+
     list = &nvpc.nvpc_free_list;
     lock = &nvpc.nvpc_free_lock;
     // pr_info("[NVPC TEST]: nvpc_get_new_page @cpu%d\n", smp_processor_id());
@@ -155,11 +159,14 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
 
     if (list_empty(list))
     {
+        should_evict = true;
         newpage = NULL;
         goto out;
     }
 
     nvpc.nvpc_free_pgnum--;
+    should_evict = nvpc.nvpc_free_pgnum <= nvpc.warning_pgnum;
+
     newpage = list_last_entry(list, struct page, lru);
     list_del(&newpage->lru);
     page_ref_inc(newpage);
@@ -169,6 +176,9 @@ struct page *nvpc_get_new_page(struct page *page, unsigned long private)
 
 out:
     spin_unlock_irqrestore(lock, irq_flags);
+
+    if (should_evict)
+        nvpc_wakeup_nvpc_evict();
 
     return newpage;
 }
@@ -380,6 +390,21 @@ void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat)
     // trace_mm_vmscan_wakeup_kswapd(0, ZONE_NORMAL, 0,
 	// 			      0);
 	// wake_up_interruptible(&pgdat->kswapd_wait);
+}
+
+void nvpc_wakeup_nvpc_evict()
+{
+    // NVTODO: wait for knvpcd to finish
+    // pg_data_t *pgdat = NODE_DATA(0);
+    // enum zone_type curr_idx;
+
+    // if (!waitqueue_active(&pgdat->knvpcd_wait))
+	// 	return;
+
+	// if (READ_ONCE(pgdat->knvpcd_order) < nvpc.evict_order)
+	// 	WRITE_ONCE(pgdat->knvpcd_order, nvpc.evict_order);
+    
+    // wake_up_interruptible(&pgdat->knvpcd_wait);
 }
 
 

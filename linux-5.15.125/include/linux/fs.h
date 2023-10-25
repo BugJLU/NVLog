@@ -477,8 +477,6 @@ struct address_space {
 	spinlock_t		private_lock;
 	struct list_head	private_list;
 	void			*private_data;
-	/* NVPC: NVM part page cache*/
-	// struct xarray		i_nv_pages;
 } __attribute__((aligned(sizeof(long)))) __randomize_layout;
 	/*
 	 * On most architectures that alignment is already the case; but
