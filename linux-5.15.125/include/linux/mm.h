@@ -1748,6 +1748,12 @@ static inline bool PageNVPC(struct page *page)
     return page_address(page) >= NVPC_ADDR_LOW && page_address(page) < NVPC_ADDR_HIGH;
 }
 
+/* the super block of this page's inode is enabled to use nvpc */
+static inline bool PageSBNVPC(struct page *page)
+{
+	return page->mapping->host->i_sb->s_nvpc_flags & SB_NVPC_ON;
+}
+
 static inline bool nvpc_enabled(void)
 {
     return nvpc.enabled;

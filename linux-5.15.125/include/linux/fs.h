@@ -1422,6 +1422,10 @@ extern int send_sigurg(struct fown_struct *fown);
 #define SB_ACTIVE       BIT(30)
 #define SB_NOUSER       BIT(31)
 
+#ifdef CONFIG_NVPC
+#define SB_NVPC_ON		BIT(0) 	/* this fs is enabled to use nvpc */
+#endif
+
 /* These flags relate to encoding and casefolding */
 #define SB_ENC_STRICT_MODE_FL	(1 << 0)
 
@@ -1482,6 +1486,9 @@ struct super_block {
 	const struct export_operations *s_export_op;
 	unsigned long		s_flags;
 	unsigned long		s_iflags;	/* internal SB_I_* flags */
+#ifdef CONFIG_NVPC
+	unsigned long 		s_nvpc_flags;
+#endif
 	unsigned long		s_magic;
 	struct dentry		*s_root;
 	struct rw_semaphore	s_umount;
@@ -2382,6 +2389,23 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
 #define I_CREATING		(1 << 15)
 #define I_DONTCACHE		(1 << 16)
 #define I_SYNC_QUEUED		(1 << 17)
+
+/*
+ * Inode states for NVPC 
+ *
+ * I_NVPC		The inode's backend persistent device is NVPC.
+ * 
+ * I_NVPC_DIRTY		The inode is dirty in NVPC.
+ * 
+ * NOTE: If I_NVPC is marked, all dirty data / metadata write back should 
+ * be directed to NVPC. I_NVPC_DIRTY represents that the inode's data / 
+ * metadata in NVPC is not consistent with the underlying device and should
+ * be flushed in sometime. I_NVPC_DIRTY is set only after there is a sync 
+ * on the inode. Once I_NVPC_DIRTY is set, no more data should be written 
+ * back to the underlying device until the flag is cleared.
+ */
+#define I_NVPC			(1 << 18)
+#define I_NVPC_DIRTY	(1 << 19)
 
 #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
 #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)

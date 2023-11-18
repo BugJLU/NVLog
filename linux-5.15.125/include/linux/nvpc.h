@@ -48,6 +48,7 @@ void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);
  * callee hold lru_free_lock
  */
 struct page *nvpc_get_new_page(struct page *page, unsigned long private);
+size_t nvpc_get_n_new_page(struct list_head *pages, size_t n);
 void nvpc_free_page(struct page *page, unsigned long private);
 void nvpc_free_lru_page(struct page *page);
 void nvpc_free_pages(struct list_head *list);

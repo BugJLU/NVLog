@@ -42,6 +42,26 @@ static struct page *promote_vec[NVPC_PROMOTE_VEC_SZ];
 static atomic_t nr_promote_vec;
 int promote_order = order_base_2(NVPC_PROMOTE_VEC_SZ);
 
+#ifdef NVPC_PERCPU_FREELIST
+DEFINE_PER_CPU(struct list_head, nvpc_pcpu_free_list);
+DEFINE_PER_CPU(size_t, nvpc_pcpu_free_cnt);
+/* 
+ * the sum of all cpus' pcpu free sz = 1/3 total free sz 
+ * so nvpc_pcpu_free_sz = 1/(3*ncpu) total free sz
+ * 
+ * pcpu free list will acquire free pgs from global free list 
+ * when its cnt decreases to 1/3 nvpc_pcpu_free_sz
+ */
+static size_t nvpc_pcpu_free_sz;
+
+struct list_head *get_nvpc_pcpu_free_list(int cpuid)
+{
+    return &per_cpu(nvpc_pcpu_free_list, cpuid);
+}
+#endif
+
+static size_t __nvpc_get_n_new_page(struct list_head *pages, size_t n);
+
 /*
  * l: the list
  * begin_pg: the begining page index, relative in the dax device
@@ -75,6 +95,8 @@ int __ref init_nvpc(struct nvpc_opts *opts)
 {
     pfn_t pfn;
     unsigned long irq_flags;
+    int cpu_i;
+
     support_clwb = static_cpu_has(X86_FEATURE_CLWB);
 
     rwlock_init(&nvpc.meta_lock);
@@ -119,6 +141,19 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     __init_free_list(&nvpc.nvpc_free_list, 0, nvpc.nvpc_sz);
     spin_unlock_irqrestore(&nvpc.nvpc_free_lock, irq_flags);
 
+#ifdef NVPC_PERCPU_FREELIST
+    nvpc_pcpu_free_sz = nvpc.nvpc_sz / 3 / nr_cpu_ids;
+    
+    for (cpu_i = 0; cpu_i < nr_cpu_ids; cpu_i++)
+    {
+        INIT_LIST_HEAD(&per_cpu(nvpc_pcpu_free_list, cpu_i));
+        // per_cpu(nvpc_pcpu_free_cnt, cpu_i) = \
+        //     __nvpc_get_n_new_page(&per_cpu(nvpc_pcpu_free_list, cpu_i), nvpc_pcpu_free_sz);
+        /* lazy */
+        per_cpu(nvpc_pcpu_free_cnt, cpu_i) = 0;
+    }
+#endif
+
     nvpc.enabled = true;
     pr_info("NVPC init: NVPC started with %zu pages.\n", nvpc.nvpc_sz);
 
@@ -133,7 +168,14 @@ void fini_nvpc(void)
 
 void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total)
 {
+    int i;
     *free = nvpc.nvpc_free_pgnum;
+#ifdef NVPC_PERCPU_FREELIST
+    for (i = 0; i < nr_cpu_ids; i++)
+    {
+        *free += per_cpu(nvpc_pcpu_free_cnt, i);
+    }
+#endif
     *syn_usage = nvpc.syn_used_pgnum;
     *total = nvpc.nvpc_sz;
 }
@@ -143,7 +185,7 @@ void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total)
  * page reference count is set to 1
  * 
  */
-struct page *nvpc_get_new_page(struct page *page, unsigned long private)
+struct page *__nvpc_get_new_page(struct page *page, unsigned long private)
 {
     /* we don't care about the old page, caller ensures that it's not a huge page */
     unsigned long irq_flags;
@@ -183,8 +225,110 @@ out:
     return newpage;
 }
 
+#ifdef NVPC_PERCPU_FREELIST
+struct page *__nvpc_pcpu_get_new_page(struct page *page, unsigned long private)
+{
+    struct page *newpage;
+    struct list_head *list;
+    bool should_get = false;
+    size_t cnt;
+
+    list = &get_cpu_var(nvpc_pcpu_free_list);
+    // pr_info("[NVPC TEST]: nvpc_get_new_page @cpu%d\n", smp_processor_id());
+
+    if (list_empty(list))
+    {
+        /* try get some page */
+        this_cpu_add(nvpc_pcpu_free_cnt, __nvpc_get_n_new_page(list, nvpc_pcpu_free_sz));
+        if (list_empty(list))
+        {
+            newpage = NULL;
+            goto out;
+        }
+    }
+
+    cnt = this_cpu_dec_return(nvpc_pcpu_free_cnt);
+    should_get = cnt < nvpc_pcpu_free_sz / 3;
+
+    newpage = list_last_entry(list, struct page, lru);
+    list_del(&newpage->lru);
+    page_ref_inc(newpage);
+    page_nvpc_lru_cnt_set(newpage, 0);
+    ClearPageReserved(newpage);
+    // pr_info("[NVPC TEST]: nvpc_get_new_page new=%p page_reserved=%d @cpu%d\n", newpage, PageReserved(newpage), smp_processor_id());
+
+out:
+    if (should_get)
+        this_cpu_add(nvpc_pcpu_free_cnt, __nvpc_get_n_new_page(list, nvpc_pcpu_free_sz - cnt));
+    
+    put_cpu_var(nvpc_pcpu_free_list);
+    return newpage;
+}
+#endif
+
+struct page *nvpc_get_new_page(struct page *page, unsigned long private)
+{
+#ifndef NVPC_PERCPU_FREELIST
+    return __nvpc_get_new_page(page, private);
+#else
+    return __nvpc_pcpu_get_new_page(page, private);
+#endif
+}
+
+/* return the number of pages taken */
+static size_t __nvpc_get_n_new_page(struct list_head *pages, size_t n)
+{
+    unsigned long irq_flags;
+    struct page *newpage;
+    struct list_head *list;
+    spinlock_t *lock;
+    bool should_evict = false;
+    int nr_taken;
+
+    list = &nvpc.nvpc_free_list;
+    lock = &nvpc.nvpc_free_lock;
+    // pr_info("[NVPC TEST]: nvpc_get_new_page @cpu%d\n", smp_processor_id());
+    spin_lock_irqsave(lock, irq_flags);
+
+    for (nr_taken = 0; nr_taken < n; nr_taken++)
+    {
+        if (list_empty(list))
+        {
+            should_evict = true;
+            goto out;
+        }
+
+        newpage = list_last_entry(list, struct page, lru);
+        list_move(&newpage->lru, pages);
+    }
+    
+out:
+    should_evict = nvpc.nvpc_free_pgnum <= nvpc.warning_pgnum;
+    nvpc.nvpc_free_pgnum-=nr_taken;
+    spin_unlock_irqrestore(lock, irq_flags);
+
+    if (should_evict)
+        nvpc_wakeup_nvpc_evict();
+
+    return nr_taken;
+}
+
+size_t nvpc_get_n_new_page(struct list_head *pages, size_t n)
+{
+    size_t cnt =  __nvpc_get_n_new_page(pages, n);
+    struct page *page;
+
+    list_for_each_entry(page, pages, lru) {
+        page_ref_inc(page);
+        page_nvpc_lru_cnt_set(page, 0);
+        ClearPageReserved(page);
+    }
+    
+    return cnt;
+}
+
 // NVTODO: we can apply per_cpu_pages (pcp) bulk free here
-void nvpc_free_page(struct page *page, unsigned long private)
+void __nvpc_free_page(struct page *page, unsigned long private)
 {
     unsigned long irq_flags;
     struct list_head *list;
@@ -211,6 +355,68 @@ void nvpc_free_page(struct page *page, unsigned long private)
     // pr_info("[NVPC TEST]: nvpc_free_page nvpc_free_pgnum=%zu @cpu%d\n", nvpc.nvpc_free_pgnum, smp_processor_id());
 out:
     spin_unlock_irqrestore(lock, irq_flags);
+}
+
+#ifdef NVPC_PERCPU_FREELIST
+void __nvpc_pcpu_free_page(struct page *page, unsigned long private)
+{
+    struct list_head *list;
+    bool should_return = false;
+    size_t cnt;
+
+    list = &get_cpu_var(nvpc_pcpu_free_list);
+    
+    
+    // NVTODO: do some clean up here
+
+    if (TestSetPageReserved(page)) {
+        /* if page is already returned (reserved is set), just quit */
+        goto out;
+    }
+
+    /* reset page reference count to 0 */
+    init_page_count(page);
+    page_ref_dec(page);
+
+    cnt = this_cpu_inc_return(nvpc_pcpu_free_cnt);
+    should_return = cnt > nvpc_pcpu_free_sz / 3 + nvpc_pcpu_free_sz;
+
+    list_add(&page->lru, list);
+    // pr_info("[NVPC TEST]: nvpc_free_page nvpc_free_pgnum=%zu @cpu%d\n", nvpc.nvpc_free_pgnum, smp_processor_id());
+out:
+    if (should_return)
+    {
+        int nr_taken;
+        struct page *rpage;
+        spin_lock(&nvpc.nvpc_free_lock);
+
+        for (nr_taken = 0; nr_taken < cnt-nvpc_pcpu_free_sz; nr_taken++)
+        {
+            if (list_empty(list))
+                break;
+
+            rpage = list_last_entry(list, struct page, lru);
+            list_move(&rpage->lru, &nvpc.nvpc_free_list);
+        }
+        nvpc.nvpc_free_pgnum+=nr_taken;
+
+        spin_unlock(&nvpc.nvpc_free_lock);
+        
+        this_cpu_sub(nvpc_pcpu_free_cnt, nr_taken);
+    }
+    
+    put_cpu_var(nvpc_pcpu_free_list);
+}
+#endif
+
+void nvpc_free_page(struct page *page, unsigned long private)
+{
+    WARN_ON(!PageNVPC(page));
+#ifndef NVPC_PERCPU_FREELIST
+    return __nvpc_free_page(page, private);
+#else
+    return __nvpc_pcpu_free_page(page, private);
+#endif
 }
 
 // NVXXX: big problem here... deprecated

@@ -1547,23 +1547,23 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
 
 	// NVTODO: different strategies for selection
-	switch (sc->nvpc_current_op) {
-		case NVPC_OP_NVPC_DEMOTE:
-			do_promote_pass = false;
-			break;
+	// switch (sc->nvpc_current_op) {
+	// 	case NVPC_OP_NVPC_DEMOTE:
+	// 		do_promote_pass = false;
+	// 		break;
 
-		case NVPC_OP_NVPC_PROMOTE:
-			do_demote_pass = false;
-			break;
+	// 	case NVPC_OP_NVPC_PROMOTE:
+	// 		do_demote_pass = false;
+	// 		break;
 
-		case NVPC_OP_NVPC_WRITEBACK:
-			do_promote_pass = false;
-			do_demote_pass = false;
-			break;
+	// 	case NVPC_OP_NVPC_WRITEBACK:
+	// 		do_promote_pass = false;
+	// 		do_demote_pass = false;
+	// 		break;
 
-		default:
-			do_nvpc_pass = false;
-	}
+	// 	default:
+	// 		do_nvpc_pass = false;
+	// }
 
 #endif /* CONFIG_NVPC */
 
@@ -1734,6 +1734,7 @@ retry:
 					/* promote the page */
 					list_add(&page->lru, &nvpc_promote_pages);
 					unlock_page(page);
+					// pr_info("[NVPC TEST] nvpc promote\n");
 					continue;
 					// NVTODO: deal with workingset?
 				}
@@ -1748,12 +1749,13 @@ retry:
 			 * in a reclaim progress, it is ok to move pages to nvpc 
 			 * because the NVM is now isolated from the whole memory.
 			 */
-			else if (do_demote_pass) {
+			else if (PageSBNVPC(page)) {
 				list_add(&page->lru, &nvpc_demote_pages);
 				unlock_page(page);
 				continue;
 			}
-			
+			// pr_info("[NVPC TEST] vmscan: sb: %p sb->s_nvpc_flags: %lx\n", 
+			// 		page->mapping->host->i_sb, PageSBNVPC(page));
 		}
 
 		// /*
@@ -2077,7 +2079,7 @@ keep:
 	}
 	
 	/* Demote: Migrate DRAM pages to NVPC lru */
-	if (do_demote_pass)	{
+	if (do_nvpc_pass)	{
 		nr_reclaimed += demote_pages_to_nvpc(&nvpc_demote_pages);
 		if (!list_empty(&nvpc_demote_pages))
 		{

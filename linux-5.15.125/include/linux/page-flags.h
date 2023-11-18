@@ -141,6 +141,10 @@ enum pageflags {
 #ifdef CONFIG_KASAN_HW_TAGS
 	PG_skip_kasan_poison,
 #endif
+#ifdef CONFIG_NVPC
+	PG_NVPC_persistent, 		/* nvpc page is in persistent mode */
+	PG_NVPC_has_persistent, 	/* dram page has an nvpc copy that is in persistent mode */
+#endif
 	__NR_PAGEFLAGS,
 
 	/* Filesystems */
@@ -462,6 +466,13 @@ PAGEFLAG(Idle, idle, PF_ANY)
 PAGEFLAG(SkipKASanPoison, skip_kasan_poison, PF_HEAD)
 #else
 PAGEFLAG_FALSE(SkipKASanPoison)
+#endif
+
+#ifdef CONFIG_NVPC
+PAGEFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
+PAGEFLAG(NVPCHasPersistent, NVPC_has_persistent, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCHasPersistent, NVPC_has_persistent, PF_NO_COMPOUND)
 #endif
 
 /*

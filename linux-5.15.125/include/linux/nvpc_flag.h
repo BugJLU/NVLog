@@ -17,4 +17,6 @@
 #define NVPC_EVICT_WATERMARK    2
 #define NVPC_EVICT_PERCENT      2
 
+#define NVPC_PERCPU_FREELIST
+
 #endif
