@@ -4667,8 +4667,8 @@ retry:
 static void wake_all_kswapds(unsigned int order, gfp_t gfp_mask,
 			     const struct alloc_context *ac)
 {
-	struct zoneref *z;
 	struct zone *zone;
+	struct zoneref *z;
 	pg_data_t *last_pgdat = NULL;
 	enum zone_type highest_zoneidx = ac->highest_zoneidx;
 

@@ -549,9 +549,8 @@ void mark_page_accessed(struct page *page)
 		{
 			nr_promote = nvpc_promote_vec_put_page(page);
 			if (nr_promote >= NVPC_PROMOTE_VEC_SZ)
-				wakeup_nvpc_promote();
+				wakeup_knvpcd(page_zone(page), 0, 0, 1, 0, 0); // NVTODO: wake up knvpcd for promotion
 		}
-		
 	}
 	else
 #endif

@@ -128,21 +128,9 @@ struct scan_control {
 	unsigned int no_demotion:1;
 
 #ifdef CONFIG_NVPC
-	/* NVPC current operation number, 0 - 7 */
-	u32 nvpc_current_op:3;
-
-	/* NVPC strategy switch */ 
-	u32 nvpc_strategy;
-
-	/* NVPC reclaim params */
-	unsigned long nvpc_nr_reclaimed;
-	unsigned long nvpc_nr_scanned;
-	unsigned long nvpc_nr_to_reclaim;
-
-	/* NVPC promotion switch */
-	bool nvpc_no_promotion;
-	 
-#endif /* CONFIG_NVPC */
+	/* determine whether it should promote NVPC pages only */
+	unsigned int nvpc_promote:1;
+#endif
 
 	/* Allocation order */
 	s8 order;
@@ -175,49 +163,6 @@ struct scan_control {
 	/* for recording the reclaimed slab by now */
 	struct reclaim_state reclaim_state;
 };
-
-#ifdef CONFIG_NVPC
-/**
- * NVPC strategy operations
- * 
- * If nvpc_strategy is 0x00000000, the default strategy will 
- * be used (normal kswapd), only if nvpc_strategy is not 
- * 0x00000000, the following strategy will be used/switched.
- * 
- * nvpc_strategy:
- * 	operation format: 0 x 0    0    0    0    0	   0    0    0
- * 	operation sequence:   0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
- * 
- * for each operation:
- *      0x0: no operation
- * 		0x1: reserved
- * 		0x2: DRAM page shrink & demotion (no data moving || DRAM -> PMEM/NVPC)
- * 		0x3: reserved
- * 		0x4: reserved
- * 		0x5: reserved
- * 		0x6: NVPC page demotion (PMEM/NVPC -> Disk)
- * 		0x7: NVPC page promotion (PMEM/NVPC -> DRAM)
- * 		0x8: NVPC page writeback (no data moving)
- * 		0x9 ... 0xF: TBD.
- */
-enum nvpc_strategy_op {
-	NVPC_OP_NONE = 0x0,
-	NVPC_OP_DRAM_SHRINK = 0x2,
-	NVPC_OP_NVPC_DEMOTE = 0x6,
-	NVPC_OP_NVPC_PROMOTE = 0x7,
-	NVPC_OP_NVPC_WRITEBACK = 0x8,
-};
-
-static inline void nvpc_set_strategy(struct scan_control *psc, int n, enum nvpc_strategy_op op)
-{
-	(psc->nvpc_strategy) = ((psc->nvpc_strategy) & ~(0xF << (n * 4))) | ((((unsigned int)(op)) & 0xF) << (n * 4));
-}
-
-static inline enum nvpc_strategy_op nvpc_get_strategy(struct scan_control *psc, int n)
-{
-	return (enum nvpc_strategy_op)(((psc->nvpc_strategy) >> (n * 4)) & 0xF);
-}
-#endif
 
 #ifdef ARCH_HAS_PREFETCHW
 #define prefetchw_prev_lru_page(_page, _base, _field)			\
@@ -601,21 +546,6 @@ static bool can_demote(int nid, struct scan_control *sc)
 	return true;
 }
 
-static bool nvpc_can_promote(int nid, struct scan_control *sc) 
-{
-	/* NVPC is independent to NUMA subsystem, switch can not be used here */
-	// if (!numa_demotion_enabled)
-	// 	return false;
-	if (sc) {
-		if (sc->nvpc_no_promotion)
-			return false;
-		/* It is pointless to do demotion in memcg reclaim */
-		/* NVPC has no relation to memcg reclaim */
-		// if (cgroup_reclaim(sc))
-		// 	return false;
-	}
-	return true;
-}
 
 static inline bool can_reclaim_anon_pages(struct mem_cgroup *memcg,
 					  int nid,
@@ -1474,44 +1404,12 @@ out:
 	return nr_succeeded;
 }
 
-static unsigned int promote_pages_from_nvpc(struct list_head *nvpc_pages)
-{
-	unsigned int nr_succeeded;
-	struct nvpc *nvpc;
-	int err;
-
-	nvpc = get_nvpc();
-
-	if (list_empty(nvpc_pages))
-		return 0;
-
-	// read_lock_irq(&nvpc->meta_lock);
-	if (!nvpc->enabled && !nvpc->extend_lru)
-	{
-		nr_succeeded = 0;
-		// read_unlock_irq(&nvpc->meta_lock);
-		goto out;
-	}
-	
-	err = migrate_pages(nvpc_pages, nvpc_alloc_promote_page, NULL, 0, 
-						MIGRATE_ASYNC, MR_NVPC_LRU_PROMOTE, &nr_succeeded);
-	// read_unlock_irq(&nvpc->meta_lock);
-
-	if (current_is_kswapd())
-		__count_vm_events(PGNVPC_PROMOTE_KSWAPD, nr_succeeded);
-	else
-		__count_vm_events(PGNVPC_PROMOTE_DIRECT, nr_succeeded);
-
-	// pr_info("[NVPC DEBUG].DEMOTE: %d pages are demoted to NVPC lru.\n", nr_succeeded);
-out:
-	return nr_succeeded;
-}
 
 /*
  * shrink_page_list() returns the number of reclaimed pages
  */
 // NVTODO: check this function carefully
-static unsigned int shrink_page_list(struct list_head *page_list,
+unsigned int shrink_page_list(struct list_head *page_list,
 				     struct pglist_data *pgdat,
 				     struct scan_control *sc,
 				     struct reclaim_stat *stat,
@@ -1520,11 +1418,9 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 	LIST_HEAD(ret_pages);
 	LIST_HEAD(free_pages);
 	LIST_HEAD(demote_pages);
-
 #ifdef CONFIG_NVPC
-	LIST_HEAD(free_nvpc_pages);
 	LIST_HEAD(nvpc_demote_pages);
-	LIST_HEAD(nvpc_promote_pages);
+	LIST_HEAD(free_nvpc_pages);
 #endif /* CONFIG_NVPC */
 
 	unsigned int nr_reclaimed = 0;
@@ -1532,40 +1428,14 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 	bool do_demote_pass;
 
 #ifdef CONFIG_NVPC
-	bool do_promote_pass;
 	bool do_nvpc_pass;
 	struct nvpc *nvpc = get_nvpc();
+	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
 #endif
 
 	memset(stat, 0, sizeof(*stat));
 	cond_resched();
 	do_demote_pass = can_demote(pgdat->node_id, sc);
-
-#ifdef CONFIG_NVPC
-	/* judge only by sc->nvpc_no_promotion */
-	do_promote_pass = nvpc_can_promote(pgdat->node_id, sc);
-	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
-
-	// NVTODO: different strategies for selection
-	switch (sc->nvpc_current_op) {
-		case NVPC_OP_NVPC_DEMOTE:
-			do_promote_pass = false;
-			break;
-
-		case NVPC_OP_NVPC_PROMOTE:
-			do_demote_pass = false;
-			break;
-
-		case NVPC_OP_NVPC_WRITEBACK:
-			do_promote_pass = false;
-			do_demote_pass = false;
-			break;
-
-		default:
-			do_nvpc_pass = false;
-	}
-
-#endif /* CONFIG_NVPC */
 
 retry:
 	while (!list_empty(page_list)) {
@@ -1717,70 +1587,19 @@ retry:
 		}
 
 #ifdef CONFIG_NVPC
-
+		// demote
 		if (do_nvpc_pass &&
+		    do_demote_pass &&
 			page_is_file_lru(page) && // this line is redundant
 			!PageAnon(page) && !PageSwapBacked(page) &&	// only move file-backed pages
 			!PageTransHuge(page) && // huge pages not support yet
 			!PageCompound(page) &&
 			!page_mapped(page))	// page should not be mmapped, keep it in DRAM
 		{
-			/* NVPC promotion */
-			if (PageNVPC(page) && do_promote_pass) {
-				u8 nvpc_lru_cnt = page_nvpc_lru_cnt(page);
-				if (get_nvpc()->promote_level != 0 && 
-					nvpc_lru_cnt >= get_nvpc()->promote_level) {
-					
-					/* promote the page */
-					list_add(&page->lru, &nvpc_promote_pages);
-					unlock_page(page);
-					continue;
-					// NVTODO: deal with workingset?
-				}
-			}
-			/*
-			 * NVPC demotion:
-			 *
-			 * If nvpc is enabled, try to migrate pages to nvpc first.
-			 * NVPC only accept file-backed pages, and the behavior
-			 * of migrating to nvpc is basically the same as demoting.
-			 * However, even if no_demotion is set, or to say, we are 
-			 * in a reclaim progress, it is ok to move pages to nvpc 
-			 * because the NVM is now isolated from the whole memory.
-			 */
-			else if (do_demote_pass) {
-				list_add(&page->lru, &nvpc_demote_pages);
-				unlock_page(page);
-				continue;
-			}
-			
+			list_add(&page->lru, &nvpc_demote_pages);
+			unlock_page(page);
+			continue;
 		}
-
-		// /*
-		//  * NVPC demotion: (Deprecated)
-		//  *
-		//  * If nvpc is enabled, try to migrate pages to nvpc first.
-		//  * NVPC only accept file-backed pages, and the behavior
-		//  * of migrating to nvpc is basically the same as demoting.
-		//  * However, even if no_demotion is set, or to say, we are 
-		//  * in a reclaim progress, it is ok to move pages to nvpc 
-		//  * because the NVM is now isolated from the whole memory.
-		//  */
-		// if (do_nvpc_pass)
-		// {
-		// 	// NVTODO: add more logic here to judge if migration is good
-
-		// 	if (page_is_file_lru(page) && // this line is redundant
-		// 		!PageAnon(page) && !PageSwapBacked(page) &&	// only move file-backed pages
-		// 		!PageTransHuge(page) && // huge pages not support yet
-		// 		!PageCompound(page) &&
-		// 		!page_mapped(page))	// page should not be mmapped, keep it in DRAM
-		// 	{
-		// 		list_add(&page->lru, &nvpc_pages);
-		// 		unlock_page(page);
-		// 		continue;
-		// 	}
-		// }
 #endif
 
 		/*
@@ -2065,24 +1884,13 @@ keep:
 	/* 'page_list' is always empty here */
 
 #ifdef CONFIG_NVPC
-	/* Promote: Migrate NVPC pages to DRAM lru */
-	if (do_promote_pass) {
-		nr_reclaimed += promote_pages_from_nvpc(&nvpc_promote_pages);
-		if (!list_empty(&nvpc_promote_pages))
-		{
-			list_splice_init(&nvpc_promote_pages, page_list);
-			do_nvpc_pass = false;
-			goto retry;
-		}
-	}
-	
 	/* Demote: Migrate DRAM pages to NVPC lru */
 	if (do_demote_pass)	{
 		nr_reclaimed += demote_pages_to_nvpc(&nvpc_demote_pages);
 		if (!list_empty(&nvpc_demote_pages))
 		{
 			list_splice_init(&nvpc_demote_pages, page_list);
-			do_nvpc_pass = false;
+			// do_nvpc_pass = false;
 			goto retry;
 		}
 	}
@@ -2378,22 +2186,7 @@ static int too_many_isolated(struct pglist_data *pgdat, int file,
 	return isolated > inactive;
 }
 
-static int too_many_isolated_nvpc(struct pglist_data *pgdat,
-		struct scan_control *sc)
-{
-	unsigned long nvpclru, isolated;
 
-	if (current_is_kswapd())
-		return 0;
-
-	if (!writeback_throttling_sane(sc))
-		return 0;
-
-	nvpclru = node_page_state(pgdat, NR_NVPC_FILE);
-	isolated = node_page_state(pgdat, NR_ISOLATED_NVPC);
-
-	return nvpclru > isolated;
-}
 
 /*
  * move_pages_to_lru() moves pages from private @list to appropriate LRU list.
@@ -2476,109 +2269,6 @@ static int current_may_throttle(void)
 	return !(current->flags & PF_LOCAL_THROTTLE) ||
 		current->backing_dev_info == NULL ||
 		bdi_write_congested(current->backing_dev_info);
-}
-
-/*
- * shrink_inactive_list() is a helper for shrink_node().  It returns the number
- * of reclaimed pages
- */
-static unsigned long
-shrink_nvpc_list(unsigned long nr_to_scan, struct lruvec *lruvec,
-		     struct scan_control *sc, enum lru_list lru)
-{
-	LIST_HEAD(page_list);
-	unsigned long nr_scanned;
-	unsigned int nr_reclaimed = 0;
-	unsigned long nr_taken;
-	struct reclaim_stat stat;
-	// bool file = is_file_lru(lru);
-	enum vm_event_item item;
-	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
-	bool stalled = false;
-
-	while (unlikely(too_many_isolated_nvpc(pgdat, sc))) {
-		if (stalled)
-			return 0;
-
-		/* wait a bit for the reclaimer. */
-		msleep(100);
-		stalled = true;
-
-		/* We are about to die and free our memory. Return now. */
-		if (fatal_signal_pending(current))
-			return SWAP_CLUSTER_MAX;
-	}
-
-	/* in fact, nvpc pages will never be inside a pvec, so we don't drain */
-	// lru_add_drain();
-
-	spin_lock_irq(&lruvec->lru_lock);
-
-	nr_taken = isolate_lru_pages(nr_to_scan, lruvec, &page_list,
-				     &nr_scanned, sc, lru);
-
-	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, nr_taken);
-	/* we are not counting any events here */
-	// NVTODO: what if we are not using kswapd?
-	item = current_is_kswapd() ? PGNVPC_SCAN_KSWAPD : PGNVPC_SCAN_DIRECT;
-	if (!cgroup_reclaim(sc))
-		__count_vm_events(item, nr_scanned);
-	__count_memcg_events(lruvec_memcg(lruvec), item, nr_scanned);
-	__count_vm_events(PGSCAN_NVPC, nr_scanned);
-
-	spin_unlock_irq(&lruvec->lru_lock);
-
-	if (nr_taken == 0)
-		return 0;
-
-	nr_reclaimed = shrink_page_list(&page_list, pgdat, sc, &stat, false);
-
-	spin_lock_irq(&lruvec->lru_lock);
-	move_pages_to_lru(lruvec, &page_list);
-
-	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, -nr_taken);
-	item = current_is_kswapd() ? PGNVPC_STEAL_KSWAPD : PGNVPC_STEAL_DIRECT;
-	if (!cgroup_reclaim(sc))
-		__count_vm_events(item, nr_reclaimed);
-	__count_memcg_events(lruvec_memcg(lruvec), item, nr_reclaimed);
-	__count_vm_events(PGSTEAL_NVPC, nr_reclaimed);
-	spin_unlock_irq(&lruvec->lru_lock);
-
-	/* no balance between anon and file in nvpc */
-	// lru_note_cost(lruvec, file, stat.nr_pageout);
-	// mem_cgroup_uncharge_list(&page_list);
-	// free_unref_page_list(&page_list);
-
-	// NVTODO: free nvpc pages that we won't use here?
-
-	/*
-	 * If dirty pages are scanned that are not queued for IO, it
-	 * implies that flushers are not doing their job. This can
-	 * happen when memory pressure pushes dirty pages to the end of
-	 * the LRU before the dirty limits are breached and the dirty
-	 * data has expired. It can also happen when the proportion of
-	 * dirty pages grows not through writes but through memory
-	 * pressure reclaiming all the clean cache. And in some cases,
-	 * the flushers simply cannot keep up with the allocation
-	 * rate. Nudge the flusher threads in case they are asleep.
-	 */
-	// NVTODO: which flusher should we use here?
-	if (stat.nr_unqueued_dirty == nr_taken)
-		wakeup_flusher_threads(WB_REASON_VMSCAN);
-
-	/* no trace here */
-	// sc->nr.dirty += stat.nr_dirty;
-	// sc->nr.congested += stat.nr_congested;
-	// sc->nr.unqueued_dirty += stat.nr_unqueued_dirty;
-	// sc->nr.writeback += stat.nr_writeback;
-	// sc->nr.immediate += stat.nr_immediate;
-	// sc->nr.taken += nr_taken;
-	// if (file)
-	// 	sc->nr.file_taken += nr_taken;
-
-	// trace_mm_vmscan_lru_shrink_inactive(pgdat->node_id,
-	// 		nr_scanned, nr_reclaimed, &stat, sc->priority, file);
-	return nr_reclaimed;
 }
 
 /*
@@ -2858,12 +2548,6 @@ static unsigned long shrink_list(enum lru_list lru, unsigned long nr_to_scan,
 		return 0;
 	}
 
-	if (is_nvpc_lru(lru)) {
-		unsigned int may_unmap_old = sc->may_unmap;
-		sc->may_unmap = 0;
-		return shrink_nvpc_list(nr_to_scan, lruvec, sc, lru);
-		sc->may_unmap = may_unmap_old;
-	}
 	return shrink_inactive_list(nr_to_scan, lruvec, sc, lru);
 }
 
@@ -2942,14 +2626,6 @@ static void get_scan_count(struct lruvec *lruvec, struct scan_control *sc,
 	enum scan_balance scan_balance;
 	unsigned long ap, fp;
 	enum lru_list lru;
-
-#ifdef CONFIG_NVPC
-	/* If nvpc strategy is enabled, we only scan file-backed lru list */
-	if (nvpc_enabled() && sc->nvpc_strategy) {
-		scan_balance = SCAN_FILE;
-		goto out;
-	}
-#endif /* CONFIG_NVPC */
 
 	/* If we have no swap space, do not bother scanning anon pages. */
 	if (!sc->may_swap || !can_reclaim_anon_pages(memcg, pgdat->node_id, sc)) {
@@ -3133,11 +2809,6 @@ out:
 
 		nr[lru] = scan;
 	}
-#ifdef CONFIG_NVPC
-	for_each_nvpc_lru(lru) {
-		nr[lru] = 256; // NVTODO: more scan page num situations should be considered
-	}
-#endif
 }
 
 /*
@@ -3166,9 +2837,6 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 	bool proportional_reclaim;
 	struct blk_plug plug;
 
-	unsigned long nvpc_nr_reclaimed = 0;
-	unsigned long nvpc_nr_to_reclaim = sc->nvpc_nr_to_reclaim;
-
 	get_scan_count(lruvec, sc, nr);
 
 	/* Record the original scan target for proportional adjustments later */
@@ -3190,202 +2858,6 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 
 	blk_start_plug(&plug);
 
-#ifdef CONFIG_NVPC
-	if (nvpc_enabled() && sc->nvpc_strategy) {
-		int scan_i;
-		for (scan_i = 0; scan_i <= 7; scan_i++)
-		{
-			sc->nvpc_current_op = nvpc_get_strategy(sc, scan_i);
-
-			switch (sc->nvpc_current_op) {
-				case NVPC_OP_NONE:
-					continue;
-					break;
-
-				case NVPC_OP_DRAM_SHRINK:
-				case NVPC_OP_NVPC_DEMOTE:
-					while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
-						nr[LRU_INACTIVE_FILE]) {
-						unsigned long nr_anon, nr_file, percentage;
-						unsigned long nr_scanned;
-
-						for_each_evictable_lru(lru) {
-							if (nr[lru]) {
-								nr_to_scan = min(nr[lru], SWAP_CLUSTER_MAX);
-								nr[lru] -= nr_to_scan;
-
-								nr_reclaimed += shrink_list(lru, nr_to_scan,
-												lruvec, sc);
-							}
-						}
-
-						cond_resched();
-
-						if (nr_reclaimed < nr_to_reclaim || proportional_reclaim)
-							continue;
-
-						/*
-						* For kswapd and memcg, reclaim at least the number of pages
-						* requested. Ensure that the anon and file LRUs are scanned
-						* proportionally what was requested by get_scan_count(). We
-						* stop reclaiming one LRU and reduce the amount scanning
-						* proportional to the original scan target.
-						*/
-						nr_file = nr[LRU_INACTIVE_FILE] + nr[LRU_ACTIVE_FILE];
-						nr_anon = nr[LRU_INACTIVE_ANON] + nr[LRU_ACTIVE_ANON];
-
-						/*
-						* It's just vindictive to attack the larger once the smaller
-						* has gone to zero.  And given the way we stop scanning the
-						* smaller below, this makes sure that we only make one nudge
-						* towards proportionality once we've got nr_to_reclaim.
-						*/
-						if (!nr_file || !nr_anon)
-							break;
-
-						if (nr_file > nr_anon) {
-							unsigned long scan_target = targets[LRU_INACTIVE_ANON] +
-										targets[LRU_ACTIVE_ANON] + 1;
-							lru = LRU_BASE;
-							percentage = nr_anon * 100 / scan_target;
-						} else {
-							unsigned long scan_target = targets[LRU_INACTIVE_FILE] +
-										targets[LRU_ACTIVE_FILE] + 1;
-							lru = LRU_FILE;
-							percentage = nr_file * 100 / scan_target;
-						}
-
-						/* Stop scanning the smaller of the LRU */
-						nr[lru] = 0;
-						nr[lru + LRU_ACTIVE] = 0;
-
-						/*
-						* Recalculate the other LRU scan count based on its original
-						* scan target and the percentage scanning already complete
-						*/
-						lru = (lru == LRU_FILE) ? LRU_BASE : LRU_FILE;
-						nr_scanned = targets[lru] - nr[lru];
-						nr[lru] = targets[lru] * (100 - percentage) / 100;
-						nr[lru] -= min(nr[lru], nr_scanned);
-
-						lru += LRU_ACTIVE;
-						nr_scanned = targets[lru] - nr[lru];
-						nr[lru] = targets[lru] * (100 - percentage) / 100;
-						nr[lru] -= min(nr[lru], nr_scanned);
-					}
-					break;
-
-				case NVPC_OP_NVPC_PROMOTE:
-				case NVPC_OP_NVPC_WRITEBACK:
-					while (nr[LRU_NVPC_FILE]) {
-						for_each_nvpc_lru(lru) {
-							if (nr[lru]) {
-								/* SWAP_CLUSTER_MAX is the max number of NORMAL
-								 * pages we can reclaim in one go.
-								 */
-								// NVTODO: Can NVPC scan more pages than SWAP_CLUSTER_MAX at once?
-
-								// nr_to_scan means the number of pages to scan (cover range)
-								// nvpc_nr_to_reclaim means the number of pages to reclaim (aim)
-								nr_to_scan = min(nr[lru], SWAP_CLUSTER_MAX);
-								nr[lru] -= nr_to_scan;
-
-								nvpc_nr_reclaimed += shrink_list(lru, nr_to_scan,
-												lruvec, sc);
-							}
-						}
-
-						cond_resched();
-
-						// NVTODO: No way to dead loop
-						if (nvpc_nr_reclaimed < nvpc_nr_to_reclaim) // reclaim undone
-							continue;
-							
-						if (!nr[LRU_NVPC_FILE]) // scan done
-							break;
-
-						/* Stop scanning the smaller of the LRU */
-						/* But NVPC has no paired LRUs, so skipped */
-						// nr[lru] = 0;
-					}
-					break;
-				default:
-					pr_crit("[NVPC in kswapd] Invalid NVPC strategy operation\n");
-			}
-		}
-	}
-	else { // default
-		while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
-						nr[LRU_INACTIVE_FILE]) {
-			unsigned long nr_anon, nr_file, percentage;
-			unsigned long nr_scanned;
-
-			for_each_evictable_lru(lru) {
-				if (nr[lru]) {
-					nr_to_scan = min(nr[lru], SWAP_CLUSTER_MAX);
-					nr[lru] -= nr_to_scan;
-
-					nr_reclaimed += shrink_list(lru, nr_to_scan,
-									lruvec, sc);
-				}
-			}
-
-			cond_resched();
-
-			if (nr_reclaimed < nr_to_reclaim || proportional_reclaim)
-				continue;
-
-			/*
-			* For kswapd and memcg, reclaim at least the number of pages
-			* requested. Ensure that the anon and file LRUs are scanned
-			* proportionally what was requested by get_scan_count(). We
-			* stop reclaiming one LRU and reduce the amount scanning
-			* proportional to the original scan target.
-			*/
-			nr_file = nr[LRU_INACTIVE_FILE] + nr[LRU_ACTIVE_FILE];
-			nr_anon = nr[LRU_INACTIVE_ANON] + nr[LRU_ACTIVE_ANON];
-
-			/*
-			* It's just vindictive to attack the larger once the smaller
-			* has gone to zero.  And given the way we stop scanning the
-			* smaller below, this makes sure that we only make one nudge
-			* towards proportionality once we've got nr_to_reclaim.
-			*/
-			if (!nr_file || !nr_anon)
-				break;
-
-			if (nr_file > nr_anon) {
-				unsigned long scan_target = targets[LRU_INACTIVE_ANON] +
-							targets[LRU_ACTIVE_ANON] + 1;
-				lru = LRU_BASE;
-				percentage = nr_anon * 100 / scan_target;
-			} else {
-				unsigned long scan_target = targets[LRU_INACTIVE_FILE] +
-							targets[LRU_ACTIVE_FILE] + 1;
-				lru = LRU_FILE;
-				percentage = nr_file * 100 / scan_target;
-			}
-
-			/* Stop scanning the smaller of the LRU */
-			nr[lru] = 0;
-			nr[lru + LRU_ACTIVE] = 0;
-
-			/*
-			* Recalculate the other LRU scan count based on its original
-			* scan target and the percentage scanning already complete
-			*/
-			lru = (lru == LRU_FILE) ? LRU_BASE : LRU_FILE;
-			nr_scanned = targets[lru] - nr[lru];
-			nr[lru] = targets[lru] * (100 - percentage) / 100;
-			nr[lru] -= min(nr[lru], nr_scanned);
-
-			lru += LRU_ACTIVE;
-			nr_scanned = targets[lru] - nr[lru];
-			nr[lru] = targets[lru] * (100 - percentage) / 100;
-			nr[lru] -= min(nr[lru], nr_scanned);
-		}
-	}
-#else /* CONFIG_NVPC */
 	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
 							nr[LRU_INACTIVE_FILE]) {
 		unsigned long nr_anon, nr_file, percentage;
@@ -3455,7 +2927,6 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 		nr[lru] = targets[lru] * (100 - percentage) / 100;
 		nr[lru] -= min(nr[lru], nr_scanned);
 	}
-#endif /* CONFIG_NVPC */
 
 	blk_finish_plug(&plug);
 	sc->nr_reclaimed += nr_reclaimed;
@@ -3467,16 +2938,11 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 	 * But when nvpc is enabled, we do not need to rebalance the 
 	 * anon lru active/inactive ratio.
 	 */
-#ifdef CONFIG_NVPC
-	if (!nvpc_enabled() || !sc->nvpc_strategy)
-		goto out;
-#endif
 	if (can_age_anon_pages(lruvec_pgdat(lruvec), sc) &&
 	    inactive_is_low(lruvec, LRU_INACTIVE_ANON))
 		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
 				   sc, LRU_ACTIVE_ANON);
 
-out:
 	return;
 }
 
@@ -3595,20 +3061,9 @@ static void shrink_node_memcgs(pg_data_t *pgdat, struct scan_control *sc)
 		reclaimed = sc->nr_reclaimed;
 		scanned = sc->nr_scanned;
 
-#ifdef CONFIG_NVPC
-		if (nvpc_enabled() && sc->nvpc_strategy) {
-			shrink_lruvec(lruvec, sc);
-		}
-		else { // default path
-			shrink_lruvec(lruvec, sc);
-			shrink_slab(sc->gfp_mask, pgdat->node_id, memcg,
-			    sc->priority);
-		}
-#else
 		shrink_lruvec(lruvec, sc);
 		shrink_slab(sc->gfp_mask, pgdat->node_id, memcg,
 			    sc->priority);
-#endif /* CONFIG_NVPC */
 
 		/* Record the group's reclaim efficiency */
 		vmpressure(sc->gfp_mask, memcg, false,
@@ -4463,9 +3918,6 @@ static bool kswapd_shrink_node(pg_data_t *pgdat,
 		sc->nr_to_reclaim += max(high_wmark_pages(zone), SWAP_CLUSTER_MAX);
 	}
 
-	// NVTODO: NVPC reclaim number of pages, more situations to be considered
-	sc->nvpc_nr_to_reclaim = 300;
-
 	/*
 	 * Historically care was taken to put equal pressure on all zones but
 	 * now pressure is applied based on node LRU order.
@@ -4855,7 +4307,6 @@ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_o
  */
 static int kswapd(void *p)
 {
-	// NVTODO: we need to write back dirty pages in NVPC ***
 	unsigned int alloc_order, reclaim_order;
 	unsigned int highest_zoneidx = MAX_NR_ZONES - 1;
 	pg_data_t *pgdat = (pg_data_t *)p;
@@ -4981,27 +4432,6 @@ void wakeup_kswapd(struct zone *zone, gfp_t gfp_flags, int order,
 
 	trace_mm_vmscan_wakeup_kswapd(pgdat->node_id, highest_zoneidx, order,
 				      gfp_flags);
-	wake_up_interruptible(&pgdat->kswapd_wait);
-}
-
-void wakeup_nvpc_promote()
-{
-    // wakeup_kswapd();
-
-    /* 
-     * wake up kswapd on node 0 
-     * 
-     * pgdat->kswapd_highest_zoneidx is set to ZONE_NORMAL;
-     * pgdat->kswapd_order is set to the order of pages 
-     * prepared to promote;
-     * when kswapd runs, it will shrink dram lru lists to 
-     * prepare #order pages on ZONE_NORMAL for promotion
-     */
-	pg_data_t *pgdat = NODE_DATA(0);
-    nvpc_wakeup_nvpc_promote(pgdat);
-
-    trace_mm_vmscan_wakeup_kswapd(0, ZONE_NORMAL, 0,
-				      0);
 	wake_up_interruptible(&pgdat->kswapd_wait);
 }
 

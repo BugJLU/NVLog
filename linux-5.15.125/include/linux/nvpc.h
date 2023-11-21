@@ -10,6 +10,8 @@
 #include <linux/nvpc_base.h>
 #include <linux/nvpc_rw.h>
 
+// #define CONFIG_NVPC true // NVTODO: remove this when debug is done
+
 struct nvpc_opts
 {
     struct dax_device *dev;
@@ -60,8 +62,11 @@ void nvpc_promote_vec_clear(void);
 int nvpc_promote_vec_isolate(struct list_head *page_list);
 // bool nvpc_should_promote(void);
 int nvpc_promote_vec_nr(void);
-void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat);
 
+/* knvpcd */
+extern void knvpcd_run(void);
+extern void knvpcd_stop(void);
+extern void wakeup_knvpcd(struct zone *zone, gfp_t gfp_flags, int order, int nvpc_promote, int nvpc_demote, int nvpc_evict);
 
 // NVTODO: for debug, remove these
 extern int debug_print;

@@ -3,6 +3,7 @@
 
 #include <linux/types.h>
 #include <linux/spinlock.h>
+#include <linux/wait.h>
 
 struct nvpc
 {
@@ -71,6 +72,27 @@ struct nvpc
     // spinlock_t lru_free_lock;
     spinlock_t syn_lock;
     // spinlock_t syn_free_lock;
+
+    /**
+     * @brief nvpc daemon
+     * 
+     */
+    unsigned int knvpcd_should_run;
+    wait_queue_head_t knvpcd_wait;
+    wait_queue_head_t pmemalloc_wait;
+    struct task_struct *knvpcd;
+    int knvpcd_order;
+    enum zone_type knvpcd_zoneidx;
+
+    unsigned long knvpcd_nr_to_promote;
+    unsigned long knvpcd_nr_to_reclaim;
+
+    unsigned int knvpcd_promote; // If knvpcd_promote is set, promotion will be done
+    unsigned int knvpcd_demote; // If knvpcd_demote is set, reclaim will be done
+    unsigned int knvpcd_evict; // If knvpcd_evict is set, evict will be done
+
+    // NVTODO: function undone
+    // atomic_t knvpcd_failures; // number of demotes || evictions || promoted == 0 returns
 };
 
 extern struct nvpc nvpc;

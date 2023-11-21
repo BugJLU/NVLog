@@ -13,6 +13,7 @@
 
 
 #include <linux/nvpc.h>
+
 #include <linux/uio.h>
 #include <linux/kernel.h>
 #include <linux/err.h>
@@ -23,6 +24,13 @@
 #include <linux/pfn_t.h>
 #include <linux/memcontrol.h>
 #include <linux/mm_inline.h>
+
+// for knvpcd
+#include <linux/freezer.h>
+#include <linux/cpu.h>
+#include <linux/cpuset.h>
+#include <linux/kthread.h>
+#include <linux/wait.h>
 
 #include "internal.h"
 
@@ -119,6 +127,9 @@ int __ref init_nvpc(struct nvpc_opts *opts)
 
     nvpc.enabled = true;
     pr_info("NVPC init: NVPC started with %zu pages.\n", nvpc.nvpc_sz);
+
+    // NVTODO: start when kernel init or lazy start?
+    // knvpcd_init();
 
     return 0;
 }
@@ -335,53 +346,6 @@ int nvpc_promote_vec_nr()
 {
     return atomic_read(&nr_promote_vec);
 }
-
-// bool nvpc_should_promote()
-// {
-//     /*
-//      * 1) if nvpc promote vec is full, promote
-//      * 
-//      * 2) if nvpc promote vec page number is less than
-//      *    dram unreached page number, promote
-//      */
-//     int n_pv_num = atomic_read(&nr_promote_vec);
-//     int d_ur_num;   // NVTODO: track this /* use inactive list !PageReferenced page num */
-
-//     return n_pv_num == PROMOTE_VEC_SZ || n_pv_num < d_ur_num;
-// }
-
-void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat)
-{
-    // wakeup_kswapd();
-
-    /* 
-     * wake up kswapd on node 0 
-     * 
-     * pgdat->kswapd_highest_zoneidx is set to ZONE_NORMAL;
-     * pgdat->kswapd_order is set to the order of pages 
-     * prepared to promote;
-     * when kswapd runs, it will shrink dram lru lists to 
-     * prepare #order pages on ZONE_NORMAL for promotion
-     */
-    enum zone_type curr_idx;
-    // pg_data_t *pgdat = NODE_DATA(0);
-
-    if (!waitqueue_active(&pgdat->kswapd_wait))
-		return;
-
-    curr_idx = READ_ONCE(pgdat->kswapd_highest_zoneidx);
-
-	if (curr_idx == MAX_NR_ZONES || curr_idx < ZONE_NORMAL)
-		WRITE_ONCE(pgdat->kswapd_highest_zoneidx, ZONE_NORMAL);
-
-	if (READ_ONCE(pgdat->kswapd_order) < promote_order)
-		WRITE_ONCE(pgdat->kswapd_order, promote_order);
-
-    // trace_mm_vmscan_wakeup_kswapd(0, ZONE_NORMAL, 0,
-	// 			      0);
-	// wake_up_interruptible(&pgdat->kswapd_wait);
-}
-
 
 // NVTODO: debug, remove this
 int debug_print = 0;
