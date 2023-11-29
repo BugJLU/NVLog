@@ -136,6 +136,26 @@ static void nvpc_test()
     }
 }
 
+static void nvpc_test1(char *path, size_t len, char *tmp1)
+{
+    int ret;
+    struct test1_s {
+        char *path;
+        size_t len;
+        char *tmp1;
+    } test1 = {
+        .path = path, 
+        .len = len,
+        .tmp1 = tmp1,
+    };
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_TEST, &test1)) < 0)
+    {
+        // this should not happen
+        fprintf(stderr, "Libnvpc error: ioctl failed\n");
+        exit(-1);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     char nv_path[PATH_MAX];
@@ -147,6 +167,7 @@ int main(int argc, char *argv[])
     int set_flag; // for flush set
     char tmp[255];
     nvpc_usage_t usage;
+    char *tmp1;
 
     if (argc >= 2)
     {
@@ -234,6 +255,15 @@ int main(int argc, char *argv[])
             strcpy(nv_path, argv[2]);
             flag = 12;
         }
+        /* nvpcctl test1 <path> <len> */
+        else if (!strcmp(argv[1], "test1"))
+        {
+            strcpy(nv_path, argv[2]);
+            len = strtoll(argv[3], NULL, 10);
+            tmp1 = (char*)malloc(len);
+            memset(tmp1, 't', len);
+            flag = 101;
+        }
     }
 
     switch (flag)
@@ -319,6 +349,12 @@ int main(int argc, char *argv[])
         close_nvpc_onsb(nv_path);
         close_libnvpc();
         printf("nvpcctl: done\n");
+        break;
+    case 101:
+        open_libnvpc();
+        nvpc_test1(nv_path, len, tmp1);
+        close_libnvpc();
+        free(tmp1);
         break;
     default:
         printf(

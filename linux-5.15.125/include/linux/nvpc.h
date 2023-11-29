@@ -32,13 +32,23 @@ static inline struct nvpc *get_nvpc(void)
 /* get the address at an offset of nvpc */
 static inline void *nvpc_get_addr(loff_t off)
 {
-    return nvpc.dax_kaddr + off;
+    return get_nvpc()->dax_kaddr + off;
 }
 
 /* get the address at a page offset of nvpc */
 static inline void *nvpc_get_addr_pg(loff_t off_pg)
 {
-    return nvpc.dax_kaddr + (off_pg << PAGE_SHIFT);
+    return get_nvpc()->dax_kaddr + (off_pg << PAGE_SHIFT);
+}
+
+static inline loff_t nvpc_get_off(void *kaddr)
+{
+    return kaddr - get_nvpc()->dax_kaddr;
+}
+
+static inline loff_t nvpc_get_off_pg(void *kaddr)
+{
+    return (((uintptr_t)kaddr & PAGE_MASK) - (uintptr_t)get_nvpc()->dax_kaddr) >> PAGE_SHIFT;
 }
 
 void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);

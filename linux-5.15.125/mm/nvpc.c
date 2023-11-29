@@ -90,6 +90,8 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
     return i;
 }
 
+void init_sync_absorb_area(void);
+
 /* sizes are in pages */
 int __ref init_nvpc(struct nvpc_opts *opts)
 {
@@ -112,6 +114,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
 
     nvpc.len_pg = dax_map_whole_dev(nvpc.dax_dev, &nvpc.dax_kaddr, &pfn);
     nvpc.pfn = pfn_t_to_pfn(pfn);
+    pr_info("[NVPC DEBUG]: NVPC started at %px, pfn %lu\n", nvpc.dax_kaddr, nvpc.pfn);
 
     if (opts->extend_lru && opts->nvpc_sz > nvpc.len_pg)
     {
@@ -134,12 +137,17 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     
     nvpc.nvpc_begin = nvpc_get_addr_pg(0);
 
+    // NVTODO: check the magic number in page 0. if nvpc already exists, replay it first.
+
     INIT_LIST_HEAD(&nvpc.nvpc_free_list);
 
     spin_lock_irqsave(&nvpc.nvpc_free_lock, irq_flags);
     /* page ref count is dropped to 0 here */
-    __init_free_list(&nvpc.nvpc_free_list, 0, nvpc.nvpc_sz);
+    __init_free_list(&nvpc.nvpc_free_list, nvpc.absorb_syn?1:0, nvpc.absorb_syn?nvpc.nvpc_sz-1:nvpc.nvpc_sz);
     spin_unlock_irqrestore(&nvpc.nvpc_free_lock, irq_flags);
+
+    if (nvpc.absorb_syn)
+        init_sync_absorb_area();
 
 #ifdef NVPC_PERCPU_FREELIST
     nvpc_pcpu_free_sz = nvpc.nvpc_sz / 3 / nr_cpu_ids;
@@ -147,8 +155,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     for (cpu_i = 0; cpu_i < nr_cpu_ids; cpu_i++)
     {
         INIT_LIST_HEAD(&per_cpu(nvpc_pcpu_free_list, cpu_i));
-        // per_cpu(nvpc_pcpu_free_cnt, cpu_i) = \
-        //     __nvpc_get_n_new_page(&per_cpu(nvpc_pcpu_free_list, cpu_i), nvpc_pcpu_free_sz);
+        // per_cpu(nvpc_pcpu_free_cnt, cpu_i) = __nvpc_get_n_new_page(&per_cpu(nvpc_pcpu_free_list, cpu_i), nvpc_pcpu_free_sz);
         /* lazy */
         per_cpu(nvpc_pcpu_free_cnt, cpu_i) = 0;
     }

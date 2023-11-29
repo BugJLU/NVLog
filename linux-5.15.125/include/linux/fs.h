@@ -42,6 +42,7 @@
 #include <linux/mount.h>
 #include <linux/cred.h>
 #include <linux/mnt_idmapping.h>
+#include <linux/nvpc_sync.h>
 
 #include <asm/byteorder.h>
 #include <uapi/linux/fs.h>
@@ -659,7 +660,7 @@ struct inode {
 	struct timespec64	i_atime;
 	struct timespec64	i_mtime;
 	struct timespec64	i_ctime;
-	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */
+	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */ /* also lock nvpc struct */
 	unsigned short          i_bytes;
 	u8			i_blkbits;
 	u8			i_write_hint;
@@ -731,6 +732,20 @@ struct inode {
 #endif
 
 	void			*i_private; /* fs or device private pointer */
+
+#ifdef CONFIG_NVPC
+	struct nvpc_sync_ilog
+	{
+		log_inode_head_entry *log_head;
+
+		// NVTODO: not used yet. implement in next step
+		/* log entries from this pointer is available */
+		nvpc_sync_log_entry *log_tail;
+
+		struct xarray inode_log_pages;
+	} nvpc_sync_ilog;
+#endif
+	
 } __randomize_layout;
 
 struct timespec64 timestamp_truncate(struct timespec64 t, struct inode *inode);

@@ -251,6 +251,12 @@ static struct inode *alloc_inode(struct super_block *sb)
 		return NULL;
 	}
 
+#ifdef CONFIG_NVPC
+	inode->nvpc_sync_ilog.log_head = NULL;
+	inode->nvpc_sync_ilog.log_tail = NULL;
+	xa_init(&inode->nvpc_sync_ilog.inode_log_pages);
+#endif
+
 	return inode;
 }
 

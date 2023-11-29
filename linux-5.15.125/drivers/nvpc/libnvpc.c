@@ -8,6 +8,7 @@
 #include <linux/stat.h>
 #include <linux/mm.h>
 #include <linux/namei.h>
+#include <linux/nvpc_sync.h>
 
 // NVTODO: remove this
 #define DEBUG
@@ -163,30 +164,71 @@ static void get_nvpc_usage(nvpc_usage_t *usage)
 struct list_head *get_nvpc_pcpu_free_list(int cpuid);
 static void do_nvpc_test(long x)
 {
-    struct nvpc *nvpc = get_nvpc();
-    struct page *pg;
-    int cnt = 0;
-    int i;
-    struct list_head *fl;
-    spin_lock(&nvpc->nvpc_free_lock);
-    list_for_each_entry(pg, &nvpc->nvpc_free_list, lru) {
-        cnt++;
+//     struct nvpc *nvpc = get_nvpc();
+//     struct page *pg;
+//     int cnt = 0;
+//     int i;
+//     struct list_head *fl;
+//     spin_lock(&nvpc->nvpc_free_lock);
+//     list_for_each_entry(pg, &nvpc->nvpc_free_list, lru) {
+//         cnt++;
+//     }
+//     spin_unlock(&nvpc->nvpc_free_lock);
+//     pr_info("Libnvpc TEST: %d pages on global free list\n", cnt);
+// #ifdef NVPC_PERCPU_FREELIST
+//     for (i = 0; i < nr_cpu_ids; i++)
+//     {
+//         int cntp = 0;
+//         fl = get_nvpc_pcpu_free_list(i);
+//         list_for_each_entry(pg, fl, lru) {
+//             cntp++;
+//         }
+//         cnt += cntp;
+//         pr_info("Libnvpc TEST: %d pages on cpu%d free list\n", cntp, i);
+//     }
+// #endif
+//     pr_info("Libnvpc TEST: %d pages on all free list\n", cnt);
+    struct page *pg = alloc_page(GFP_KERNEL);
+    void *kaddr = page_address(pg);
+    phys_addr_t paddr = __pa(kaddr);
+    void *kaddr2 = __va(paddr);
+    pr_info("Libnvpc TEST: kaddr %p paddr %#llx vaddr %p u64 %#llx\n", kaddr, paddr, kaddr2, (u64)kaddr);
+    free_page((uintptr_t)kaddr);
+}
+
+static void do_nvpc_test1(char *name, size_t len, __user char *data)
+{
+    struct path path;
+    struct inode *inode;
+    log_inode_head_entry *lh;
+    struct iovec iov;
+    struct iov_iter i;
+    nvpc_sync_log_entry *e;
+    // struct super_block *sb = NULL;
+
+    if (kern_path(name, LOOKUP_FOLLOW, &path)) {
+        pr_err("Libnvpc error: Fail to find path %s.\n", name);
+        path_put(&path);
+        return;
     }
-    spin_unlock(&nvpc->nvpc_free_lock);
-    pr_info("Libnvpc TEST: %d pages on global free list\n", cnt);
-#ifdef NVPC_PERCPU_FREELIST
-    for (i = 0; i < nr_cpu_ids; i++)
+    inode = d_inode(path.dentry);
+    
+    lh = nvpc_get_log_inode(inode);
+    if (!lh)
     {
-        int cntp = 0;
-        fl = get_nvpc_pcpu_free_list(i);
-        list_for_each_entry(pg, fl, lru) {
-            cntp++;
-        }
-        cnt += cntp;
-        pr_info("Libnvpc TEST: %d pages on cpu%d free list\n", cntp, i);
+        pr_info("Libnvpc TEST: cannot get log head\n");
     }
-#endif
-    pr_info("Libnvpc TEST: %d pages on all free list\n", cnt);
+
+    pr_info("Libnvpc TEST: lh dev: %d, ino: %lu, lh: %px, lpage: %px, ltail: %px; \n", lh->s_dev, lh->i_ino, lh, lh->head_log_page, lh->committed_log_tail);
+    path_put(&path);
+
+    iov.iov_base = data;
+    iov.iov_len = len;
+    
+    iov_iter_init(&i, WRITE, &iov, 1, len);
+    pr_info("Libnvpc TEST: old tail: %px, pg: %#lx, eleft: %ld, len: %zu \n", inode->nvpc_sync_ilog.log_tail, (uintptr_t)inode->nvpc_sync_ilog.log_tail&PAGE_MASK, NVPC_PAGE_LOG_ENTRIES_LEFT(inode->nvpc_sync_ilog.log_tail), len);
+    e = write_ip(inode, &i, 0);
+    pr_info("Libnvpc TEST: new tail: %px, pg: %#lx, eleft: %ld \n", e, (uintptr_t)e&PAGE_MASK, NVPC_PAGE_LOG_ENTRIES_LEFT(e));
 }
 
 /* enable nvpc on the superblock of fs at a given path */
@@ -249,6 +291,11 @@ static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
 {
     int ret;
     nvpc_usage_t usage;
+    struct test1_s {
+        char *path;
+        size_t len;
+        __user char *tmp1;
+    } test1;
 
     ret = 0;
     switch (cmd)
@@ -267,7 +314,18 @@ static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
             ret = -EFAULT;
         break;
     case LIBNVPC_IOC_TEST:
-        do_nvpc_test(arg);
+        // do_nvpc_test(arg);
+
+        //  = {
+        //     .path = path, 
+        //     .len = len,
+        //     .tmp1 = tmp1,
+        // };
+        if (copy_from_user(&test1, (char *)arg, sizeof(struct test1_s)))
+            ret = -EFAULT;
+        if (copy_from_user(nvpc_path_tmp, test1.path, PATH_MAX))
+            ret = -EFAULT;
+        do_nvpc_test1(nvpc_path_tmp, test1.len, test1.tmp1);
         break;
     case LIBNVPC_IOC_OPEN:
         if (copy_from_user(nvpc_path_tmp, (char *)arg, PATH_MAX))
@@ -297,7 +355,7 @@ ssize_t libnvpc_write_iter(struct kiocb *iocb, struct iov_iter *from)
     size_t ret;
 
     ret = nvpc_write_nv_iter(from, iocb->ki_pos, nvpc_flush);
-    if (nvpc_flush && nvpc_wbarrier) nvpc_wmb();
+    if (nvpc_flush && nvpc_wbarrier) nvpc_write_commit();
     
     return ret;
 }
