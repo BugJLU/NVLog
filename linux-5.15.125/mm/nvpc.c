@@ -48,6 +48,7 @@ static bool support_clwb;
 /* vector that temporarily stores NVPC pages that reach the promote level */
 static struct page *promote_vec[NVPC_PROMOTE_VEC_SZ];
 static atomic_t nr_promote_vec;
+static DEFINE_SPINLOCK(promote_vec_lock);
 int promote_order = order_base_2(NVPC_PROMOTE_VEC_SZ);
 
 /*
@@ -129,7 +130,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     pr_info("NVPC init: NVPC started with %zu pages.\n", nvpc.nvpc_sz);
 
     // NVTODO: start when kernel init or lazy start?
-    // knvpcd_init();
+    knvpcd_lazy_init(); // nvpc has been activated when kernel init
 
     return 0;
 }
@@ -209,7 +210,7 @@ void nvpc_free_page(struct page *page, unsigned long private)
 
     nvpc.nvpc_free_pgnum++;
     list_add(&page->lru, list);
-    // pr_info("[NVPC TEST]: nvpc_free_page nvpc_free_pgnum=%zu @cpu%d\n", nvpc.nvpc_free_pgnum, smp_processor_id());
+
 out:
     spin_unlock_irqrestore(lock, irq_flags);
 }
@@ -300,12 +301,20 @@ static inline int atomic_fetch_inc_test_upperbound(atomic_t *val, int upper)
 /* return number of pages in promote vec */
 int nvpc_promote_vec_put_page(struct page * page)
 {
+    unsigned long lock_irq;
     int idx = atomic_fetch_inc_test_upperbound(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
-    
+
     if (idx < 0)
         return -1;
 
+    spin_lock_irqsave(&promote_vec_lock, lock_irq);
+
+    // local_irq_disable();
     promote_vec[idx] = page;
+    // local_irq_enable();
+
+    spin_unlock_irqrestore(&promote_vec_lock, lock_irq);
+
     return idx+1;
 }
 
@@ -313,10 +322,13 @@ int nvpc_promote_vec_put_page(struct page * page)
 /* clear the vec and the access count of its members */
 void nvpc_promote_vec_clear()
 {
-    int i;
-    int num = atomic_read(&nr_promote_vec);
-    /* refuse other processes to update the promote vec */
-    atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+    int i, num;
+    // int num = atomic_read(&nr_promote_vec);
+    // /* refuse other processes to update the promote vec */
+    // atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+
+    num = atomic_xchg(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+
 
     for (i = 0; i < num; i++)
     {
@@ -328,15 +340,22 @@ void nvpc_promote_vec_clear()
 /* caller must ensure that this function can manipulate NVPC lru!!! */
 int nvpc_promote_vec_isolate(struct list_head *page_list)
 {
-    int i;
-    int num = atomic_read(&nr_promote_vec);
-    /* refuse other processes to update the promote vec */
-    atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+    int i, num;
+    unsigned long lock_irq;
 
-    for (i = 0; i < num; i++)
-    {
+    // num = atomic_read(&nr_promote_vec);
+    // /* refuse other processes to update the promote vec */
+    // atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+
+    num = atomic_xchg(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+
+    spin_lock_irqsave(&promote_vec_lock, lock_irq);
+    // local_irq_disable();
+    for (i = 0; i < num; i++) {
         list_move(&promote_vec[i]->lru, page_list);
     }
+    // local_irq_enable();
+    spin_unlock_irqrestore(&promote_vec_lock, lock_irq);
     
     atomic_set(&nr_promote_vec, 0);
     return num;

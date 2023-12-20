@@ -2,3 +2,9 @@ ubuntu-*.iso
 *.img
 nvdimm*
 mnt/*
+*.raw
+*.gz
+vmlinu*
+*.gdb
+*initrd.img*
+*.xz

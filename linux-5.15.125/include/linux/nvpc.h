@@ -66,7 +66,8 @@ int nvpc_promote_vec_nr(void);
 /* knvpcd */
 extern void knvpcd_run(void);
 extern void knvpcd_stop(void);
-extern void wakeup_knvpcd(struct zone *zone, gfp_t gfp_flags, int order, int nvpc_promote, int nvpc_demote, int nvpc_evict);
+extern void wakeup_knvpcd(int nvpc_promote, int nvpc_demote, int nvpc_evict);
+extern void knvpcd_lazy_init(void);
 
 // NVTODO: for debug, remove these
 extern int debug_print;
@@ -83,4 +84,5 @@ static inline void set_debug_print_off(void)
 {
     debug_print=0;
 }
+
 #endif

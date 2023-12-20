@@ -81,8 +81,6 @@ struct nvpc
     wait_queue_head_t knvpcd_wait;
     wait_queue_head_t pmemalloc_wait;
     struct task_struct *knvpcd;
-    int knvpcd_order;
-    enum zone_type knvpcd_zoneidx;
 
     unsigned long knvpcd_nr_to_promote;
     unsigned long knvpcd_nr_to_reclaim;

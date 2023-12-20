@@ -127,11 +127,6 @@ struct scan_control {
 	/* Always discard instead of demoting to lower tier memory */
 	unsigned int no_demotion:1;
 
-#ifdef CONFIG_NVPC
-	/* determine whether it should promote NVPC pages only */
-	unsigned int nvpc_promote:1;
-#endif
-
 	/* Allocation order */
 	s8 order;
 
@@ -545,7 +540,6 @@ static bool can_demote(int nid, struct scan_control *sc)
 
 	return true;
 }
-
 
 static inline bool can_reclaim_anon_pages(struct mem_cgroup *memcg,
 					  int nid,
@@ -1399,7 +1393,6 @@ static unsigned int demote_pages_to_nvpc(struct list_head *nvpc_pages)
 	else
 		__count_vm_events(PGNVPC_DEMOTE_DIRECT, nr_succeeded);
 
-	// pr_info("[NVPC DEBUG].DEMOTE: %d pages are demoted to NVPC lru.\n", nr_succeeded);
 out:
 	return nr_succeeded;
 }
@@ -1408,8 +1401,7 @@ out:
 /*
  * shrink_page_list() returns the number of reclaimed pages
  */
-// NVTODO: check this function carefully
-unsigned int shrink_page_list(struct list_head *page_list,
+static unsigned int shrink_page_list(struct list_head *page_list,
 				     struct pglist_data *pgdat,
 				     struct scan_control *sc,
 				     struct reclaim_stat *stat,
@@ -1589,7 +1581,6 @@ retry:
 #ifdef CONFIG_NVPC
 		// demote
 		if (do_nvpc_pass &&
-		    do_demote_pass &&
 			page_is_file_lru(page) && // this line is redundant
 			!PageAnon(page) && !PageSwapBacked(page) &&	// only move file-backed pages
 			!PageTransHuge(page) && // huge pages not support yet
@@ -1885,12 +1876,12 @@ keep:
 
 #ifdef CONFIG_NVPC
 	/* Demote: Migrate DRAM pages to NVPC lru */
-	if (do_demote_pass)	{
+	if (do_nvpc_pass) {
 		nr_reclaimed += demote_pages_to_nvpc(&nvpc_demote_pages);
 		if (!list_empty(&nvpc_demote_pages))
 		{
 			list_splice_init(&nvpc_demote_pages, page_list);
-			// do_nvpc_pass = false;
+			do_nvpc_pass = false;
 			goto retry;
 		}
 	}
@@ -2830,7 +2821,7 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 {
 	unsigned long nr[NR_LRU_LISTS];
 	unsigned long targets[NR_LRU_LISTS];
-	unsigned long nr_to_scan; // values below for each lru list
+	unsigned long nr_to_scan;
 	enum lru_list lru;
 	unsigned long nr_reclaimed = 0;
 	unsigned long nr_to_reclaim = sc->nr_to_reclaim;
@@ -2857,7 +2848,6 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 				sc->priority == DEF_PRIORITY);
 
 	blk_start_plug(&plug);
-
 	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
 							nr[LRU_INACTIVE_FILE]) {
 		unsigned long nr_anon, nr_file, percentage;
@@ -2927,7 +2917,6 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 		nr[lru] = targets[lru] * (100 - percentage) / 100;
 		nr[lru] -= min(nr[lru], nr_scanned);
 	}
-
 	blk_finish_plug(&plug);
 	sc->nr_reclaimed += nr_reclaimed;
 
@@ -2935,15 +2924,13 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 	 * Even if we did not try to evict anon pages at all, we want to
 	 * rebalance the anon lru active/inactive ratio.
 	 * 
-	 * But when nvpc is enabled, we do not need to rebalance the 
+	 * NVTODO: But when nvpc is enabled, we do not need to rebalance the 
 	 * anon lru active/inactive ratio.
 	 */
 	if (can_age_anon_pages(lruvec_pgdat(lruvec), sc) &&
 	    inactive_is_low(lruvec, LRU_INACTIVE_ANON))
 		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
 				   sc, LRU_ACTIVE_ANON);
-
-	return;
 }
 
 /* Use reclaim/compaction for costly allocs or under memory pressure */
@@ -3062,6 +3049,7 @@ static void shrink_node_memcgs(pg_data_t *pgdat, struct scan_control *sc)
 		scanned = sc->nr_scanned;
 
 		shrink_lruvec(lruvec, sc);
+
 		shrink_slab(sc->gfp_mask, pgdat->node_id, memcg,
 			    sc->priority);
 

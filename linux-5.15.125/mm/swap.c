@@ -528,11 +528,15 @@ static void __lru_cache_activate_page(struct page *page)
  */
 void mark_page_accessed(struct page *page)
 {
-	// u8 nvpc_lru_cnt;
+#ifdef CONFIG_NVPC
+	struct lruvec *lruvec;
+#endif
 	page = compound_head(page);
 
 #ifdef CONFIG_NVPC
-	if(PageNVPC(page)) {
+	lruvec = mem_cgroup_lruvec(NULL, page_pgdat(page));
+
+	if (PageNVPC(page)) {
 		u8 nvpc_lru_cnt;
 		int nr_promote;
 		/* 
@@ -545,11 +549,11 @@ void mark_page_accessed(struct page *page)
 		 */
 		SetPageReferenced(page);
 		nvpc_lru_cnt = page_nvpc_lru_cnt_inc(page);
-		if (nvpc.promote_level && nvpc_lru_cnt >= nvpc.promote_level)
-		{
+		if (nvpc.promote_level && nvpc_lru_cnt >= nvpc.promote_level) {
 			nr_promote = nvpc_promote_vec_put_page(page);
-			if (nr_promote >= NVPC_PROMOTE_VEC_SZ)
-				wakeup_knvpcd(page_zone(page), 0, 0, 1, 0, 0); // NVTODO: wake up knvpcd for promotion
+			if (nr_promote >= NVPC_PROMOTE_VEC_SZ) {
+				wakeup_knvpcd(1, 0, 0); // NVTODO: wake up knvpcd for promotion
+			}
 		}
 	}
 	else
@@ -1053,6 +1057,9 @@ void release_pages(struct page **pages, int nr)
 	for (i = 0; i < nr; i++) {
 		struct page *page = pages[i];
 
+		if (PageNVPC(page)) {
+			pr_warn("[NVPC DEBUG]	[release_pages] page %p is NVPC page\n", page);
+		}
 		/*
 		 * Make sure the IRQ-safe lock-holding time does not get
 		 * excessive with a continuous string of pages from the
