@@ -102,7 +102,7 @@ static unsigned int promote_pages_from_nvpc(struct list_head *nvpc_pages)
 		goto out;
 	}
 	
-	// NVTODO: confirm all params
+	// want to use migration like in compaction process, rather than NUMA process
 	err = migrate_pages(nvpc_pages, nvpc_alloc_promote_page, NULL, 0, 
 						MIGRATE_ASYNC, MR_NVPC_LRU_PROMOTE, &nr_succeeded);
 	// read_unlock_irq(&nvpc->meta_lock);
@@ -152,6 +152,7 @@ static unsigned int nvpc_move_pages_to_lru(struct lruvec *lruvec,
 		page = lru_to_page(list);
 		VM_BUG_ON_PAGE(PageLRU(page), page);
 		list_del(&page->lru);
+
 		if (unlikely(!page_evictable(page))) {
 			spin_unlock_irq(&lruvec->lru_lock);
 			putback_lru_page(page);
@@ -179,7 +180,11 @@ static unsigned int nvpc_move_pages_to_lru(struct lruvec *lruvec,
 		 * inhibits memcg migration).
 		 */
 		VM_BUG_ON_PAGE(!page_matches_lruvec(page, lruvec), page);
+
+		// NVBUG: The page here cannot be NVPC page, because it has been migrated to DRAM
+		VM_BUG_ON_PAGE(PageNVPC(page), page);
 		add_page_to_lru_list(page, lruvec);
+
 		nr_pages = thp_nr_pages(page);
 		nr_moved += nr_pages;
 		if (PageActive(page))
@@ -262,7 +267,7 @@ keep:
 	}
 	/* 'page_list' is always empty here */
 
-	/* Promote: Migrate NVPC pages to DRAM lru */
+	/* Promote: Migrate NVPC pages to DRAM, but not in LRU */
 	if (do_promote_pass) {
 		nr_reclaimed += promote_pages_from_nvpc(&nvpc_promote_pages);
 		if (!list_empty(&nvpc_promote_pages))
@@ -319,16 +324,14 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	// lru_add_drain();
 
 	spin_lock_irq(&lruvec->lru_lock);
-	nr_taken = nvpc_promote_vec_isolate(&page_list); // NVTODO: change from isolate_lru_pages()
+	nr_taken = nvpc_promote_vec_isolate(&page_list, lruvec); // NVTODO: change from isolate_lru_pages()
 	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, nr_taken);
 	spin_unlock_irq(&lruvec->lru_lock);
 
 	if (nr_taken == 0)
 		return 0;
 
-	spin_lock_irq(&lruvec->lru_lock); // NVTEST: lock
 	nr_reclaimed = promote_page_list(&page_list, pgdat, sc, false);
-	spin_unlock_irq(&lruvec->lru_lock); // NVTEST: unlock here
 
 	spin_lock_irq(&lruvec->lru_lock);
 	nr_taken = nvpc_move_pages_to_lru(lruvec, &page_list);

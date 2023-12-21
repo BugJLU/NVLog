@@ -25,8 +25,8 @@ sudo qemu-system-x86_64 \
     -smp 8 \
     -m 2G,slots=4,maxmem=32G \
     -nographic \
-    -kernel /home/shh/git_clone/nvpcnew/linux-5.15.125/arch/x86_64/boot/bzImage \
-    -drive format=raw,file=$VM_DIR/tmp_disk.img,if=virtio \
+    -kernel /mnt/nvme/nvpc/linux-5.15.125/arch/x86_64/boot/bzImage \
+    -drive format=raw,file=$VM_DIR/debug_disk.img,if=virtio \
     -drive format=raw,file=$VM_DIR/share.img,if=virtio \
     -append "root=/dev/vda3 console=ttyS0 kgdboc=ttyS1,115200 nokaslr kgdbwait" \
     -object memory-backend-file,id=mem1,share=on,mem-path=$VM_DIR/nvdimm0,size=2G \

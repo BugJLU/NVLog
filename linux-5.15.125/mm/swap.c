@@ -1057,9 +1057,6 @@ void release_pages(struct page **pages, int nr)
 	for (i = 0; i < nr; i++) {
 		struct page *page = pages[i];
 
-		if (PageNVPC(page)) {
-			pr_warn("[NVPC DEBUG]	[release_pages] page %p is NVPC page\n", page);
-		}
 		/*
 		 * Make sure the IRQ-safe lock-holding time does not get
 		 * excessive with a continuous string of pages from the

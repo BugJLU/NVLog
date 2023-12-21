@@ -59,7 +59,7 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long node);
 
 int nvpc_promote_vec_put_page(struct page * page);
 void nvpc_promote_vec_clear(void);
-int nvpc_promote_vec_isolate(struct list_head *page_list);
+int nvpc_promote_vec_isolate(struct list_head *page_list, struct lruvec *lruvec);
 // bool nvpc_should_promote(void);
 int nvpc_promote_vec_nr(void);
 

@@ -263,7 +263,7 @@ void nvpc_free_pages(struct list_head *list)
 }
 
 /* derived from vmscan.c: alloc_demote_page() */
-struct page *nvpc_alloc_promote_page(struct page *page, unsigned long private)
+struct page *nvpc_alloc_promote_page(struct page *page, unsigned long node)
 {
     struct migration_target_control mtc = {
         /*
@@ -273,10 +273,14 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long private)
          */
         // NVXXX: set GFP_NOIO so that only clean pages can be reclaimed?
         // NVTODO: if can't get a page here, just fucking return
-        .gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_RECLAIM |
-			    __GFP_THISNODE | __GFP_NOWARN |
-			    __GFP_NOMEMALLOC | GFP_NOWAIT,
-		.nid = nvpc.nid
+        // .gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_RECLAIM |
+		// 	    __GFP_THISNODE | __GFP_NOWARN |
+		// 	    __GFP_NOMEMALLOC | GFP_NOWAIT,
+		// .nid = nvpc.nid
+        .gfp_mask = (GFP_HIGHUSER_MOVABLE & ~__GFP_RECLAIM) |
+                __GFP_THISNODE  | __GFP_NOWARN |
+                __GFP_NOMEMALLOC | GFP_NOWAIT,
+		.nid = node
 	};
 
 	return alloc_migration_target(page, (unsigned long)&mtc);
@@ -308,11 +312,7 @@ int nvpc_promote_vec_put_page(struct page * page)
         return -1;
 
     spin_lock_irqsave(&promote_vec_lock, lock_irq);
-
-    // local_irq_disable();
     promote_vec[idx] = page;
-    // local_irq_enable();
-
     spin_unlock_irqrestore(&promote_vec_lock, lock_irq);
 
     return idx+1;
@@ -323,38 +323,47 @@ int nvpc_promote_vec_put_page(struct page * page)
 void nvpc_promote_vec_clear()
 {
     int i, num;
-    // int num = atomic_read(&nr_promote_vec);
-    // /* refuse other processes to update the promote vec */
-    // atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
 
     num = atomic_xchg(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
 
-
-    for (i = 0; i < num; i++)
-    {
+    for (i = 0; i < num; i++) {
         page_nvpc_lru_cnt_set(promote_vec[i], 0);
     }
     atomic_set(&nr_promote_vec, 0);
 }
 
 /* caller must ensure that this function can manipulate NVPC lru!!! */
-int nvpc_promote_vec_isolate(struct list_head *page_list)
+int nvpc_promote_vec_isolate(struct list_head *page_list, struct lruvec *lruvec)
 {
     int i, num;
     unsigned long lock_irq;
-
-    // num = atomic_read(&nr_promote_vec);
-    // /* refuse other processes to update the promote vec */
-    // atomic_set(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+    struct page *page;
 
     num = atomic_xchg(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
 
     spin_lock_irqsave(&promote_vec_lock, lock_irq);
-    // local_irq_disable();
     for (i = 0; i < num; i++) {
-        list_move(&promote_vec[i]->lru, page_list);
+        page = promote_vec[i];
+
+        if (!PageLRU(page))
+            goto move;
+
+        if (unlikely(!get_page_unless_zero(page)))
+            goto move;
+
+        // If the page is not in any DRAM 
+        if (!TestClearPageLRU(page)) {
+            put_page(page);
+            goto move;
+        }
+
+move:
+        list_move(&page->lru, page_list);
+        // NVTEST: for update_lru_size()
+        // NVTODO: The lru size update should be done out of the loop for performance
+        update_lru_size(lruvec, page_lru(page), page_zonenum(page),
+			-thp_nr_pages(page));
     }
-    // local_irq_enable();
     spin_unlock_irqrestore(&promote_vec_lock, lock_irq);
     
     atomic_set(&nr_promote_vec, 0);
