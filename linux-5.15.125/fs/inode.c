@@ -204,6 +204,15 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
 #endif
 	inode->i_flctx = NULL;
 
+#ifdef CONFIG_NVPC
+	inode->nvpc_sync_ilog.log_head = NULL;
+	inode->nvpc_sync_ilog.log_tail = NULL;
+	xa_init(&inode->nvpc_sync_ilog.inode_log_pages);
+	inode->nvpc_sync_ilog.latest_logged_attr = NULL;
+	inode->nvpc_sync_ilog.log_cntr = 0;
+	mutex_init(&inode->nvpc_sync_ilog.log_lock);
+#endif
+
 	if (unlikely(security_inode_alloc(inode)))
 		return -ENOMEM;
 	this_cpu_inc(nr_inodes);
@@ -250,12 +259,6 @@ static struct inode *alloc_inode(struct super_block *sb)
 		i_callback(&inode->i_rcu);
 		return NULL;
 	}
-
-#ifdef CONFIG_NVPC
-	inode->nvpc_sync_ilog.log_head = NULL;
-	inode->nvpc_sync_ilog.log_tail = NULL;
-	xa_init(&inode->nvpc_sync_ilog.inode_log_pages);
-#endif
 
 	return inode;
 }

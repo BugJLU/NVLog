@@ -738,11 +738,32 @@ struct inode {
 	{
 		log_inode_head_entry *log_head;
 
-		// NVTODO: not used yet. implement in next step
+		// NVNEXT: not used yet. implement in next step
 		/* log entries from this pointer is available */
 		nvpc_sync_log_entry *log_tail;
 
+		/* 
+		 * An index to the last effective page (or part of page), 
+		 * the index is like pfn num (file_off >> PAGE_SHIFT). 
+		 * If the entry is ip write, then it is the last part of
+		 * the modification of this page, and there is a chain so
+		 * we can trace back to find all the write on this page. 
+		 * If the entry is oop write, then it is the latest version 
+		 * of this page. 
+		 * 
+		 * write_ip should store the last partial write to a page here;
+		 * write_oop should store the last write to a page here;
+		 * writeback should remove the index here;
+		 * replay should remove the index here;
+		 */
 		struct xarray inode_log_pages;
+
+		/* a big lock for the log */
+		struct mutex log_lock;
+
+		nvpc_sync_attr_entry *latest_logged_attr;
+		// atomic_t log_cntr;
+		uint32_t log_cntr;
 	} nvpc_sync_ilog;
 #endif
 	
@@ -1439,6 +1460,7 @@ extern int send_sigurg(struct fown_struct *fown);
 
 #ifdef CONFIG_NVPC
 #define SB_NVPC_ON		BIT(0) 	/* this fs is enabled to use nvpc */
+#define SB_NVPC_STRICT	BIT(1)	/* if true, this sb is in strict nvpc mode */
 #endif
 
 /* These flags relate to encoding and casefolding */
@@ -2258,6 +2280,11 @@ static inline bool sb_rdonly(const struct super_block *sb) { return sb->s_flags 
 #define IS_WHITEOUT(inode)	(S_ISCHR(inode->i_mode) && \
 				 (inode)->i_rdev == WHITEOUT_DEV)
 
+#define __IS_NVFLG(inode, flg)	((inode)->i_sb->s_nvpc_flags & (flg))
+// #define IS_NVPC_ON(inode)		(get_nvpc()->enabled && __IS_NVFLG(inode, SB_NVPC_ON))
+#define IS_NVPC_ON(inode)		__IS_NVFLG(inode, SB_NVPC_ON)
+#define	IS_NVPC_STRICT(inode)	__IS_NVFLG(inode, SB_NVPC_STRICT)
+
 static inline bool HAS_UNMAPPED_ID(struct user_namespace *mnt_userns,
 				   struct inode *inode)
 {
@@ -2405,22 +2432,24 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
 #define I_DONTCACHE		(1 << 16)
 #define I_SYNC_QUEUED		(1 << 17)
 
-/*
- * Inode states for NVPC 
- *
- * I_NVPC		The inode's backend persistent device is NVPC.
- * 
- * I_NVPC_DIRTY		The inode is dirty in NVPC.
- * 
- * NOTE: If I_NVPC is marked, all dirty data / metadata write back should 
- * be directed to NVPC. I_NVPC_DIRTY represents that the inode's data / 
- * metadata in NVPC is not consistent with the underlying device and should
- * be flushed in sometime. I_NVPC_DIRTY is set only after there is a sync 
- * on the inode. Once I_NVPC_DIRTY is set, no more data should be written 
- * back to the underlying device until the flag is cleared.
- */
-#define I_NVPC			(1 << 18)
-#define I_NVPC_DIRTY	(1 << 19)
+// /*
+//  * Inode states for NVPC 
+//  *
+//  * I_NVPC		The inode's backend persistent device is NVPC.
+//  * 
+//  * I_NVPC_DIRTY		The inode is dirty in NVPC.
+//  * 
+//  * NOTE: If I_NVPC is marked, all dirty data / metadata write back should 
+//  * be directed to NVPC. I_NVPC_DIRTY represents that the inode's data / 
+//  * metadata in NVPC is not consistent with the underlying device and should
+//  * be flushed in sometime. I_NVPC_DIRTY is set only after there is a sync 
+//  * on the inode. Once I_NVPC_DIRTY is set, no more data should be written 
+//  * back to the underlying device until the flag is cleared.
+//  */
+// #define I_NVPC			(1 << 18)
+// #define I_NVPC_DIRTY	(1 << 19)
+#define I_NVPC_DATA	(1 << 18)	/* some data of an inode is already in NVPC, used to instruct truncate */
+
 
 #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
 #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)

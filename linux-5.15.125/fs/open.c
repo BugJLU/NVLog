@@ -33,6 +33,7 @@
 #include <linux/dnotify.h>
 #include <linux/compat.h>
 #include <linux/mnt_idmapping.h>
+#include <linux/nvpc.h>
 
 #include "internal.h"
 
@@ -842,6 +843,14 @@ static int do_dentry_open(struct file *f,
 
 	/* NB: we're sure to have correct a_ops only after f_op->open */
 	if (f->f_flags & O_DIRECT) {
+#ifdef CONFIG_NVPC
+		if (IS_NVPC_ON(inode) && get_nvpc()->absorb_syn)
+		{
+			f->f_flags &= ~O_DIRECT;
+			f->f_flags |= O_SYNC;
+		}
+		else
+#endif
 		if (!f->f_mapping->a_ops || !f->f_mapping->a_ops->direct_IO)
 			return -EINVAL;
 	}

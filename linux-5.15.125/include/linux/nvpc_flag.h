@@ -19,4 +19,6 @@
 
 #define NVPC_PERCPU_FREELIST
 
+#define NVPC_IPOOP_THR PAGE_SIZE
+
 #endif

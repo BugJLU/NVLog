@@ -1128,6 +1128,7 @@ static pageout_t pageout(struct page *page, struct address_space *mapping)
 		if (page_has_private(page)) {
 			if (try_to_free_buffers(page)) {
 				ClearPageDirty(page);
+				ClearPageNVPCNpDirty(page);
 				pr_info("%s: orphaned page\n", __func__);
 				return PAGE_CLEAN;
 			}

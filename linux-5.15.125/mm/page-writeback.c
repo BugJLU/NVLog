@@ -2501,6 +2501,9 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 		__xa_set_mark(&mapping->i_pages, page_index(page),
 				PAGECACHE_TAG_DIRTY);
 	}
+#ifdef CONFIG_NVPC
+	SetPageNVPCNpDirty(page);
+#endif
 	xa_unlock_irqrestore(&mapping->i_pages, flags);
 }
 
@@ -2664,11 +2667,14 @@ void __cancel_dirty_page(struct page *page)
 
 		if (TestClearPageDirty(page))
 			account_page_cleaned(page, mapping, wb);
+		
+		ClearPageNVPCNpDirty(page);
 
 		unlocked_inode_to_wb_end(inode, &cookie);
 		unlock_page_memcg(page);
 	} else {
 		ClearPageDirty(page);
+		ClearPageNVPCNpDirty(page);
 	}
 }
 EXPORT_SYMBOL(__cancel_dirty_page);
@@ -2741,9 +2747,11 @@ int clear_page_dirty_for_io(struct page *page)
 			dec_wb_stat(wb, WB_RECLAIMABLE);
 			ret = 1;
 		}
+		ClearPageNVPCNpDirty(page);
 		unlocked_inode_to_wb_end(inode, &cookie);
 		return ret;
 	}
+	ClearPageNVPCNpDirty(page);
 	return TestClearPageDirty(page);
 }
 EXPORT_SYMBOL(clear_page_dirty_for_io);
