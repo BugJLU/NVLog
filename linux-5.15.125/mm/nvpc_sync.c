@@ -990,6 +990,10 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 
         pr_debug("[NVPC DEBUG]: nvpc_fsync_range 7\n");
 
+        /* 
+         * DO NOT clear PageNVPCNpDirty anywhere else, the data on disk may
+         * be newer than nvpc and thus cause inconsistency on recovery.
+         */
         ClearPageNVPCNpDirty(page);
         SetPageNVPCPin(page);
         
@@ -1012,8 +1016,6 @@ out:
     } while (bytes_left);
     trans.parts[trans.count].page = NULL; // last part set to NULL
     trans.parts[trans.count].ent = NULL;
-    
-    // NVTODO: sync the metadata? maybe not necessary here
 
     pr_debug("[NVPC DEBUG]: nvpc_fsync_range 9\n");
 
@@ -1051,7 +1053,6 @@ fallback:
     return ret;
 }
 
-// NVTODO: support set_attr log, e.g. truncate
 /* 
  * NVPC truncate log represents that the data before this point inside NVPC
  * is truncated. This truncate operation will be replayed on the inode anyway,  
@@ -1387,16 +1388,16 @@ void nvpc_print_inode_pages(struct inode *inode)
 
 // NVTODO: lazy copy & remove pending copy mark inside generic_perform_write outside pagecache_get_page
 
-// NVTODO: log compact
+// NVTODO: only enable ip write when all fd are open in sync mode
 
 // NVTODO: log replay (refer to nvpc_print_inode_pages)
 
+// NVTODO: log compact
+
 // NVTODO: mark file as O_SYNC if sync happens frequently
 
-// NVTODO: demote to existing NVPC page to reduce memory usage
-
-// NVTODO: only enable ip write when all fd are open in sync mode
-
-// NVTODO: when OOM, fsync the inode and mark the inode as drained to prevent further access
+// NVTODO: (demote to existing NVPC page to reduce memory usage) or remove existing page after demotion
 
 // NVTODO: set / clear dirty (NVPCNpDirty) and other bits on migration
+
+// NVTODO: when OOM, fsync the inode and mark the inode as drained to prevent further access

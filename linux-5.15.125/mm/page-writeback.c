@@ -2501,9 +2501,6 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 		__xa_set_mark(&mapping->i_pages, page_index(page),
 				PAGECACHE_TAG_DIRTY);
 	}
-#ifdef CONFIG_NVPC
-	SetPageNVPCNpDirty(page);
-#endif
 	xa_unlock_irqrestore(&mapping->i_pages, flags);
 }
 
@@ -2522,6 +2519,9 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 int __set_page_dirty_nobuffers(struct page *page)
 {
 	lock_page_memcg(page);
+#ifdef CONFIG_NVPC
+	SetPageNVPCNpDirty(page);
+#endif
 	if (!TestSetPageDirty(page)) {
 		struct address_space *mapping = page_mapping(page);
 
@@ -2668,13 +2668,13 @@ void __cancel_dirty_page(struct page *page)
 		if (TestClearPageDirty(page))
 			account_page_cleaned(page, mapping, wb);
 		
-		ClearPageNVPCNpDirty(page);
+		// ClearPageNVPCNpDirty(page);
 
 		unlocked_inode_to_wb_end(inode, &cookie);
 		unlock_page_memcg(page);
 	} else {
 		ClearPageDirty(page);
-		ClearPageNVPCNpDirty(page);
+		// ClearPageNVPCNpDirty(page);
 	}
 }
 EXPORT_SYMBOL(__cancel_dirty_page);
@@ -2747,11 +2747,11 @@ int clear_page_dirty_for_io(struct page *page)
 			dec_wb_stat(wb, WB_RECLAIMABLE);
 			ret = 1;
 		}
-		ClearPageNVPCNpDirty(page);
+		// ClearPageNVPCNpDirty(page);
 		unlocked_inode_to_wb_end(inode, &cookie);
 		return ret;
 	}
-	ClearPageNVPCNpDirty(page);
+	// ClearPageNVPCNpDirty(page);
 	return TestClearPageDirty(page);
 }
 EXPORT_SYMBOL(clear_page_dirty_for_io);
@@ -2819,6 +2819,10 @@ int test_clear_page_writeback(struct page *page)
 		inc_node_page_state(page, NR_WRITTEN);
 	}
 	unlock_page_memcg(page);
+		
+	// NVTODO: log page writeback in nvpc's pmem zone using the previous wb mark in dram index
+
+
 	return ret;
 }
 
@@ -2879,6 +2883,14 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 	 * accessible, it is too late to recover here.
 	 */
 	VM_BUG_ON_PAGE(access_ret != 0, page);
+
+	
+	// NVTODO: mark page writeback with current latest log entry of this page in nvpc's dram index
+	/* 
+	 * The page is locked here, grabbing inode->nvpc_sync_ilog.log_lock will cause
+	 * deadlock, so we use work queue to postpone the logging.
+	 */
+
 
 	return ret;
 

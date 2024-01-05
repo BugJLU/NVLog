@@ -637,6 +637,9 @@ int __set_page_dirty_buffers(struct page *page)
 	 */
 	lock_page_memcg(page);
 	newly_dirty = !TestSetPageDirty(page);
+#ifdef CONFIG_NVPC
+	SetPageNVPCNpDirty(page);
+#endif
 	spin_unlock(&mapping->private_lock);
 
 	if (newly_dirty)
