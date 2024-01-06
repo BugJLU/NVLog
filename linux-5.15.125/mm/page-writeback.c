@@ -37,6 +37,7 @@
 #include <linux/sched/rt.h>
 #include <linux/sched/signal.h>
 #include <linux/mm_inline.h>
+#include <linux/nvpc_sync.h>
 #include <trace/events/writeback.h>
 
 #include "internal.h"
@@ -2502,6 +2503,9 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 				PAGECACHE_TAG_DIRTY);
 	}
 	xa_unlock_irqrestore(&mapping->i_pages, flags);
+#ifdef CONFIG_NVPC
+	SetPageNVPCNpDirty(page);
+#endif
 }
 
 /*
@@ -2820,8 +2824,15 @@ int test_clear_page_writeback(struct page *page)
 	}
 	unlock_page_memcg(page);
 		
-	// NVTODO: log page writeback in nvpc's pmem zone using the previous wb mark in dram index
-
+#ifdef CONFIG_NVPC
+	/* 
+	 * log page writeback in nvpc's pmem zone using the previous wb mark in dram index.
+	 * The page is locked here, grabbing inode->nvpc_sync_ilog.log_lock will cause
+	 * deadlock, so we use work queue to postpone the logging.
+	 */
+	if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPin(page))
+		nvpc_log_page_writeback(page);
+#endif
 
 	return ret;
 }
@@ -2875,6 +2886,17 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 	if (!ret) {
 		inc_lruvec_page_state(page, NR_WRITEBACK);
 		inc_zone_page_state(page, NR_ZONE_WRITE_PENDING);
+
+#ifdef CONFIG_NVPC
+		/* 
+		 * mark page writeback with current latest log entry of this 
+		 * page in nvpc's dram index. only mark it when the page's  
+		 * first SetPageWriteback, or we may losg some nvpc log during
+		 * the first and second SetPageWriteback
+		 */
+		if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPin(page))
+			nvpc_mark_page_writeback(page);
+#endif
 	}
 	unlock_page_memcg(page);
 	access_ret = arch_make_page_accessible(page);
@@ -2883,14 +2905,6 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 	 * accessible, it is too late to recover here.
 	 */
 	VM_BUG_ON_PAGE(access_ret != 0, page);
-
-	
-	// NVTODO: mark page writeback with current latest log entry of this page in nvpc's dram index
-	/* 
-	 * The page is locked here, grabbing inode->nvpc_sync_ilog.log_lock will cause
-	 * deadlock, so we use work queue to postpone the logging.
-	 */
-
 
 	return ret;
 

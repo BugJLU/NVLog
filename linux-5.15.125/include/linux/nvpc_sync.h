@@ -58,6 +58,7 @@ struct nvpc_sync
     struct mutex super_log_lock;
     // /* xarray for nvpc_sync_inode */
     // struct xarray inode_log_heads;
+    struct workqueue_struct *nvpc_sync_wq;
 };
 
 
@@ -221,6 +222,29 @@ NVPC_LOG_ESASSERT(nvpc_next_log_entry);
 
 
 
+typedef struct nvpc_sync_page_info
+{
+    struct inode *inode;
+    nvpc_sync_write_entry *latest_write;
+    struct page *latest_p_page; // latest persistent page
+    // struct page *np_page;   // non-persistent (page cache) page
+
+    // the latest write entry before this page is marked as writeback
+    nvpc_sync_write_entry *latest_write_on_wb;
+    // the entry to be committed to log, recorded when the writeback is done
+    nvpc_sync_write_entry *wb_write_committed;
+    bool wb_clear_pin;
+    struct page *pagecache_page; // used in writeback log only
+
+    struct work_struct wb_log_work;
+
+    spinlock_t infolock;
+} nvpc_sync_page_info_t;
+
+#define NVPC_LOG_LATEST_IP(page_info) (!((page_info)->latest_p_page))
+#define NVPC_LOG_LATEST_OOP(page_info) ((page_info)->latest_p_page)
+
+
 /* --- Functions --- */
 
 log_inode_head_entry *nvpc_get_log_inode(struct inode *inode);
@@ -231,6 +255,9 @@ int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off,
         nvpc_sync_log_entry **new_head, nvpc_sync_log_entry **new_tail);
 
 int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync);
+
+void nvpc_mark_page_writeback(struct page *page);
+void nvpc_log_page_writeback(struct page *page);
 
 struct iattr;
 int nvpc_sync_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,

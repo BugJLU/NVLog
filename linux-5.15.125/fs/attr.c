@@ -486,8 +486,11 @@ int notify_change(struct user_namespace *mnt_userns, struct dentry *dentry,
 		return error;
 
 #ifdef CONFIG_NVPC
-	if (attr->ia_file && IS_NVPC_ON(inode) && 
-		((attr->ia_file->f_flags & O_SYNC) || IS_SYNC(inode) || (inode->i_state & I_NVPC_DATA))) 
+	if (IS_NVPC_ON(inode) && (
+		(inode->i_sb && IS_SYNC(inode)) || 
+		(inode->i_state & I_NVPC_DATA)	||
+		((attr->ia_valid & ATTR_SIZE) && attr->ia_file && (attr->ia_file->f_flags & O_SYNC))
+	))
 		// only deal with truncate. 
 		error = nvpc_sync_setattr(mnt_userns, dentry, attr);
 	// else 
