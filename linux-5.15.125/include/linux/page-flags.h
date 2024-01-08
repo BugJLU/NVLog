@@ -146,7 +146,8 @@ enum pageflags {
 	PG_NVPC_np_dirty,			/* page cache is dirty and not persisted in NVPC, for page cache page */
 	PG_NVPC_pin, 				/* latest page cache is (partial/fully) persisted in NVPC, for pc page, 
 								 * when writeback is performed, log to cancel the page in NVPC */
-	
+	PG_NVPC_p_dirty,			/* nvpc persisted page is dirty compared with disk */
+
 	/* the following bits are not used */
 	// PG_NVPC_persistent, 		/* nvpc page is in persistent mode */
 	// PG_NVPC_has_persistent, 	/* dram page has an nvpc copy that is in persistent mode */
@@ -481,6 +482,8 @@ PAGEFLAG(NVPCNpDirty, NVPC_np_dirty, PF_NO_COMPOUND)
 	TESTSCFLAG(NVPCNpDirty, NVPC_np_dirty, PF_NO_COMPOUND)
 PAGEFLAG(NVPCPin, NVPC_pin, PF_NO_COMPOUND)
 	TESTSCFLAG(NVPCPin, NVPC_pin, PF_NO_COMPOUND)
+PAGEFLAG(NVPCPDirty, NVPC_p_dirty, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCPDirty, NVPC_p_dirty, PF_NO_COMPOUND)
 // PAGEFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
 // 	TESTSCFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
 // PAGEFLAG(NVPCHasPersistent, NVPC_has_persistent, PF_NO_COMPOUND)

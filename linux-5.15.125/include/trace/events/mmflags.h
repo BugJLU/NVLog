@@ -130,7 +130,8 @@ IF_HAVE_PG_ARCH_2(PG_arch_2,		"arch_2"	)		\
 IF_HAVE_PG_SKIP_KASAN_POISON(PG_skip_kasan_poison, "skip_kasan_poison")	\
 IF_HAVE_PG_NVPC(PG_NVPC_pending_copy, "nvpc_pending_copy")	\
 IF_HAVE_PG_NVPC(PG_NVPC_np_dirty, "nvpc_np_dirty")	\
-IF_HAVE_PG_NVPC(PG_NVPC_pin, "nvpc_pin")	
+IF_HAVE_PG_NVPC(PG_NVPC_pin, "nvpc_pin") \
+IF_HAVE_PG_NVPC(PG_NVPC_p_dirty, "nvpc_p_dirty")
 // IF_HAVE_PG_NVPC(PG_NVPC_persistent, "nvpc_persistent")	
 // IF_HAVE_PG_NVPC(PG_NVPC_has_persistent, "nvpc_has_persistent")
 

@@ -135,11 +135,14 @@ NVPC_HEAD_ESASSERT(next_sl_page_entry);
 
 /* --- NVPC LOG ENTRIES --- */
 
-#define NVPC_LOG_FLAG_WRITE 0   /* write */
+/* types */
+#define NVPC_LOG_TYPE_WRITE 0   /* write */
+#define NVPC_LOG_TYPE_NEXT  1   /* next page */
+#define NVPC_LOG_TYPE_RM    2   /* the page at this offset is removed from NVPC */
+#define NVPC_LOG_TYPE_ATTR  3   /* inode attr (metadata) modify */
+/* flags */
 #define NVPC_LOG_FLAG_WREXP 1   /* write, expired */
-#define NVPC_LOG_FLAG_NEXT  2   /* next page */
-#define NVPC_LOG_FLAG_RM    3   /* the page at this offset is removed from NVPC */
-#define NVPC_LOG_FLAG_ATTR  4   /* inode attr (metadata) modify */
+#define NVPC_LOG_FLAG_WRFRE 2   /* write, freed */
 
 /* log entry length is 64 bytes */
 #define NVPC_LOG_ENTRY_SIZE     64
@@ -155,15 +158,16 @@ static_assert(PAGE_SIZE % NVPC_LOG_ENTRY_SIZE == 0);
 /* basic log entry */
 typedef struct __attribute__((__packed__)) nvpc_sync_log_entry_s
 {
+    uint8_t     type;
     uint8_t     flags;
     uint32_t    id;
-    uint8_t     data[NVPC_LOG_ENTRY_SIZE-5];
+    uint8_t     data[NVPC_LOG_ENTRY_SIZE-6];
 } nvpc_sync_log_entry;
 
 #define NVPC_LOG_ESASSERT(entry) \
     NVPC_ENTRY_SIZE_ASSERT(nvpc_sync_log_entry, entry)
 
-/* write log entry, for both NVPC_LOG_FLAG_WRITE, NVPC_LOG_FLAG_WREXP and NVPC_LOG_FLAG_RM */
+/* write log entry, for both NVPC_LOG_TYPE_WRITE, NVPC_LOG_TYPE_WREXP and NVPC_LOG_TYPE_RM */
 typedef union nvpc_sync_write_entry_u
 {
     struct __attribute__((__packed__))
@@ -214,7 +218,7 @@ NVPC_LOG_ESASSERT(nvpc_next_log_entry);
 
 /* helpers to find next log page */
 #define NVPC_LOG_ENTRY_NEXT(addr) ((nvpc_next_log_entry*)(((uintptr_t)addr&PAGE_MASK)+PAGE_SIZE-NVPC_LOG_ENTRY_SIZE))
-#define NVPC_LOG_HAS_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->raw.flags == NVPC_LOG_FLAG_NEXT)
+#define NVPC_LOG_HAS_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->raw.flags == NVPC_LOG_TYPE_NEXT)
 #define NVPC_LOG_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->next_log_page)
 
 // #define NVPC_LOG_FILE_OFF_MASK ((1UL) << 56) - 1

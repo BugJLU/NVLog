@@ -349,7 +349,7 @@ static nvpc_sync_log_entry *append_inode_n_log(struct inode *inode, size_t n_ent
             list_for_each_entry(page, &pages, lru) {
                 kaddr = page_to_virt(page);
                 nextent->next_log_page = (uintptr_t)kaddr;
-                nextent->raw.flags = NVPC_LOG_FLAG_NEXT;
+                nextent->raw.type = NVPC_LOG_TYPE_NEXT;
                 arch_wb_cache_pmem((void*)nextent, sizeof(nvpc_next_log_entry));
                 nextent = NVPC_LOG_ENTRY_NEXT(kaddr);
             }
@@ -365,7 +365,7 @@ static nvpc_sync_log_entry *append_inode_n_log(struct inode *inode, size_t n_ent
             
             nextent = NVPC_LOG_ENTRY_NEXT(ent);
             nextent->next_log_page = (uintptr_t)newpage;
-            nextent->raw.flags = NVPC_LOG_FLAG_NEXT;
+            nextent->raw.type = NVPC_LOG_TYPE_NEXT;
             arch_wb_cache_pmem((void*)nextent, sizeof(nvpc_next_log_entry));
             last_page = newpage;
         }
@@ -420,7 +420,8 @@ int write_oop(struct inode *inode, struct page *page, loff_t file_off, uint16_t 
     if (!ent)
         return -ENOMEM;
     
-    ent->raw.flags = NVPC_LOG_FLAG_WRITE;
+    ent->raw.type = NVPC_LOG_TYPE_WRITE;
+    ent->raw.flags = 0;
     ent->raw.id = inode->nvpc_sync_ilog.log_cntr++;
     ent->file_offset = file_off;
     ent->data_len = len;
@@ -460,10 +461,11 @@ int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off,
     
     last = walk_log((nvpc_sync_log_entry *)(ent0+1), inode->nvpc_sync_ilog.log_tail-1, 
                 __write_ioviter_to_log_it, from, true);
-    WARN_ON(last != inode->nvpc_sync_ilog.log_tail);
+    // WARN_ON(last != inode->nvpc_sync_ilog.log_tail);
     
     ent0->raw.id = inode->nvpc_sync_ilog.log_cntr++;
-    ent0->raw.flags = NVPC_LOG_FLAG_WRITE;
+    ent0->raw.type = NVPC_LOG_TYPE_WRITE;
+    ent0->raw.flags = 0;
     ent0->file_offset = file_off;
     ent0->data_len = len;
     ent0->page_index = 0;
@@ -524,14 +526,14 @@ struct nvpc_sync_transaction
 };
 
 // e.g. (oop->ip->...->ip)->oop, mark and free those in the bracket
-static inline void __nvpc_mark_free_chained_entries(nvpc_sync_write_entry *last)
+static inline void __nvpc_mark_free_chained_entries(nvpc_sync_write_entry *last, bool free)
 {
     nvpc_sync_write_entry *curr = last;
     // loop while current is ip
     while (!curr->page_index)
     {
         // mark entry as expired
-        curr->raw.flags = NVPC_LOG_FLAG_WREXP;
+        curr->raw.flags |= NVPC_LOG_FLAG_WREXP;
         arch_wb_cache_pmem(curr, sizeof(nvpc_sync_write_entry*));
 
         // current ip has previous write link
@@ -543,10 +545,32 @@ static inline void __nvpc_mark_free_chained_entries(nvpc_sync_write_entry *last)
     }
 
     // mark entry as expired
-    curr->raw.flags = NVPC_LOG_FLAG_WREXP;
+    curr->raw.flags |= NVPC_LOG_FLAG_WREXP;
     arch_wb_cache_pmem(curr, sizeof(nvpc_sync_write_entry*));
     // free the old oop page
-    nvpc_free_page(virt_to_page(nvpc_get_addr_pg(curr->page_index)), 0);
+    if (free)
+    {
+        curr->raw.flags |= NVPC_LOG_FLAG_WRFRE;
+        nvpc_free_page(virt_to_page(nvpc_get_addr_pg(curr->page_index)), 0);
+    }
+}
+
+struct nvpc_chain_mnf_s {
+    nvpc_sync_write_entry *last;
+    struct work_struct work;
+    bool free;
+};
+
+static void nvpc_mark_free_chained_entries_fn(struct work_struct *work)
+{
+    struct nvpc_chain_mnf_s *mnf;
+
+    pr_debug("[NVPC DEBUG]: mnf fn\n");
+
+    mnf = container_of(work, struct nvpc_chain_mnf_s, work);
+    __nvpc_mark_free_chained_entries(mnf->last, mnf->free);
+    kfree(mnf); // NVXXX: can i do this here ???
+    pr_debug("[NVPC DEBUG]: mnf fn ok\n");
 }
 
 static void wb_log_work_fn(struct work_struct *work);
@@ -718,7 +742,7 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
             if (trans->parts[i]._oldpage)
             {
                 // mark previous entry as expired
-                trans->parts[i]._oldent->raw.flags = NVPC_LOG_FLAG_WREXP;
+                trans->parts[i]._oldent->raw.flags |= (NVPC_LOG_FLAG_WREXP | NVPC_LOG_FLAG_WRFRE);
                 // free the old page
                 nvpc_free_page(trans->parts[i]._oldpage, 0);
                 arch_wb_cache_pmem(trans->parts[i]._oldent, sizeof(nvpc_sync_write_entry*));
@@ -726,8 +750,20 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
             // previous is ip, follow the chain to mark and free
             else
             {
+                int ret;
+                struct nvpc_chain_mnf_s *mnf;
                 // e.g. (oop->ip->...->ip)->oop, mark and free those in the bracket
-                __nvpc_mark_free_chained_entries(trans->parts[i]._oldent);
+                // do it async
+                mnf = kmalloc(sizeof(struct nvpc_chain_mnf_s), GFP_ATOMIC);
+                if (mnf)
+                {
+                    mnf->free = true;
+                    mnf->last = trans->parts[i]._oldent;
+                    INIT_WORK(&mnf->work, nvpc_mark_free_chained_entries_fn);
+                    ret = queue_work(nvpc_sync.nvpc_sync_wq, &mnf->work);
+                }
+                else
+                    __nvpc_mark_free_chained_entries(trans->parts[i]._oldent, true);
             }
             
         }
@@ -925,6 +961,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
         if (!PageNVPCNpDirty(page))
         {
             pr_debug("[NVPC DEBUG]: nvpc_fsync_range (!PageNVPCNpDirty(page))\n");
+            pr_debug("[NVPC DEBUG]: nvpc_fsync_range dirty? %d\n", PageDirty(page));
             goto out;
         }
         
@@ -1015,6 +1052,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             else 
             {
                 /* bytes is less than ip threshold, and there is previous oop write */
+                // NVTODO: ip when all open fd are sync
                 if (bytes < NVPC_IPOOP_THR && PageNVPCPin(page))
                 {
                     struct iov_iter i;
@@ -1070,12 +1108,13 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
          * be newer than nvpc and thus cause inconsistency on recovery.
          */
         ClearPageNVPCNpDirty(page);
-        // PageNVPCPin is cleared on writeback finish
+        // PageNVPCPDirty is cleared on writeback finish
         SetPageNVPCPin(page);
+        SetPageNVPCPDirty(page);
         
 out:
         pr_debug("[NVPC DEBUG]: nvpc_fsync_range 8 out\n");
-        if (!page)
+        if (unlikely(!page))
             goto fallback;
         
         unlock_page(page);
@@ -1153,7 +1192,8 @@ int nvpc_sync_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
     if (!ent)
         return -ENOMEM;
     
-    ent->raw.flags = NVPC_LOG_FLAG_ATTR;
+    ent->raw.type = NVPC_LOG_TYPE_ATTR;
+    ent->raw.flags = 0;
     ent->raw.id = dentry->d_inode->nvpc_sync_ilog.log_cntr++;
     ent->new_size = iattr->ia_size;
     ent->last_attr = dentry->d_inode->nvpc_sync_ilog.latest_logged_attr ? 
@@ -1308,7 +1348,8 @@ struct page *nvpc_get_page_from_entry(nvpc_sync_write_entry *ent, nvpc_sync_attr
     nvpc_sync_attr_entry *curr_attr;
     struct page *newpg;
     void *newpg_addr;
-    WARN_ON(!ent);
+    BUG_ON(!ent);
+    BUG_ON(ent->raw.flags & NVPC_LOG_FLAG_WRFRE);
 
     newpg_addr = (void*)get_zeroed_page(GFP_KERNEL);
     newpg = virt_to_page(newpg_addr);
@@ -1318,13 +1359,16 @@ struct page *nvpc_get_page_from_entry(nvpc_sync_write_entry *ent, nvpc_sync_attr
 
     if (ent->page_index)
     {
-        bool attr_found;
+        bool attr_found = false;
         // oop
         pr_debug("[NVPC DEBUG] oop off %llu len %llu\n", ent->file_offset, (uint64_t)ent->data_len);
         
-        attr_found = __nvpc_find_relevant_attr(ent, &curr_attr);
-        pr_debug("[NVPC DEBUG] curr_attr %px\n", curr_attr);
-        
+        if (curr_attr)
+        {
+            attr_found = __nvpc_find_relevant_attr(ent, &curr_attr);
+            pr_debug("[NVPC DEBUG] curr_attr %px found %d sz %llu\n", curr_attr, attr_found, curr_attr->new_size);
+        }
+
         copy_highpage(newpg, virt_to_page(nvpc_get_addr_pg(ent->page_index)));
         if (attr_found)
         {
@@ -1339,7 +1383,7 @@ struct page *nvpc_get_page_from_entry(nvpc_sync_write_entry *ent, nvpc_sync_attr
     }
     else
     {
-        bool attr_found;
+        bool attr_found = false;
         // ip
         nvpc_sync_write_entry *curr = ent;
         page_bytes_tracker *tracker = kmalloc(sizeof(page_bytes_tracker), GFP_KERNEL);
@@ -1361,8 +1405,8 @@ struct page *nvpc_get_page_from_entry(nvpc_sync_write_entry *ent, nvpc_sync_attr
         while (!curr->page_index)
         {
             // track and check if this entry is useful
-
-            attr_found = __nvpc_find_relevant_attr(curr, &curr_attr);
+            if (curr_attr)
+                attr_found = __nvpc_find_relevant_attr(curr, &curr_attr);
             // if curr attr is truncating the curr ent page, set all mask bits after the truncate to 1
             if (attr_found)
             {
@@ -1395,8 +1439,9 @@ struct page *nvpc_get_page_from_entry(nvpc_sync_write_entry *ent, nvpc_sync_attr
         // if there's a whole page oop left
         if (curr)
         {
-            bool attr_found;
-            attr_found = __nvpc_find_relevant_attr(curr, &curr_attr);
+            bool attr_found = false;
+            if (curr_attr)
+                attr_found = __nvpc_find_relevant_attr(curr, &curr_attr);
 
             pr_debug("[NVPC DEBUG] oop off %llu len %llu\n", curr->file_offset, (uint64_t)curr->data_len);
                 
@@ -1446,14 +1491,17 @@ void nvpc_print_inode_pages(struct inode *inode)
             continue;
 
         pr_debug("[NVPC DEBUG]: raw %s\n[NVPC DEBUG]: ------------\n", (char*)page_to_virt(page));
-        pr_debug("[NVPC DEBUG]: sz %lld wb %d\n", inode->i_size, ent->raw.flags == NVPC_LOG_FLAG_WREXP ? 1 : 0);
+        pr_debug("[NVPC DEBUG]: sz %lld wb %d\n", inode->i_size, ent->raw.flags & NVPC_LOG_FLAG_WREXP ? 1 : 0);
         
         // cut the page according to the current file size
-        pr_debug("[NVPC DEBUG]: cut info i %lld e %lld ir %lld 1st %d, pg %px cutpt %px\n", 
+        pr_debug("[NVPC DEBUG]: cut info i %lld e %lld ir %lld 1st %d 4th %d 5th %d lst %d, pg %px cutpt %px\n", 
             (inode->i_size & PAGE_MASK), 
             (((nvpc_sync_write_entry*)ent)->file_offset & PAGE_MASK), 
             (inode->i_size & (~PAGE_MASK)), 
             ((char*)page_to_virt(page))[0], 
+            ((char*)page_to_virt(page))[3], 
+            ((char*)page_to_virt(page))[4], 
+            ((char*)page_to_virt(page))[(inode->i_size & (~PAGE_MASK))-2], 
             page_to_virt(page),
             page_to_virt(page)+(inode->i_size & (~PAGE_MASK)));
         if ((inode->i_size & PAGE_MASK) == (((nvpc_sync_write_entry*)ent)->file_offset & PAGE_MASK))
@@ -1517,18 +1565,29 @@ void nvpc_log_page_writeback(struct page *page)
     pr_debug("[NVPC DEBUG]: wb clear end\n");
 }
 
-// log writeback and cancel previously marked entry, clear PageNVPCPin
+// log writeback and cancel previously marked entry, clear PageNVPCPDirty
 static void wb_log_work_fn(struct work_struct *work)
 {
     nvpc_sync_page_info_t *info;
     nvpc_sync_log_entry *old_tail, *new_tail;
     nvpc_sync_write_entry *ent;
     struct inode *inode;
+    struct page *pagecache_page;
+    nvpc_sync_write_entry *wb_write_committed;
+    bool wb_clear_pin;
 
     pr_debug("[NVPC DEBUG]: wb work fn\n");
     info = container_of(work, nvpc_sync_page_info_t, wb_log_work);
     inode = info->inode;
     pr_debug("[NVPC DEBUG]: wb work fn %px\n", info->wb_write_committed);
+
+    // extract info out and release the lock
+    spin_lock_bh(&info->infolock);
+    pagecache_page = info->pagecache_page;
+    wb_write_committed = info->wb_write_committed;
+    wb_clear_pin = info->wb_clear_pin;
+    spin_unlock_bh(&info->infolock);
+
 
     mutex_lock(&inode->nvpc_sync_ilog.log_lock);
     old_tail = new_tail = inode->nvpc_sync_ilog.log_tail;
@@ -1538,32 +1597,53 @@ static void wb_log_work_fn(struct work_struct *work)
     if (!ent)
         goto out;
     
-    ent->raw.flags = NVPC_LOG_FLAG_RM;
+    ent->raw.type = NVPC_LOG_TYPE_RM;
+    ent->raw.flags = 0;
     ent->raw.id = inode->nvpc_sync_ilog.log_cntr++;
-    ent->last_write = nvpc_get_off(info->wb_write_committed);
+    ent->last_write = nvpc_get_off(wb_write_committed);
     arch_wb_cache_pmem((void*)ent, sizeof(nvpc_sync_write_entry));
 
     new_tail = inode->nvpc_sync_ilog.log_tail;
 
     pr_debug("[NVPC DEBUG]: wb work fn log\n");
 
-    // cancel previous entry
+    // cancel previous entry, mark WREXP but not free page
     // NVTODO: mark WREXP along the chain
-    info->wb_write_committed->raw.flags = NVPC_LOG_FLAG_WREXP;
-    arch_wb_cache_pmem(info->wb_write_committed, sizeof(nvpc_sync_write_entry*));
+    if (wb_write_committed->page_index) // previous is oop
+    {
+        wb_write_committed->raw.flags |= NVPC_LOG_FLAG_WREXP;
+        arch_wb_cache_pmem(wb_write_committed, sizeof(nvpc_sync_write_entry*));
+    }
+    else
+    {
+        __nvpc_mark_free_chained_entries(wb_write_committed, false);
+    }
 
     pr_debug("[NVPC DEBUG]: wb work fn mark exp\n");
 
     // clear PageNVPCPin
-    spin_lock_bh(&info->infolock);
-    if (info->wb_clear_pin)
+    BUG_ON(!pagecache_page);
+    get_page(pagecache_page);
+    // lock page first to prevent deadlock with nvpc_mark_page_writeback & nvpc_log_page_writeback
+    lock_page(pagecache_page);
+    if (wb_clear_pin)
     {
-        BUG_ON(!info->pagecache_page);
-        ClearPageNVPCPin(info->pagecache_page);
+        /* 
+         * Check if pagecache_page is still our pagecache, as it may already 
+         * be evicted or migrated. If so, we just leave the label there and 
+         * do nothing. It is ok if we lost some ClearPageNVPCPDirty. 
+         */
+        if (pagecache_page->mapping->host == inode && 
+            pagecache_page->index == (wb_write_committed->file_offset >> PAGE_SHIFT))
+        {
+            pr_debug("[NVPC DEBUG]: wb work fn clear pin\n");
+            ClearPageNVPCPDirty(pagecache_page);
+        }
     }
-    spin_unlock_bh(&info->infolock);
+    unlock_page(pagecache_page);
+    put_page(pagecache_page);
 
-    pr_debug("[NVPC DEBUG]: wb work fn clear pin\n");
+    pr_debug("[NVPC DEBUG]: wb work fn clear pin 1\n");
 
     write_commit(inode, old_tail, new_tail);
 out:
@@ -1587,6 +1667,6 @@ out:
 
 // NVTODO: (demote to existing NVPC page to reduce memory usage) or remove existing page after demotion
 
-// NVTODO: set / clear dirty (NVPCNpDirty) and other bits on migration
+// NVTODO: set / clear dirty (NVPCNpDirty) and other bits (Pin) on migration
 
 // NVTODO: when OOM, fsync the inode and mark the inode as drained to prevent further access

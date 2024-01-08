@@ -2504,7 +2504,12 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 	}
 	xa_unlock_irqrestore(&mapping->i_pages, flags);
 #ifdef CONFIG_NVPC
-	SetPageNVPCNpDirty(page);
+	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty\n");
+	}
 #endif
 }
 
@@ -2524,7 +2529,12 @@ int __set_page_dirty_nobuffers(struct page *page)
 {
 	lock_page_memcg(page);
 #ifdef CONFIG_NVPC
-	SetPageNVPCNpDirty(page);
+	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty_nobuffers\n");
+	}
 #endif
 	if (!TestSetPageDirty(page)) {
 		struct address_space *mapping = page_mapping(page);
@@ -2619,6 +2629,14 @@ int set_page_dirty(struct page *page)
 		if (!TestSetPageDirty(page))
 			return 1;
 	}
+#ifdef CONFIG_NVPC
+	if (likely(mapping) && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ set_page_dirty\n");
+	}
+#endif
 	return 0;
 }
 EXPORT_SYMBOL(set_page_dirty);
@@ -2830,7 +2848,7 @@ int test_clear_page_writeback(struct page *page)
 	 * The page is locked here, grabbing inode->nvpc_sync_ilog.log_lock will cause
 	 * deadlock, so we use work queue to postpone the logging.
 	 */
-	if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPin(page))
+	if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
 		nvpc_log_page_writeback(page);
 #endif
 
@@ -2894,7 +2912,7 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 		 * first SetPageWriteback, or we may losg some nvpc log during
 		 * the first and second SetPageWriteback
 		 */
-		if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPin(page))
+		if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
 			nvpc_mark_page_writeback(page);
 #endif
 	}
