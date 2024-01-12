@@ -5,7 +5,7 @@
 #include <linux/nvpc_sync.h>
 #include <linux/nvpc.h>
 
-#define pr_debug pr_info
+// #define pr_debug pr_info
 
 struct nvpc_sync nvpc_sync;
 
@@ -409,7 +409,7 @@ static nvpc_sync_log_entry *append_inode_n_log(struct inode *inode, size_t n_ent
 // }
 
 /* returns 0 on success */
-int write_oop(struct inode *inode, struct page *page, loff_t file_off, uint16_t len, 
+int write_oop(struct inode *inode, struct page *page, loff_t file_off, uint16_t len, uint32_t jid, 
         nvpc_sync_log_entry **new_head, nvpc_sync_log_entry **new_tail)
 {
     nvpc_sync_write_entry *ent;
@@ -426,6 +426,7 @@ int write_oop(struct inode *inode, struct page *page, loff_t file_off, uint16_t 
     ent->file_offset = file_off;
     ent->data_len = len;
     ent->page_index = nvpc_get_off_pg(page_to_virt(page));
+    ent->jid = jid;
     arch_wb_cache_pmem((void*)ent, sizeof(nvpc_sync_write_entry));
     
     /* commit later in write_commit() */
@@ -447,7 +448,7 @@ static bool __write_ioviter_to_log_it(nvpc_sync_log_entry *ent, void *opaque)
 }
 
 /* returns 0 on success */
-int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off, 
+int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off, uint32_t jid, 
         nvpc_sync_log_entry **new_head, nvpc_sync_log_entry **new_tail)
 {
     size_t len = iov_iter_count(from);
@@ -469,6 +470,7 @@ int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off,
     ent0->file_offset = file_off;
     ent0->data_len = len;
     ent0->page_index = 0;
+    ent0->jid = jid;
     arch_wb_cache_pmem((void*)ent0, sizeof(nvpc_sync_write_entry));
 
     /* commit later in write_commit() */
@@ -526,6 +528,7 @@ struct nvpc_sync_transaction
 };
 
 // e.g. (oop->ip->...->ip)->oop, mark and free those in the bracket
+// lock compact_lock before calling this
 static inline void __nvpc_mark_free_chained_entries(nvpc_sync_write_entry *last, bool free)
 {
     nvpc_sync_write_entry *curr = last;
@@ -559,6 +562,7 @@ struct nvpc_chain_mnf_s {
     nvpc_sync_write_entry *last;
     struct work_struct work;
     bool free;
+    struct inode *inode;
 };
 
 static void nvpc_mark_free_chained_entries_fn(struct work_struct *work)
@@ -568,7 +572,9 @@ static void nvpc_mark_free_chained_entries_fn(struct work_struct *work)
     pr_debug("[NVPC DEBUG]: mnf fn\n");
 
     mnf = container_of(work, struct nvpc_chain_mnf_s, work);
+    mutex_lock(&mnf->inode->nvpc_sync_ilog.compact_lock);
     __nvpc_mark_free_chained_entries(mnf->last, mnf->free);
+    mutex_unlock(&mnf->inode->nvpc_sync_ilog.compact_lock);
     kfree(mnf); // NVXXX: can i do this here ???
     pr_debug("[NVPC DEBUG]: mnf fn ok\n");
 }
@@ -742,10 +748,12 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
             if (trans->parts[i]._oldpage)
             {
                 // mark previous entry as expired
+                mutex_lock(&trans->inode->nvpc_sync_ilog.compact_lock);
                 trans->parts[i]._oldent->raw.flags |= (NVPC_LOG_FLAG_WREXP | NVPC_LOG_FLAG_WRFRE);
                 // free the old page
                 nvpc_free_page(trans->parts[i]._oldpage, 0);
                 arch_wb_cache_pmem(trans->parts[i]._oldent, sizeof(nvpc_sync_write_entry*));
+                mutex_unlock(&trans->inode->nvpc_sync_ilog.compact_lock);
             }
             // previous is ip, follow the chain to mark and free
             else
@@ -759,11 +767,16 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
                 {
                     mnf->free = true;
                     mnf->last = trans->parts[i]._oldent;
+                    mnf->inode = trans->inode;
                     INIT_WORK(&mnf->work, nvpc_mark_free_chained_entries_fn);
                     ret = queue_work(nvpc_sync.nvpc_sync_wq, &mnf->work);
                 }
                 else
+                {
+                    mutex_lock(&trans->inode->nvpc_sync_ilog.compact_lock);
                     __nvpc_mark_free_chained_entries(trans->parts[i]._oldent, true);
+                    mutex_unlock(&trans->inode->nvpc_sync_ilog.compact_lock);
+                }
             }
             
         }
@@ -897,6 +910,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             end, file->f_inode->i_mapping->nrpages*PAGE_SIZE);
         end = file->f_inode->i_mapping->nrpages*PAGE_SIZE;
     }
+    // NVTODO: check, if exceeds MAX_ORDER, cut to multiple parts
     bytes_left = end - start + 1;
 
     pr_debug("[NVPC DEBUG]: nvpc_fsync_range @i %lu start %lld end %lld ds %d\n", inode->i_ino, start, end, datasync);
@@ -995,7 +1009,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             // do not need to write anything because the data is already in page cache
 
             arch_wb_cache_pmem(page_to_virt(log_pg), PAGE_SIZE);
-            if (write_oop(inode, log_pg, pos, (uint16_t)bytes, 
+            if (write_oop(inode, log_pg, pos, (uint16_t)bytes, IS_NVPC_STRICT(inode)?old_id:0, 
                 (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
             {
                 fail = true;
@@ -1038,7 +1052,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                     goto out;
                 }
                 pr_debug("[NVPC DEBUG]: oop @0\n");
-                if (write_oop(inode, nv_pg, pos, (uint16_t)bytes, 
+                if (write_oop(inode, nv_pg, pos, (uint16_t)bytes, IS_NVPC_STRICT(inode)?old_id:0, 
                     (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
                 {
                     fail = true;
@@ -1061,7 +1075,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                     kvec.iov_len = bytes;
                     iov_iter_kvec(&i, READ, &kvec, 1, bytes);
                     pr_debug("[NVPC DEBUG]: ip @1\n");
-                    if (write_ip(inode, &i, pos, 
+                    if (write_ip(inode, &i, pos, IS_NVPC_STRICT(inode)?old_id:0, 
                         (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
                     {
                         fail = true;
@@ -1088,7 +1102,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                     arch_wb_cache_pmem(page_to_virt(log_pg), PAGE_SIZE);
                     pr_debug("[NVPC DEBUG]: oop @2\n");
                     // oop will add log_pg to nvpc index, migration later can use this info
-                    if (write_oop(inode, log_pg, pos, (uint16_t)bytes, 
+                    if (write_oop(inode, log_pg, pos, (uint16_t)bytes, IS_NVPC_STRICT(inode)?old_id:0, 
                         (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
                     {
                         fail = true;
@@ -1166,6 +1180,122 @@ fallback:
 
     ret = file->f_op->fsync(file, start, end, datasync);
     return ret;
+}
+
+struct nvpc_copy_pending_s {
+    // struct page *origin;    // origin pagecache page
+    struct page *nvpg;      // copied nvpc oop page
+    struct inode *inode;    // origin inode
+    pgoff_t index;          // origin index
+    struct work_struct work;
+};
+
+// static void nvpc_copy_pending_page_fn(struct work_struct *work)
+// {
+//     struct page *origin;
+//     // struct inode *inode;
+//     struct nvpc_copy_pending_s *pending;
+//     nvpc_sync_log_entry *old_tail, *new_tail, *ent;
+//     bool free_pg = false;
+
+//     pr_debug("[NVPC DEBUG]: copy_pending_page work 0\n");
+
+//     pending = container_of(work, struct nvpc_copy_pending_s, work);
+
+//     mutex_lock(&pending->inode->nvpc_sync_ilog.log_lock);
+//     old_tail = new_tail = pending->inode->nvpc_sync_ilog.log_tail;
+
+//     origin = pagecache_get_page(pending->inode->i_mapping, pending->index, 
+//         FGP_LOCK, mapping_gfp_mask(pending->inode->i_mapping));
+
+//     WARN_ON(!origin);
+//     if (!origin)
+//         goto free;
+
+//     // NVTODO: if we don't need to log this page
+//     if ()
+//     {
+//         free_pg = true;
+//         goto unlock;
+//     }
+
+//     // copy_highpage(log_pg, page);
+//     arch_wb_cache_pmem(page_to_virt(pending->nvpg), PAGE_SIZE);
+
+//     if (write_oop(pending->inode, pending->nvpg, pending->index << PAGE_SHIFT, 
+//         PAGE_SIZE, &ent, &new_tail))
+//     {
+//         free_pg = true;
+//         goto unlock;
+//     }
+
+//     // NVTODO: add log_pg to nvpc index, commit
+    
+
+// unlock:
+//     unlock_page(origin);
+//     put_page(origin);
+// free:
+//     mutex_unlock(&pending->inode->nvpc_sync_ilog.log_lock);
+//     if (free_pg)
+//     {
+//         pr_debug("[NVPC DEBUG]: copy_pending_page work free\n");
+//         nvpc_free_page(pending->nvpg, 0);
+//     }
+//     kfree(pending);
+//     pr_debug("[NVPC DEBUG]: copy_pending_page work ok\n");
+// }
+
+int nvpc_copy_pending_page(struct page *page) 
+{
+    struct page *log_pg;
+    struct inode *inode;
+    nvpc_sync_log_entry *old_tail, *new_tail;
+    nvpc_sync_page_info_t *prev_ent_info;
+    // struct nvpc_copy_pending_s *pending;
+    // int ret;
+
+    WARN_ON(!PageLocked(page));
+    pr_debug("[NVPC DEBUG]: copy_pending_page 0\n");
+    
+    inode = page->mapping->host;
+
+    log_pg = nvpc_get_new_page(NULL, 0);
+    if (!log_pg)
+        goto err;
+    
+    // issue a new work
+    // pending = kzalloc(sizeof(struct nvpc_copy_pending_s), GFP_ATOMIC);
+    // if (!pending)
+    //     goto err1;
+    
+    copy_highpage(log_pg, page);
+
+    // pending->index = page->index;
+    // pending->inode = inode;
+    // pending->nvpg = log_pg;
+    // INIT_WORK(&pending->work, nvpc_copy_pending_page_fn);
+    // ret = queue_work(nvpc_sync.nvpc_sync_wq, &pending->work);
+
+    // find the entry and rewrite it directly, meanwhile nobody may race with us so we don't need lock
+    
+    prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, page->index);
+    WARN_ON(!prev_ent_info);
+    if (unlikely(!prev_ent_info))
+        goto err1;
+    
+    mutex_lock(&inode->nvpc_sync_ilog.compact_lock);
+    // the latest write should always be oop
+    WARN_ON(prev_ent_info->latest_write->page_index == 0);
+    prev_ent_info->latest_write->page_index = nvpc_get_off_pg(page_to_virt(page));
+    arch_wb_cache_pmem(prev_ent_info->latest_write, sizeof(nvpc_sync_write_entry*));
+    mutex_unlock(&inode->nvpc_sync_ilog.compact_lock);
+
+    return 0;
+err1:
+    nvpc_free_page(log_pg, 0);
+err:
+    return -ENOMEM;
 }
 
 /* 
@@ -1608,7 +1738,7 @@ static void wb_log_work_fn(struct work_struct *work)
     pr_debug("[NVPC DEBUG]: wb work fn log\n");
 
     // cancel previous entry, mark WREXP but not free page
-    // NVTODO: mark WREXP along the chain
+    mutex_lock(&inode->nvpc_sync_ilog.compact_lock);
     if (wb_write_committed->page_index) // previous is oop
     {
         wb_write_committed->raw.flags |= NVPC_LOG_FLAG_WREXP;
@@ -1618,6 +1748,7 @@ static void wb_log_work_fn(struct work_struct *work)
     {
         __nvpc_mark_free_chained_entries(wb_write_committed, false);
     }
+    mutex_unlock(&inode->nvpc_sync_ilog.compact_lock);
 
     pr_debug("[NVPC DEBUG]: wb work fn mark exp\n");
 
@@ -1630,14 +1761,17 @@ static void wb_log_work_fn(struct work_struct *work)
     {
         /* 
          * Check if pagecache_page is still our pagecache, as it may already 
-         * be evicted or migrated. If so, we just leave the label there and 
+         * be evicted or migrated. If not so, we just leave the label there and 
          * do nothing. It is ok if we lost some ClearPageNVPCPDirty. 
+         * Clear PageNVPCPDirty and PageNVPCPendingCopy both, once the writeback 
+         * success, the persisted version is expired, and is not worth to do CoW.
          */
         if (pagecache_page->mapping->host == inode && 
             pagecache_page->index == (wb_write_committed->file_offset >> PAGE_SHIFT))
         {
             pr_debug("[NVPC DEBUG]: wb work fn clear pin\n");
             ClearPageNVPCPDirty(pagecache_page);
+            ClearPageNVPCPendingCopy(pagecache_page);
         }
     }
     unlock_page(pagecache_page);
@@ -1651,11 +1785,9 @@ out:
     pr_debug("[NVPC DEBUG]: wb work fn end\n");
 }
 
-// NVTODO: mark WREXP along the chain; move chain marking to work queue (?)
-
-// NVTODO: lazy copy & remove pending copy mark inside generic_perform_write outside pagecache_get_page
-
 // NVTODO: only enable ip write when all fd are open in sync mode
+
+// NVTODO: journal start / end on strict mode
 
 // NVTODO: log replay (refer to nvpc_print_inode_pages)
 
@@ -1663,10 +1795,10 @@ out:
 
 // --- following are less important ---
 
+// NVTODO: metadata log for dir
+
 // NVTODO: mark file as O_SYNC if sync happens frequently
 
 // NVTODO: (demote to existing NVPC page to reduce memory usage) or remove existing page after demotion
-
-// NVTODO: set / clear dirty (NVPCNpDirty) and other bits (Pin) on migration
 
 // NVTODO: when OOM, fsync the inode and mark the inode as drained to prevent further access

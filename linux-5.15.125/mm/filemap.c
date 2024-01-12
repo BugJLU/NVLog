@@ -3796,6 +3796,23 @@ again:
 		if (unlikely(status < 0))
 			break;
 
+		// page is dirtied and locked here
+		if (PageSBNVPC(page) && PageNVPC(page) && get_nvpc()->absorb_syn && 
+			PageNVPCPendingCopy(page))
+		{
+			// check expire(pdirty), copy, log, clear pending
+			if (PageNVPCPDirty(page))
+			{
+				if (!nvpc_copy_pending_page(page))
+				{
+					ClearPageNVPCPendingCopy(page);
+				}
+			}
+			// if already expire, then just clear pending bit
+			else
+				ClearPageNVPCPendingCopy(page);
+		}
+
 		if (mapping_writably_mapped(mapping))
 			flush_dcache_page(page);
 

@@ -2529,7 +2529,7 @@ int __set_page_dirty_nobuffers(struct page *page)
 {
 	lock_page_memcg(page);
 #ifdef CONFIG_NVPC
-	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn)
 	{
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
@@ -2848,7 +2848,7 @@ int test_clear_page_writeback(struct page *page)
 	 * The page is locked here, grabbing inode->nvpc_sync_ilog.log_lock will cause
 	 * deadlock, so we use work queue to postpone the logging.
 	 */
-	if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
+	if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
 		nvpc_log_page_writeback(page);
 #endif
 
@@ -2912,7 +2912,7 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 		 * first SetPageWriteback, or we may losg some nvpc log during
 		 * the first and second SetPageWriteback
 		 */
-		if (PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
+		if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
 			nvpc_mark_page_writeback(page);
 #endif
 	}

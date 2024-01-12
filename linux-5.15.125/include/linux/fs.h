@@ -758,8 +758,19 @@ struct inode {
 		 */
 		struct xarray inode_log_pages;
 
-		/* a big lock for the log */
+		/* 
+		 * a big lock for the log 
+		 * log_lock --> page->lock
+		 * log_lock --> compact_lock
+		 */
 		struct mutex log_lock;
+
+		/* 
+		 * lock for modifing previous entries and log compaction 
+		 * log_lock --> compact_lock
+		 * page->lock --> compact_lock
+		 */
+		struct mutex compact_lock;
 
 		nvpc_sync_attr_entry *latest_logged_attr;
 		// atomic_t log_cntr;

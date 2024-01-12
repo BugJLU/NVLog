@@ -182,6 +182,9 @@ typedef union nvpc_sync_write_entry_u
         
         /* for in-place log to find the last partial write */
         uint64_t    last_write;     /* offset from nvpc's dax_kaddr */
+        
+        /* for strict mode to mark the start ent of a journal transaction */
+        uint32_t    jid;
     };
     nvpc_sync_log_entry raw;
 } nvpc_sync_write_entry;
@@ -253,12 +256,13 @@ typedef struct nvpc_sync_page_info
 
 log_inode_head_entry *nvpc_get_log_inode(struct inode *inode);
 
-int write_oop(struct inode *inode, struct page *page, loff_t file_off, uint16_t len, 
+int write_oop(struct inode *inode, struct page *page, loff_t file_off, uint16_t len, uint32_t jid, 
         nvpc_sync_log_entry **new_head, nvpc_sync_log_entry **new_tail);
-int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off, 
+int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off, uint32_t jid, 
         nvpc_sync_log_entry **new_head, nvpc_sync_log_entry **new_tail);
 
 int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync);
+int nvpc_copy_pending_page(struct page *page);
 
 void nvpc_mark_page_writeback(struct page *page);
 void nvpc_log_page_writeback(struct page *page);

@@ -1750,7 +1750,7 @@ retry:
 			 * in a reclaim progress, it is ok to move pages to nvpc 
 			 * because the NVM is now isolated from the whole memory.
 			 */
-			else if (PageSBNVPC(page)) {
+			else if (page->mapping && PageSBNVPC(page)) {
 				list_add(&page->lru, &nvpc_demote_pages);
 				unlock_page(page);
 				continue;

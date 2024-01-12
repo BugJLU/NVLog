@@ -334,6 +334,25 @@ size_t nvpc_get_n_new_page(struct list_head *pages, size_t n)
     return cnt;
 }
 
+static void __meminit __init_single_page(struct page *page, unsigned long pfn,
+				unsigned long zone, int nid)
+{
+	mm_zero_struct_page(page);
+	set_page_links(page, zone, nid, pfn);
+	init_page_count(page);
+	page_mapcount_reset(page);
+	page_cpupid_reset_last(page);
+	page_kasan_tag_reset(page);
+
+	INIT_LIST_HEAD(&page->lru);
+#ifdef WANT_PAGE_VIRTUAL
+	/* The shift won't overflow because ZONE_NORMAL is below 4G. */
+	if (!is_highmem_idx(zone))
+		set_page_address(page, __va(pfn << PAGE_SHIFT));
+#endif
+}
+
+
 // NVTODO: we can apply per_cpu_pages (pcp) bulk free here
 void __nvpc_free_page(struct page *page, unsigned long private)
 {
@@ -352,6 +371,8 @@ void __nvpc_free_page(struct page *page, unsigned long private)
         /* if page is already returned (reserved is set), just quit */
         goto out;
     }
+    
+    __init_single_page(page, page_to_pfn(page), ZONE_NORMAL, nvpc.nid);
 
     /* reset page reference count to 0 */
     init_page_count(page);
@@ -380,6 +401,8 @@ void __nvpc_pcpu_free_page(struct page *page, unsigned long private)
         /* if page is already returned (reserved is set), just quit */
         goto out;
     }
+
+    __init_single_page(page, page_to_pfn(page), ZONE_NORMAL, nvpc.nid);
 
     /* reset page reference count to 0 */
     init_page_count(page);
