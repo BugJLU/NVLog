@@ -29,12 +29,17 @@ void init_sync_absorb_area(void)
     {
         pr_err("[NVPC ERROR]: cannot create nvpc sync workqueue\n");
     }
+
+#ifdef NVPC_COMPACT_ON
     nvpc_sync.compact_interval = NVPC_COMPACT_INTERVAL_DEFAULT;
     nvpc_sync.nvpc_sync_compact_thread = kthread_run(nvpc_sync_compact_thread_fn, NULL, "NVPC COMPACT THREAD");
     if (!nvpc_sync.nvpc_sync_compact_thread)
     {
         pr_err("[NVPC ERROR]: cannot start nvpc compaction thread\n");
     }
+#else
+    nvpc_sync.nvpc_sync_compact_thread = NULL;
+#endif
 
     mutex_init(&nvpc_sync.super_log_lock);
 }

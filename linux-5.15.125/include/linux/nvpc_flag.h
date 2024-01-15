@@ -21,4 +21,6 @@
 
 #define NVPC_IPOOP_THR PAGE_SIZE
 
+#define NVPC_COMPACT_ON
+
 #endif
