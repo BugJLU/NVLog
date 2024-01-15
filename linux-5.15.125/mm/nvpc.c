@@ -91,6 +91,7 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
 }
 
 void init_sync_absorb_area(void);
+void fini_sync(void);
 
 /* sizes are in pages */
 int __ref init_nvpc(struct nvpc_opts *opts)
@@ -171,6 +172,8 @@ void fini_nvpc(void)
 {
     /* don't need to lock */
     nvpc.enabled = false;
+    if (nvpc.absorb_syn)
+        fini_sync();
 }
 
 void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total)

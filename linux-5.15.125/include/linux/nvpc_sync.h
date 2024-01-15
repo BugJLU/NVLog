@@ -59,6 +59,8 @@ struct nvpc_sync
     // /* xarray for nvpc_sync_inode */
     // struct xarray inode_log_heads;
     struct workqueue_struct *nvpc_sync_wq;
+    struct task_struct *nvpc_sync_compact_thread;
+    int compact_interval;
 };
 
 
@@ -105,7 +107,7 @@ typedef union log_inode_head_entry_u
     {
         dev_t           s_dev;  /* use UUID instead */
         unsigned long   i_ino;
-        uintptr_t       *head_log_page;
+        uintptr_t       head_log_page;
 
         /* logs before this pointer are successfully committed to NVM */
         struct nvpc_sync_log_entry_s    *committed_log_tail;
@@ -141,8 +143,14 @@ NVPC_HEAD_ESASSERT(next_sl_page_entry);
 #define NVPC_LOG_TYPE_RM    2   /* the page at this offset is removed from NVPC */
 #define NVPC_LOG_TYPE_ATTR  3   /* inode attr (metadata) modify */
 /* flags */
-#define NVPC_LOG_FLAG_WREXP 1   /* write, expired */
-#define NVPC_LOG_FLAG_WRFRE 2   /* write, freed */
+#define _NVPC_LOG_FLAG_WREXP    0
+#define _NVPC_LOG_FLAG_WRFRE    1
+#define _NVPC_LOG_FLAG_WRRET    2
+#define _NVPC_LOG_FLAG_WRLAT    3
+#define NVPC_LOG_FLAG_WREXP (1<<_NVPC_LOG_FLAG_WREXP)   /* write, expired */
+#define NVPC_LOG_FLAG_WRFRE (1<<_NVPC_LOG_FLAG_WRFRE)   /* write, freed */
+#define NVPC_LOG_FLAG_WRRET (1<<_NVPC_LOG_FLAG_WRRET)   /* write, can be returned */
+#define NVPC_LOG_FLAG_WRLAT (1<<_NVPC_LOG_FLAG_WRLAT)   /* write, last previous write, can't return */
 
 /* log entry length is 64 bytes */
 #define NVPC_LOG_ENTRY_SIZE     64
@@ -221,7 +229,7 @@ NVPC_LOG_ESASSERT(nvpc_next_log_entry);
 
 /* helpers to find next log page */
 #define NVPC_LOG_ENTRY_NEXT(addr) ((nvpc_next_log_entry*)(((uintptr_t)addr&PAGE_MASK)+PAGE_SIZE-NVPC_LOG_ENTRY_SIZE))
-#define NVPC_LOG_HAS_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->raw.flags == NVPC_LOG_TYPE_NEXT)
+#define NVPC_LOG_HAS_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->raw.type == NVPC_LOG_TYPE_NEXT)
 #define NVPC_LOG_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->next_log_page)
 
 // #define NVPC_LOG_FILE_OFF_MASK ((1UL) << 56) - 1
@@ -250,6 +258,10 @@ typedef struct nvpc_sync_page_info
 
 #define NVPC_LOG_LATEST_IP(page_info) (!((page_info)->latest_p_page))
 #define NVPC_LOG_LATEST_OOP(page_info) ((page_info)->latest_p_page)
+
+
+/* --- compact --- */
+#define NVPC_COMPACT_INTERVAL_DEFAULT 1000  // 1 sec
 
 
 /* --- Functions --- */
