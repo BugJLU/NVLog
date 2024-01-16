@@ -206,6 +206,8 @@ static int dev_dax_nvpc_probe(struct dev_dax *dev_dax)
 	init_opts.absorb_syn = true;
 	init_opts.nvpc_sz = -1;
 	init_opts.promote_level = 0;
+	init_opts.force = true;
+	init_opts.rebuild = false;
 	rc = init_nvpc(&init_opts);
 
 	return 0;

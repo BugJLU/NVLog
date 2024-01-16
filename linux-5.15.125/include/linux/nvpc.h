@@ -19,6 +19,8 @@ struct nvpc_opts
     size_t nvpc_sz;  /* in pages */
     // size_t syn_sz;  /* in pages */
     u8 promote_level;
+    bool force;
+    bool rebuild;
 };
 
 int init_nvpc(struct nvpc_opts *opts);

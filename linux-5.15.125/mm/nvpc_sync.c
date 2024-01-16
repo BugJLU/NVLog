@@ -694,7 +694,7 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
 
     XA_STATE(ilog_xas, &trans->inode->nvpc_sync_ilog.inode_log_pages, 0);
 
-    xas_lock_bh(&ilog_xas);
+    // xas_lock_bh(&ilog_xas);
 
     // try xa_store first, because it may fail
     for (i = 0; i <= trans->count; i++)
@@ -706,11 +706,13 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
         
         // prev_ent = xa_load(&trans->inode->nvpc_sync_ilog.inode_log_pages, 
         //     trans->parts[i].file_off >> PAGE_SHIFT);
+        xas_lock_bh(&ilog_xas);
         xas_set(&ilog_xas, trans->parts[i].file_off >> PAGE_SHIFT);
         do {
             xas_reset(&ilog_xas);
             prev_ent_info = xas_load(&ilog_xas);
         } while (xas_retry(&ilog_xas, prev_ent_info));
+        xas_unlock_bh(&ilog_xas);
         
         if (prev_ent_info)
         {
@@ -786,9 +788,11 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
             // spin_lock_init(&prev_ent_info->infolock);
             // NVTODO: free all info structs when inode is no longer in use
             
+            xas_lock_bh(&ilog_xas);
             do {
                 xas_store(&ilog_xas, prev_ent_info);
             } while (xas_nomem(&ilog_xas, GFP_ATOMIC));
+            xas_unlock_bh(&ilog_xas);
 
             if (xas_error(&ilog_xas))
                 goto err;
@@ -875,7 +879,7 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
         }
     }
 
-    xas_unlock_bh(&ilog_xas);
+    // xas_unlock_bh(&ilog_xas);
     nvpc_write_commit();
     
     return 0;
@@ -885,6 +889,7 @@ err:
     {
         if (trans->parts[i].rollback)
         {
+            xas_lock_bh(&ilog_xas);
             xas_set(&ilog_xas, trans->parts[i].file_off >> PAGE_SHIFT);
             do {
                 xas_reset(&ilog_xas);
@@ -898,11 +903,12 @@ err:
                 // prev_ent_info->latest_write = trans->parts[i]._oldent;
                 // prev_ent_info->latest_p_page = trans->parts[i]._oldpage;
                 // spin_unlock_bh(&prev_ent_info->infolock);
-                ; // do nothing, the update is in the second pass
+                xas_unlock_bh(&ilog_xas);; // do nothing, the update is in the second pass
             }
             else
             {
                 xas_store(&ilog_xas, NULL);
+                xas_unlock_bh(&ilog_xas);
                 kfree(prev_ent_info);
             }
             
@@ -922,8 +928,6 @@ err:
             // }
         }
     }
-
-    xas_unlock_bh(&ilog_xas);
     
     return -1;
 }
@@ -1930,7 +1934,7 @@ int nvpc_sync_compact_onehead(log_inode_head_entry *head, nvpc_compact_one_contr
     }
     inode = ilookup(sb, head->i_ino);
     // WARN_ON(!inode);
-    if (!sb)
+    if (!inode)
     {
         drop_super(sb);
         return -1;
@@ -2149,6 +2153,20 @@ int nvpc_sync_compact_thread_fn(void *data)
             ncc.success_inodes, ncc.fail_inodes, ncc.reclaim_l_pages, ncc.reclaim_d_pages);
         msleep(nvpc_sync.compact_interval);
     }
+    return 0;
+}
+
+bool nvpc_sync_detect()
+{
+    void *super_log_0 = nvpc_get_addr_pg(0);
+    return ((first_head_entry*)(super_log_0))->magic == NVPC_LOG_HEAD_MAGIC;
+}
+
+/*
+ * first mount the super blocks with fsck, then run this function
+ */
+int nvpc_sync_rebuild()
+{
     return 0;
 }
 

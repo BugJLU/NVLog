@@ -286,4 +286,7 @@ int nvpc_sync_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
 void nvpc_print_inode_log(struct inode *inode);
 void nvpc_print_inode_pages(struct inode *inode);
 
+bool nvpc_sync_detect(void);
+int nvpc_sync_rebuild(void);
+
 #endif

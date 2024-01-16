@@ -93,6 +93,45 @@ static size_t __init_free_list(struct list_head *l, loff_t begin_pg, size_t sz_p
 void init_sync_absorb_area(void);
 void fini_sync(void);
 
+static int try_rebuild_nvpc(struct nvpc_opts *opts)
+{
+    if (nvpc_sync_detect())
+    {
+        if (opts->rebuild)
+        {
+            int ret;
+            pr_alert("[NVPC ALERT]: Previous NVPC trace found! Trying to rebuild.\n");
+            ret = nvpc_sync_rebuild();
+            if (ret)
+            {
+                if (!opts->force)
+                {
+                    pr_alert("[NVPC ALERT]: NVPC rebuild failed! Set --force to init anyway.\n");
+                    pr_alert("[NVPC ALERT]: NVPC init failed.\n");
+                    return -1;
+                }
+                else
+                {
+                    pr_alert("[NVPC ALERT]: NVPC rebuild failed! --force is set to init anyway!\n");
+                }
+            }
+            else
+                pr_alert("[NVPC ALERT]: NVPC rebuild success.\n");
+        }
+        else if (!opts->force)
+        {
+            pr_alert("[NVPC ALERT]: Previous NVPC trace found! Please use --rebuild, or --force.\n");
+            pr_alert("[NVPC ALERT]: NVPC init failed.\n");
+            return -1;
+        }
+        else
+        {
+            pr_alert("[NVPC ALERT]: Previous NVPC trace found! --force is set to overwrite existing data!\n");
+        }
+    }
+    return 0;
+}
+
 /* sizes are in pages */
 int __ref init_nvpc(struct nvpc_opts *opts)
 {
@@ -116,6 +155,9 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     nvpc.len_pg = dax_map_whole_dev(nvpc.dax_dev, &nvpc.dax_kaddr, &pfn);
     nvpc.pfn = pfn_t_to_pfn(pfn);
     pr_info("[NVPC DEBUG]: NVPC started at %px, pfn %lu\n", nvpc.dax_kaddr, nvpc.pfn);
+
+    if (try_rebuild_nvpc(opts))
+        return -1;
 
     if (opts->extend_lru && opts->nvpc_sz > nvpc.len_pg)
     {
