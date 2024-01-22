@@ -855,6 +855,20 @@ static int do_dentry_open(struct file *f,
 			return -EINVAL;
 	}
 
+#if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
+	if (IS_NVPC_ON(inode) && get_nvpc()->absorb_syn)
+	{
+		if (!(f->f_flags & O_DSYNC) && !IS_SYNC(inode)) {
+			f->nvpc_fsync_tracker.should_track = true;
+			f->nvpc_fsync_tracker.write_since_last_sync = 0;
+			f->nvpc_fsync_tracker.small_sync_time = 0;
+			f->nvpc_fsync_tracker.sensitivity = NVPC_ACTIVE_SYNC_SENSITVT;
+		} else {
+			f->nvpc_fsync_tracker.should_track = false;
+		}
+	}
+#endif
+
 	/*
 	 * XXX: Huge page cache doesn't support writing yet. Drop all page
 	 * cache for this file before processing writes.

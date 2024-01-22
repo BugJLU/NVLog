@@ -138,10 +138,10 @@ NVPC_HEAD_ESASSERT(next_sl_page_entry);
 /* --- NVPC LOG ENTRIES --- */
 
 /* types */
-#define NVPC_LOG_TYPE_WRITE 0   /* write */
-#define NVPC_LOG_TYPE_NEXT  1   /* next page */
-#define NVPC_LOG_TYPE_RM    2   /* the page at this offset is removed from NVPC */
-#define NVPC_LOG_TYPE_ATTR  3   /* inode attr (metadata) modify */
+#define NVPC_LOG_TYPE_WRITE 1   /* write */
+#define NVPC_LOG_TYPE_NEXT  2   /* next page */
+#define NVPC_LOG_TYPE_RM    3   /* the page at this offset is removed from NVPC */
+#define NVPC_LOG_TYPE_ATTR  4   /* inode attr (metadata) modify */
 /* flags */
 #define _NVPC_LOG_FLAG_WREXP    0
 #define _NVPC_LOG_FLAG_WRFRE    1

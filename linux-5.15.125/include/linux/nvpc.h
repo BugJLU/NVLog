@@ -79,6 +79,7 @@ void nvpc_wakeup_nvpc_evict(void);
 
 // NVTODO: for debug, remove these
 extern int debug_print;
+extern int debug_ino;
 #define nv_pr_info(fmt, ...) \
 	debug_print?printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__):1==1;
 

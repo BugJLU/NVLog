@@ -215,34 +215,11 @@ static void do_nvpc_test1(char *name, size_t len, __user char *data)
     }
     inode = d_inode(path.dentry);
     
-    // lh = nvpc_get_log_inode(inode);
-    // if (!lh)
-    // {
-    //     pr_info("Libnvpc TEST: cannot get log head\n");
-    // }
-
-    // pr_info("Libnvpc TEST: lh dev: %d, ino: %lu, lh: %px, lpage: %px, ltail: %px; \n", lh->s_dev, lh->i_ino, lh, lh->head_log_page, lh->committed_log_tail);
-    // path_put(&path);
-
-    // iov.iov_base = data;
-    // iov.iov_len = len;
+    // pr_info("Libnvpc TEST: ino %lu log_head %px\n", inode, inode->nvpc_sync_ilog.log_head);
     
-    // iov_iter_init(&i, WRITE, &iov, 1, len);
-    // pr_info("Libnvpc TEST: old tail: %px, pg: %#lx, eleft: %ld, len: %zu \n", inode->nvpc_sync_ilog.log_tail, (uintptr_t)inode->nvpc_sync_ilog.log_tail&PAGE_MASK, NVPC_PAGE_LOG_ENTRIES_LEFT(inode->nvpc_sync_ilog.log_tail), len);
-    // write_ip(inode, &i, 0, NULL, &e);
-    // pr_info("Libnvpc TEST: new tail: %px, pg: %#lx, eleft: %ld \n", e, (uintptr_t)e&PAGE_MASK, NVPC_PAGE_LOG_ENTRIES_LEFT(e));
-    pr_info("Libnvpc TEST: ino %lu log_head %px\n", inode, inode->nvpc_sync_ilog.log_head);
-    // nvpc_print_inode_log(inode);
+    // nvpc_print_inode_pages(inode);
 
-    // XA_STATE(xas, &inode->nvpc_sync_ilog.inode_log_pages, 0);
-    
-    // xas_lock_bh(&xas);
-    // xas_for_each(&xas, e, ULLONG_MAX) {
-    //     nvpc_sync_write_entry *we = (nvpc_sync_write_entry *)e;
-	// 	pr_info("Libnvpc TEST: foff %llu, dlen %lu\n", we->file_offset, (uint)(we->data_len));
-	// }
-    // xas_unlock_bh(&xas);
-    nvpc_print_inode_pages(inode);
+    debug_ino = inode->i_ino;
     path_put(&path);
 }
 

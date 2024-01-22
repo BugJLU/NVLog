@@ -692,3 +692,5 @@ void nvpc_wakeup_nvpc_evict()
 // NVTODO: debug, remove this
 int debug_print = 0;
 EXPORT_SYMBOL_GPL(debug_print);
+int debug_ino = 0;
+EXPORT_SYMBOL_GPL(debug_ino);

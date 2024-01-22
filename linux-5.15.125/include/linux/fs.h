@@ -1048,6 +1048,29 @@ struct file {
 	struct address_space	*f_mapping;
 	errseq_t		f_wb_err;
 	errseq_t		f_sb_err; /* for syncfs */
+
+#ifdef CONFIG_NVPC
+	/*
+	 * Track sync and write operations to judge if we should route all subsequent
+	 * writes to nvpc. When sync is called, check if write_since_last_sync is less
+	 * than NVPC_ACTIVE_SYNC_THRESH, if so we increase small_sync_time. Then we 
+	 * check if small_sync_time is larger than sensitivity, if so we mark this file 
+	 * as O_SYNC to lead the following writes to nvpc directly. When write is called, 
+	 * we add the written bytes to write_since_last_sync, and check if write_since_
+	 * last_sync is larger than NVPC_ACTIVE_SYNC_THRESH. If so we set small_sync_time 
+	 * to sensitivity. We also check if write_since_last_sync is larger than 
+	 * sensitivity * NVPC_ACTIVE_SYNC_THRESH, if so we clear small_sync_time and clear
+	 * the O_SYNC flag of this file.
+	 * Add a flag to track if this file's O_SYNC flag is set by NVPC.
+	 */
+	struct nvpc_fsync_tracker {
+		size_t write_since_last_sync;	// how many bytes written since last sync
+		int small_sync_time;
+		int sensitivity;	// how many time of detect before we change sync mode
+		bool should_track;	// false if the file is already O_SYNC
+		/* no lock for this struct, should not be accessed concurrently */
+	} nvpc_fsync_tracker;
+#endif
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
 

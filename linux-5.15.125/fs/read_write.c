@@ -597,6 +597,22 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
 	if (ret > 0) {
 		fsnotify_modify(file);
 		add_wchar(current, ret);
+#if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
+		if (file->nvpc_fsync_tracker.should_track)
+		{
+			file->nvpc_fsync_tracker.write_since_last_sync += ret;
+			// if (file->nvpc_fsync_tracker.write_since_last_sync > NVPC_ACTIVE_SYNC_THRESH)
+			// 	file->nvpc_fsync_tracker.small_sync_time = file->nvpc_fsync_tracker.sensitivity;
+			
+			if (file->nvpc_fsync_tracker.write_since_last_sync >= 
+				file->nvpc_fsync_tracker.sensitivity * NVPC_ACTIVE_SYNC_THRESH)
+			{
+				// pr_info("[NVPC DEBUG]: active fsync quit. \n");
+				file->nvpc_fsync_tracker.small_sync_time = 0;
+				file->f_flags &= ~O_SYNC;
+			}
+		}
+#endif
 	}
 	inc_syscw(current);
 	file_end_write(file);
@@ -928,6 +944,22 @@ static ssize_t vfs_writev(struct file *file, const struct iovec __user *vec,
 		ret = do_iter_write(file, &iter, pos, flags);
 		file_end_write(file);
 		kfree(iov);
+#if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
+		if (file->nvpc_fsync_tracker.should_track)
+		{
+			file->nvpc_fsync_tracker.write_since_last_sync += ret;
+			// if (file->nvpc_fsync_tracker.write_since_last_sync > NVPC_ACTIVE_SYNC_THRESH)
+			// 	file->nvpc_fsync_tracker.small_sync_time = file->nvpc_fsync_tracker.sensitivity;
+			
+			if (file->nvpc_fsync_tracker.write_since_last_sync >= 
+				file->nvpc_fsync_tracker.sensitivity * NVPC_ACTIVE_SYNC_THRESH)
+			{
+				// pr_info("[NVPC DEBUG]: active fsync quit. \n");
+				file->nvpc_fsync_tracker.small_sync_time = 0;
+				file->f_flags &= ~O_SYNC;
+			}
+		}
+#endif
 	}
 	return ret;
 }
