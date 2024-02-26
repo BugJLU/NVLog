@@ -62,6 +62,9 @@ struct scan_control {
 	/* determine whether it should promote NVPC pages only */
 	unsigned int nvpc_promote:1;
 
+	/* determine whether it should evict NVPC pages */
+	unsigned int nvpc_evict:1;
+
 	/* Allocation order */
 	s8 order;
 
@@ -225,8 +228,6 @@ retry:
 
 		cond_resched();
 
-		// get page from LRU, and del this page from LRU
-		// to avoid some error
 		page = lru_to_page(page_list);
 		list_del(&page->lru);
 
@@ -260,6 +261,7 @@ retry:
 			}
 		}
 
+keep_locked:
 		unlock_page(page);
 keep:
 		list_add(&page->lru, &ret_pages);
@@ -299,6 +301,548 @@ static int too_many_isolated_nvpc(struct pglist_data *pgdat)
 
 // NVTODO: nr_to_scan is not used
 static unsigned long
+promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
+{
+	LIST_HEAD(page_list);
+	unsigned long nr_promoted;
+	unsigned long nr_taken;
+	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
+	bool stalled = false;
+
+	while (unlikely(too_many_isolated_nvpc(pgdat))) {
+		if (stalled)
+			return 0;
+
+		/* wait a bit for the reclaimer. */
+		msleep(100);
+		stalled = true;
+
+		/* We are about to die and free our memory. Return now. */
+		if (fatal_signal_pending(current))
+			return SWAP_CLUSTER_MAX;
+	}
+
+	/* in fact, nvpc pages will never be inside a pvec, so we don't drain */
+	// lru_add_drain();
+
+	spin_lock_irq(&lruvec->lru_lock);
+	nr_taken = nvpc_promote_vec_isolate(&page_list, lruvec); // NVXXX: using united isolation operation
+	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, nr_taken);
+	spin_unlock_irq(&lruvec->lru_lock);
+
+	if (nr_taken == 0)
+		return 0;
+
+	nr_promoted = promote_page_list(&page_list, pgdat, sc, false);
+
+	spin_lock_irq(&lruvec->lru_lock);
+	// page_list will contain pages that will not be moved
+	nr_taken = nvpc_move_pages_to_lru(lruvec, &page_list);
+	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, -nr_taken);
+	spin_unlock_irq(&lruvec->lru_lock);
+
+	// NVBUG: free nvpc pages that we won't use here?
+	free_unref_page_list(&page_list);
+
+	pr_info("[knvpcd nr info promote] nr_promoted: %lu, nr_taken: %lu\n", 
+			nr_promoted, nr_taken);
+	return nr_promoted;
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * Originate from vmscan.c: shrink_page_list()
+ * For nvpc eviction use only
+ * NVXXX: united page isolation
+ */
+static unsigned long nvpc_isolate_evict_pages(unsigned long nr_to_scan,
+		struct lruvec *lruvec, struct list_head *dst,
+		unsigned long *nr_scanned, struct scan_control *sc)
+{
+	struct list_head *src = &lruvec->lists[LRU_NVPC_FILE]; // NVPC LRU
+	unsigned long nr_taken = 0;
+	unsigned long skipped = 0;
+	unsigned long scan, total_scan, nr_pages;
+	LIST_HEAD(pages_skipped);
+
+	total_scan = 0;
+	scan = 0;
+	while (scan < nr_to_scan && !list_empty(src)) {
+		struct list_head *move_to = src;
+		struct page *page;
+
+		page = lru_to_page(src);
+		// prefetchw_prev_lru_page(page, src, flags); // NVTODO: enable prefetchw on NVDIMMS?
+
+		nr_pages = compound_nr(page);
+		total_scan += nr_pages;
+
+		if (!PageNVPC(page)) {
+			move_to = &pages_skipped;
+			goto move;
+		}
+
+		/*
+		 * Do not count skipped pages because that makes the function
+		 * return with no isolated pages if the LRU mostly contains
+		 * ineligible pages.  This causes the VM to not reclaim any
+		 * pages, triggering a premature OOM.
+		 * Account all tail pages of THP.
+		 */
+		scan += nr_pages;
+
+		if (!PageLRU(page)) // NVTODO: LRU include NVPC LRU?
+			goto move;
+		if (!sc->may_unmap && page_mapped(page))
+			goto move;
+
+		/*
+		 * Be careful not to clear PageLRU until after we're
+		 * sure the page is not being freed elsewhere -- the
+		 * page release code relies on it.
+		 */
+		if (unlikely(!get_page_unless_zero(page)))
+			goto move;
+
+		if (!TestClearPageLRU(page)) {
+			put_page(page);
+			goto move;
+		}
+
+		nr_taken += nr_pages;
+		move_to = dst;
+move:
+		list_move(&page->lru, move_to);
+		update_lru_size(lruvec, page_lru(page), page_zonenum(page),
+			-thp_nr_pages(page));
+	}
+
+	/*
+	 * Splice any skipped pages to the start of the LRU list. 
+	 * Note that this disrupts the LRU order when reclaiming for lower zones but
+	 * we cannot splice to the tail. If we did then the SWAP_CLUSTER_MAX
+	 * scanning would soon rescan the same pages to skip and put the
+	 * system at risk of premature OOM.
+	 */
+	if (!list_empty(&pages_skipped)) {
+		list_splice(&pages_skipped, src);
+	}
+	*nr_scanned = total_scan;
+	// update_lru_sizes(lruvec, lru, nr_zone_taken);
+	return nr_taken;
+}
+
+static unsigned int shrink_page_list(struct list_head *page_list,
+				     struct pglist_data *pgdat,
+				     struct scan_control *sc,
+				     bool ignore_references)
+{
+	LIST_HEAD(ret_pages); // return to start as another round
+	LIST_HEAD(free_pages); // pages able and need to do eviction (not mark, but operations)
+
+	unsigned int nr_reclaimed = 0;
+	// unsigned int pgactivate = 0;
+
+	bool do_nvpc_pass;
+	struct nvpc *nvpc = get_nvpc();
+	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
+
+	cond_resched();
+
+retry:
+	while (!list_empty(page_list)) {
+		struct address_space *mapping; // XXX: using addr mapping
+		struct page *page;
+		enum page_references references = PAGEREF_RECLAIM;
+		bool dirty, writeback, may_enter_fs;
+		unsigned int nr_pages;
+
+		cond_resched();
+
+		page = lru_to_page(page_list);
+		list_del(&page->lru);
+
+		if (!trylock_page(page))
+		{
+			pr_info("[KNVPCD WARN] trylock page failed! Keep it from promotion.\n"); // NVTODO: check whether this is a bug
+			goto keep;
+		}
+
+		VM_BUG_ON_PAGE(PageActive(page), page);
+
+		nr_pages = compound_nr(page);
+
+		/* Account the number of base pages even though THP */
+		sc->nr_scanned += nr_pages;
+
+		if (unlikely(!page_evictable(page)))
+			goto activate_locked;
+
+		if (!sc->may_unmap && page_mapped(page))
+			goto keep_locked;
+
+		may_enter_fs = (sc->gfp_mask & __GFP_FS) ||
+			(PageSwapCache(page) && (sc->gfp_mask & __GFP_IO));
+
+
+		mapping = page_mapping(page);
+
+		// if (PageWriteback(page)) {
+		// 	/* Case 1 above */
+		// 	if (current_is_kswapd() &&
+		// 	    PageReclaim(page) &&
+		// 	    test_bit(PGDAT_WRITEBACK, &pgdat->flags)) {
+		// 		stat->nr_immediate++;
+		// 		goto activate_locked;
+
+		// 	/* Case 2 above */
+		// 	} else if (writeback_throttling_sane(sc) ||
+		// 	    !PageReclaim(page) || !may_enter_fs) {
+		// 		/*
+		// 		 * This is slightly racy - end_page_writeback()
+		// 		 * might have just cleared PageReclaim, then
+		// 		 * setting PageReclaim here end up interpreted
+		// 		 * as PageReadahead - but that does not matter
+		// 		 * enough to care.  What we do want is for this
+		// 		 * page to have PageReclaim set next time memcg
+		// 		 * reclaim reaches the tests above, so it will
+		// 		 * then wait_on_page_writeback() to avoid OOM;
+		// 		 * and it's also appropriate in global reclaim.
+		// 		 */
+		// 		SetPageReclaim(page);
+		// 		stat->nr_writeback++;
+		// 		goto activate_locked;
+
+		// 	/* Case 3 above */
+		// 	} else {
+		// 		unlock_page(page);
+		// 		wait_on_page_writeback(page);
+		// 		/* then go back and try same page again */
+		// 		list_add_tail(&page->lru, page_list);
+		// 		continue;
+		// 	}
+		// }
+
+		if (!ignore_references)
+			references = page_check_references(page, sc);
+
+		switch (references) {
+		case PAGEREF_ACTIVATE: // NVTODO: 2nd chance
+			goto activate_locked;
+		case PAGEREF_KEEP:
+			// stat->nr_ref_keep += nr_pages;
+			goto keep_locked;
+		case PAGEREF_RECLAIM:
+		case PAGEREF_RECLAIM_CLEAN:
+			; /* try to reclaim the page below */
+		}
+
+		/*
+		 * Anonymous process memory has backing store?
+		 * Try to allocate it some swap space here.
+		 * Lazyfree page could be freed directly
+		 */
+		if (PageAnon(page) && PageSwapBacked(page)) {
+			/* nvpc page shouldn't be anon & swapbacked */
+			BUG_ON(PageNVPC(page));
+// 			if (!PageSwapCache(page)) {
+// 				if (!(sc->gfp_mask & __GFP_IO))
+// 					goto keep_locked;
+// 				if (page_maybe_dma_pinned(page))
+// 					goto keep_locked;
+// 				if (PageTransHuge(page)) {
+// 					/* cannot split THP, skip it */
+// 					if (!can_split_huge_page(page, NULL))
+// 						goto activate_locked;
+// 					/*
+// 					 * Split pages without a PMD map right
+// 					 * away. Chances are some or all of the
+// 					 * tail pages can be freed without IO.
+// 					 */
+// 					if (!compound_mapcount(page) &&
+// 					    split_huge_page_to_list(page,
+// 								    page_list))
+// 						goto activate_locked;
+// 				}
+// 				if (!add_to_swap(page)) {
+// 					if (!PageTransHuge(page))
+// 						goto activate_locked_split;
+// 					/* Fallback to swap normal pages */
+// 					if (split_huge_page_to_list(page,
+// 								    page_list))
+// 						goto activate_locked;
+// #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+// 					count_vm_event(THP_SWPOUT_FALLBACK);
+// #endif
+// 					if (!add_to_swap(page))
+// 						goto activate_locked_split;
+// 				}
+
+// 				may_enter_fs = true;
+
+// 				/* Adding to swap updated mapping */
+// 				mapping = page_mapping(page);
+// 			}
+		} else if (unlikely(PageTransHuge(page))) {
+			/* nvpc page shouldn't be THP */
+			BUG_ON(PageNVPC(page));
+			/* Split file THP */
+			// if (split_huge_page_to_list(page, page_list))
+			// 	goto keep_locked;
+		}
+
+		/*
+		 * THP may get split above, need minus tail pages and update
+		 * nr_pages to avoid accounting tail pages twice.
+		 *
+		 * The tail pages that are added into swap cache successfully
+		 * reach here.
+		 */
+		if ((nr_pages > 1) && !PageTransHuge(page)) {
+			/* nvpc page shouldn't be thp */
+			BUG_ON(PageNVPC(page));
+			// sc->nr_scanned -= (nr_pages - 1);
+			// nr_pages = 1;
+		}
+
+		/*
+		 * The page is mapped into the page tables of one or more
+		 * processes. Try to unmap it here.
+		 */
+		if (page_mapped(page) && !PageNVPC(page)) {
+			enum ttu_flags flags = TTU_BATCH_FLUSH;
+			bool was_swapbacked = PageSwapBacked(page);
+
+			if (unlikely(PageTransHuge(page))) {
+				BUG_ON(PageNVPC(page));
+				flags |= TTU_SPLIT_HUGE_PMD;
+			}
+
+			try_to_unmap(page, flags);
+			if (page_mapped(page)) {
+				stat->nr_unmap_fail += nr_pages;
+				if (!was_swapbacked && PageSwapBacked(page))
+					stat->nr_lazyfree_fail += nr_pages;
+				goto activate_locked;
+			}
+		}
+
+		// if (PageDirty(page)) {
+		// 	/*
+		// 	 * Only kswapd can writeback filesystem pages
+		// 	 * to avoid risk of stack overflow. But avoid
+		// 	 * injecting inefficient single-page IO into
+		// 	 * flusher writeback as much as possible: only
+		// 	 * write pages when we've encountered many
+		// 	 * dirty pages, and when we've already scanned
+		// 	 * the rest of the LRU for clean pages and see
+		// 	 * the same dirty pages again (PageReclaim).
+		// 	 */
+		// 	if (page_is_file_lru(page) &&
+		// 	    (!current_is_kswapd() || !PageReclaim(page) ||
+		// 	     !test_bit(PGDAT_DIRTY, &pgdat->flags))) {
+		// 		/*
+		// 		 * Immediately reclaim when written back.
+		// 		 * Similar in principal to deactivate_page()
+		// 		 * except we already have the page isolated
+		// 		 * and know it's dirty
+		// 		 */
+		// 		inc_node_page_state(page, NR_VMSCAN_IMMEDIATE);
+		// 		SetPageReclaim(page);
+
+		// 		goto activate_locked;
+		// 	}
+
+		// 	if (references == PAGEREF_RECLAIM_CLEAN)
+		// 		goto keep_locked;
+		// 	if (!may_enter_fs)
+		// 		goto keep_locked;
+		// 	if (!sc->may_writepage)
+		// 		goto keep_locked;
+
+		// 	/*
+		// 	 * Page is dirty. Flush the TLB if a writable entry
+		// 	 * potentially exists to avoid CPU writes after IO
+		// 	 * starts and then write it out here.
+		// 	 */
+		// 	try_to_unmap_flush_dirty();
+		// 	switch (pageout(page, mapping)) {
+		// 	case PAGE_KEEP:
+		// 		goto keep_locked;
+		// 	case PAGE_ACTIVATE:
+		// 		goto activate_locked;
+		// 	case PAGE_SUCCESS:
+		// 		stat->nr_pageout += thp_nr_pages(page);
+
+		// 		if (PageWriteback(page))
+		// 			goto keep;
+		// 		if (PageDirty(page))
+		// 			goto keep;
+
+		// 		/*
+		// 		 * A synchronous write - probably a ramdisk.  Go
+		// 		 * ahead and try to reclaim the page.
+		// 		 */
+		// 		if (!trylock_page(page))
+		// 			goto keep;
+		// 		if (PageDirty(page) || PageWriteback(page))
+		// 			goto keep_locked;
+		// 		mapping = page_mapping(page);
+		// 		fallthrough;
+		// 	case PAGE_CLEAN:
+		// 		; /* try to free the page below */
+		// 	}
+		// }
+
+		/*
+		 * If the page has buffers, try to free the buffer mappings
+		 * associated with this page. If we succeed we try to free
+		 * the page as well.
+		 *
+		 * We do this even if the page is PageDirty().
+		 * try_to_release_page() does not perform I/O, but it is
+		 * possible for a page to have PageDirty set, but it is actually
+		 * clean (all its buffers are clean).  This happens if the
+		 * buffers were written out directly, with submit_bh(). ext3
+		 * will do this, as well as the blockdev mapping.
+		 * try_to_release_page() will discover that cleanness and will
+		 * drop the buffers and mark the page clean - it can be freed.
+		 *
+		 * Rarely, pages can have buffers and no ->mapping.  These are
+		 * the pages which were not successfully invalidated in
+		 * truncate_cleanup_page().  We try to drop those buffers here
+		 * and if that worked, and the page is no longer mapped into
+		 * process address space (page_count == 1) it can be freed.
+		 * Otherwise, leave the page on the LRU so it is swappable.
+		 */
+		//  NVTODO: test this block
+		if (page_has_private(page)) {
+			if (!try_to_release_page(page, sc->gfp_mask))
+				goto activate_locked;
+			if (!mapping && page_count(page) == 1) {
+				unlock_page(page);
+				if (put_page_testzero(page))
+					goto free_it;
+				else {
+					/*
+					 * rare race with speculative reference.
+					 * the speculative reference will free
+					 * this page shortly, so we may
+					 * increment nr_reclaimed here (and
+					 * leave it off the LRU).
+					 */
+					nr_reclaimed++;
+					continue;
+				}
+			}
+		}
+
+		if (PageAnon(page) && !PageSwapBacked(page)) {
+			BUG_ON(PageNVPC(page));
+			// /* follow __remove_mapping for reference */
+			// if (!page_ref_freeze(page, 1))
+			// 	goto keep_locked;
+			// /*
+			//  * The page has only one reference left, which is
+			//  * from the isolation. After the caller puts the
+			//  * page back on lru and drops the reference, the
+			//  * page will be freed anyway. It doesn't matter
+			//  * which lru it goes. So we don't bother checking
+			//  * PageDirty here.
+			//  */
+			// count_vm_event(PGLAZYFREED);
+			// count_memcg_page_event(page, PGLAZYFREED);
+		} else if (!mapping || !__remove_mapping(mapping, page, true,
+							 sc->target_mem_cgroup))
+			goto keep_locked;
+
+		unlock_page(page);
+free_it:
+		/*
+		 * THP may get swapped out in a whole, need account
+		 * all base pages.
+		 */
+		nr_reclaimed += nr_pages;
+
+		/*
+		 * Is there need to periodically free_page_list? It would
+		 * appear not as the counts should be low
+		 */
+		if (unlikely(PageTransHuge(page))) {
+			WARN_ON(PageNVPC(page))
+			destroy_compound_page(page);
+		}
+#ifdef CONFIG_NVPC
+		else if(PageNVPC(page))
+			list_add(&page->lru, &free_nvpc_pages);
+#endif
+		else
+			list_add(&page->lru, &free_pages);
+		continue;
+
+activate_locked_split:
+		/*
+		 * The tail pages that are failed to add into swap cache
+		 * reach here.  Fixup nr_scanned and nr_pages.
+		 */
+		if (nr_pages > 1) {
+			sc->nr_scanned -= (nr_pages - 1);
+			nr_pages = 1;
+		}
+activate_locked:
+		if (PageNVPC(page))
+			goto keep_locked;
+		
+		// /* Not a candidate for swapping, so reclaim swap space. */
+		// if (PageSwapCache(page) && (mem_cgroup_swap_full(page) ||
+		// 				PageMlocked(page)))
+		// 	try_to_free_swap(page);
+		// VM_BUG_ON_PAGE(PageActive(page), page);
+		// if (!PageMlocked(page)) {
+		// 	int type = page_is_file_lru(page);
+		// 	SetPageActive(page);
+		// 	stat->nr_activate[type] += nr_pages;
+		// 	count_memcg_page_event(page, PGACTIVATE);
+		// }
+keep_locked:
+		unlock_page(page);
+keep:
+		list_add(&page->lru, &ret_pages);
+		VM_BUG_ON_PAGE(PageLRU(page) || PageUnevictable(page), page);
+	}
+	/* 'page_list' is always empty here */
+
+	pgactivate = stat->nr_activate[0] + stat->nr_activate[1];
+
+#ifdef CONFIG_NVPC
+	nvpc_free_pages(&free_nvpc_pages);
+#endif
+
+	BUG_ON(!list_empty(&free_pages)); // NVTODO: no nvpc page in free_pages
+
+	// mem_cgroup_uncharge_list(&free_pages);
+	try_to_unmap_flush();
+	// free_unref_page_list(&free_pages);
+
+	list_splice(&ret_pages, page_list);
+	// count_vm_events(PGACTIVATE, pgactivate);
+
+	return nr_reclaimed;
+}
+
+
+// Originate from vmscan.c: shrink_inactive_list()
+// Include evict and writeback
+// NVTODO: second chance should be added by PG_active flag
+static unsigned long
 shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 {
 	LIST_HEAD(page_list);
@@ -322,28 +866,36 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 	/* in fact, nvpc pages will never be inside a pvec, so we don't drain */
 	// lru_add_drain();
-
+	
 	spin_lock_irq(&lruvec->lru_lock);
-	nr_taken = nvpc_promote_vec_isolate(&page_list, lruvec); // NVTODO: change from isolate_lru_pages()
+	nr_taken = nvpc_isolate_evict_pages(nr_to_scan, lruvec, &page_list,
+				     &nr_scanned, sc, lru); // NVTODO: isolation for eviction
 	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, nr_taken);
 	spin_unlock_irq(&lruvec->lru_lock);
 
 	if (nr_taken == 0)
 		return 0;
 
-	nr_reclaimed = promote_page_list(&page_list, pgdat, sc, false);
+	nr_reclaimed = evict_page_list(&page_list, pgdat, sc, false); // NVTODO: evicttion for nvpc
 
 	spin_lock_irq(&lruvec->lru_lock);
+	// page_list will contain pages that will not be moved
 	nr_taken = nvpc_move_pages_to_lru(lruvec, &page_list);
 	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, -nr_taken);
 	spin_unlock_irq(&lruvec->lru_lock);
 
-	// NVTODO: free nvpc pages that we won't use here?
+	// NVBUG: free nvpc pages that we won't use here?
+	free_unref_page_list(&page_list);
 
-	pr_info("[knvpcd nr info] nr_reclaimed: %lu, nr_taken: %lu\n", 
+	pr_info("[knvpcd nr info evict] nr_reclaimed: %lu, nr_taken: %lu\n", 
 			nr_reclaimed, nr_taken);
 	return nr_reclaimed;
 }
+
+
+
+
+
 
 static int do_knvpcd_work(struct nvpc * nvpc, pg_data_t* pgdat)
 {
@@ -352,7 +904,43 @@ static int do_knvpcd_work(struct nvpc * nvpc, pg_data_t* pgdat)
     // NVTODO: Evict pages from NVPC to Disk
     if (READ_ONCE(nvpc->knvpcd_evict))
     {
-        // NVTODO: evict
+	    struct lruvec *target_lruvec;
+	    unsigned long nr_to_reclaim = READ_ONCE(nvpc->knvpcd_nr_to_reclaim);
+	    unsigned long nr_reclaimed = 0;
+	    unsigned long nr_to_scan;
+	    struct blk_plug plug;
+        struct scan_control sc = {
+            .nvpc_evict = 1, // only promotion can be executed
+	    };
+
+        nr_to_scan = READ_ONCE(nvpc->knvpcd_nr_to_reclaim); // NVTODO: determine how many pages
+
+	    target_lruvec = mem_cgroup_lruvec(NULL, pgdat);
+	    // NVTODO: reclaim should be execute in this block (in the same way as kswapd)
+	    
+        blk_start_plug(&plug);
+
+	    while (nr_to_scan) {
+			unsigned int nr_reclaimed_this_time;
+		    nr_to_scan -= min(nr_to_scan, SWAP_CLUSTER_MAX);
+            nr_reclaimed_this_time = promote_nvpc_list(target_lruvec, &sc);
+			nr_reclaimed += nr_reclaimed_this_time;
+
+			printk(KERN_WARNING "[NVPC DEBUG] nr_evict_this_time: %u\n", nr_reclaimed_this_time);
+
+            cond_resched();
+
+			if (!nr_reclaimed_this_time) // no way to evict more
+				break;
+
+            if (nr_reclaimed < nr_to_promote)
+                continue;
+	    }
+
+        blk_finish_plug(&plug);
+	    
+        if (!ret)
+		    pr_warn("[knvpcd_warn] nvpc_evict failed!\n");
     }
 
     // Demote pages from DRAM to NVPC
@@ -407,7 +995,7 @@ static int do_knvpcd_work(struct nvpc * nvpc, pg_data_t* pgdat)
 	    while (nr_to_scan) {
 			unsigned int nr_reclaimed_this_time;
 		    nr_to_scan -= min(nr_to_scan, SWAP_CLUSTER_MAX);
-            nr_reclaimed_this_time = shrink_nvpc_list(target_lruvec, &sc);
+            nr_reclaimed_this_time = promote_nvpc_list(target_lruvec, &sc);
 			nr_reclaimed += nr_reclaimed_this_time;
 
 			printk(KERN_WARNING "[NVPC DEBUG] nr_reclaimed_this_time: %u\n", nr_reclaimed_this_time);
