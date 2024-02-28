@@ -1582,7 +1582,8 @@ retry:
 		// demote
 		if (do_nvpc_pass &&
 			page_is_file_lru(page) && // this line is redundant
-			!PageAnon(page) && !PageSwapBacked(page) &&	// only move file-backed pages
+			!PageAnon(page) &&
+			!PageSwapBacked(page) &&	// only move file-backed pages
 			!PageTransHuge(page) && // huge pages not support yet
 			!PageCompound(page) &&
 			!page_mapped(page))	// page should not be mmapped, keep it in DRAM

@@ -262,7 +262,13 @@ void nvpc_free_pages(struct list_head *list)
     }
 }
 
-/* derived from vmscan.c: alloc_demote_page() */
+/**
+ * @brief Originated from vmscan.c: alloc_demote_page()
+ * 
+ * @param page 
+ * @param node 
+ * @return struct page* 
+ */
 struct page *nvpc_alloc_promote_page(struct page *page, unsigned long node)
 {
     struct migration_target_control mtc = {
