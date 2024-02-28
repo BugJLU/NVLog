@@ -110,12 +110,6 @@ enum page_references {
 	PAGEREF_ACTIVATE, // NVTODO: promote???
 };
 
-enum pageout_check_result {
-	PAGE_KEEP,
-	PAGE_ACTIVATE,
-	PAGE_NONR, // dirty page should be judged by NVPC SYNC submodule
-};
-
 /**
  * @brief Originate from vmscan.c: page_check_references(), no change
  * 
@@ -231,16 +225,15 @@ static bool nvpc_can_promote(int nid, struct scan_control *sc)
 }
 
 /*
- * nvpc_move_pages_to_lru() moves pages from private @list to appropriate LRU list.
+ * nvpc_move_pages_to_lru_promote() moves pages from private @list to appropriate LRU list.
  * On return, @list is reused as a list of pages to be freed by the caller.
  *
  * Returns the number of pages moved to the given lruvec.
  */
-static unsigned int nvpc_move_pages_to_lru(struct lruvec *lruvec,
+static unsigned int nvpc_move_pages_to_lru_promote(struct lruvec *lruvec,
 				      struct list_head *list)
 {
 	int nr_pages, nr_moved;
-	LIST_HEAD(pages_to_free);
 	struct page *page;
 
 	nr_pages = 0;
@@ -251,6 +244,7 @@ static unsigned int nvpc_move_pages_to_lru(struct lruvec *lruvec,
 		VM_BUG_ON_PAGE(PageLRU(page), page);
 		list_del(&page->lru);
 
+		// If page is inevictable, putback it to LRU
 		if (unlikely(!page_evictable(page))) {
 			spin_unlock_irq(&lruvec->lru_lock);
 			putback_lru_page(page);
@@ -258,29 +252,12 @@ static unsigned int nvpc_move_pages_to_lru(struct lruvec *lruvec,
 			continue;
 		}
 
-		SetPageLRU(page);
+		SetPageLRU(page); // NVTODO: where to unset this flag?
 
-		if (unlikely(put_page_testzero(page))) {
-			__clear_page_lru_flags(page);
-
-			if (unlikely(PageCompound(page))) {
-				spin_unlock_irq(&lruvec->lru_lock);
-				destroy_compound_page(page);
-				spin_lock_irq(&lruvec->lru_lock);
-			} else
-				list_add(&page->lru, &pages_to_free);
-
-			continue;
-		}
-
-		/*
-		 * All pages were isolated from the same lruvec (and isolation
-		 * inhibits memcg migration).
-		 */
 		VM_BUG_ON_PAGE(!page_matches_lruvec(page, lruvec), page);
 
-		// NVBUG: The page here cannot be NVPC page, because it has been migrated to DRAM
-		VM_BUG_ON_PAGE(PageNVPC(page), page);
+		// NVBUG: The page here must be NVPC page, cuz we only keep NVPC pages in the list
+		VM_BUG_ON_PAGE(!PageNVPC(page), page);
 		add_page_to_lru_list(page, lruvec);
 
 		nr_pages = thp_nr_pages(page);
@@ -288,12 +265,6 @@ static unsigned int nvpc_move_pages_to_lru(struct lruvec *lruvec,
 		if (PageActive(page))
 			workingset_age_nonresident(lruvec, nr_pages);
 	}
-
-	/*
-	 * To save our caller's stack, now use input list for pages to free.
-	 */
-	list_splice(&pages_to_free, list);
-
 	return nr_moved;
 }
 
@@ -404,13 +375,13 @@ keep:
 		nr_reclaimed += promote_pages_from_nvpc(&nvpc_promote_pages);
 		if (!list_empty(&nvpc_promote_pages))
 		{
-			list_splice_init(&nvpc_promote_pages, page_list);
+			list_splice_init(&nvpc_promote_pages, page_list); // page left unprocessed should be NVPC pages and reprocessed
 			// do_nvpc_pass = false;
 			goto retry; // No other methods can be used
 		}
 	}
 
-	list_splice(&ret_pages, page_list); // page left unprocessed
+	list_splice(&ret_pages, page_list); // page left unprocessed, keeped NVPC pages
 
 	return nr_reclaimed;
 }
@@ -466,13 +437,11 @@ promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	nr_promoted = promote_page_list(&page_list, pgdat, sc, false);
 
 	spin_lock_irq(&lruvec->lru_lock);
-	// page_list will contain pages that will not be moved
-	nr_taken = nvpc_move_pages_to_lru(lruvec, &page_list);
+	nr_taken = nvpc_move_pages_to_lru_promote(lruvec, &page_list); // After this, page_list will be empty
 	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, -nr_taken);
 	spin_unlock_irq(&lruvec->lru_lock);
 
 	// NVBUG: free nvpc pages that we won't use here?
-	free_unref_page_list(&page_list);
 
 	pr_info("[knvpcd nr info promote] nr_promoted: %lu, nr_taken: %lu\n", 
 			nr_promoted, nr_taken);
@@ -486,6 +455,59 @@ promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 
 
+/*
+ * nvpc_move_pages_to_lru_reclaim() moves pages from private @list to appropriate LRU list.
+ * On return, @list is reused as a list of pages to be freed by the caller.
+ *
+ * Returns the number of pages moved to the given lruvec.
+ */
+static unsigned int nvpc_move_pages_to_lru_reclaim(struct lruvec *lruvec,
+				      struct list_head *list)
+{
+	int nr_pages, nr_moved;
+	LIST_HEAD(pages_to_free);
+	struct page *page;
+
+	nr_pages = 0;
+	nr_moved = 0;
+
+	while (!list_empty(list)) {
+		page = lru_to_page(list);
+		VM_BUG_ON_PAGE(PageLRU(page), page);
+		list_del(&page->lru);
+
+		// If page is inevictable, putback it to LRU
+		if (unlikely(!page_evictable(page))) {
+			spin_unlock_irq(&lruvec->lru_lock);
+			putback_lru_page(page);
+			spin_lock_irq(&lruvec->lru_lock);
+			continue;
+		}
+
+		SetPageLRU(page); // NVTODO: where to unset this flag?
+
+		if (unlikely(put_page_testzero(page))) { // NVTODO: whether page refcnt == 0 will be freed by NVPC-related function
+			__clear_page_lru_flags(page);
+			list_add(&page->lru, &pages_to_free);
+			continue;
+		}
+
+		VM_BUG_ON_PAGE(!page_matches_lruvec(page, lruvec), page);
+
+		// NVBUG: The page here must be NVPC page, cuz we only keep NVPC pages in the list
+		VM_BUG_ON_PAGE(!PageNVPC(page), page);
+		add_page_to_lru_list(page, lruvec);
+
+		nr_pages = thp_nr_pages(page);
+		nr_moved += nr_pages;
+		if (PageActive(page))
+			workingset_age_nonresident(lruvec, nr_pages);
+	}
+
+	list_splice(&pages_to_free, list);
+
+	return nr_moved;
+}
 
 
 /**
@@ -821,6 +843,7 @@ keep:
 	/* 'page_list' is always empty here */
 
 	try_to_unmap_flush();
+	// NVTODO: free_unref_nvpc_page_list(&free_nvpc_pages);
 	nvpc_free_pages(&free_nvpc_pages);
 
 	list_splice(&ret_pages, page_list);
@@ -845,9 +868,12 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	unsigned long nr_taken;
 	unsigned long nr_to_scan;
 	unsigned long nr_scanned;
-	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
-	bool stalled = false;
-	nr_to_scan = sc->nr_to_reclaim + 64; // NVTODO: reclaim more pages
+	struct pglist_data *pgdat;
+	bool stalled;
+
+	stalled = false;
+	pgdat = lruvec_pgdat(lruvec);
+	nr_to_scan = sc->nr_to_reclaim;
 
 	while (unlikely(too_many_isolated_nvpc(pgdat))) {
 		if (stalled)
@@ -878,20 +904,18 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 	spin_lock_irq(&lruvec->lru_lock);
 	// page_list will contain pages that will not be moved
-	nr_taken = nvpc_move_pages_to_lru(lruvec, &page_list);
+	nr_taken = nvpc_move_pages_to_lru_reclaim(lruvec, &page_list);
 	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, -nr_taken);
 	spin_unlock_irq(&lruvec->lru_lock);
 
 	// NVBUG: free nvpc pages that we won't use here?
-	free_unref_page_list(&page_list);
+	// NVTODO: free_unref_nvpc_page_list(&page_list);
+	nvpc_free_pages(&page_list);
 
 	pr_info("[knvpcd nr info evict] nr_reclaimed: %lu, nr_taken: %lu\n", 
 			nr_reclaimed, nr_taken);
 	return nr_reclaimed;
 }
-
-
-
 
 
 
@@ -920,8 +944,9 @@ static int do_knvpcd_work(struct nvpc * nvpc, pg_data_t* pgdat)
         blk_start_plug(&plug);
 
 	    while (nr_to_scan) {
-			unsigned int nr_reclaimed_this_time;
-		    nr_to_scan -= min(nr_to_scan, SWAP_CLUSTER_MAX);
+			unsigned int nr_reclaimed_this_time, nr_to_scan_this_time;
+			sc.nr_to_reclaim = nr_to_scan_this_time = min(nr_to_scan, SWAP_CLUSTER_MAX);
+		    nr_to_scan -= nr_to_scan_this_time;
             nr_reclaimed_this_time = shrink_nvpc_list(target_lruvec, &sc);
 			nr_reclaimed += nr_reclaimed_this_time;
 
