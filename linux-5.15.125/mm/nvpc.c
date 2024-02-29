@@ -129,7 +129,6 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     nvpc.enabled = true;
     pr_info("NVPC init: NVPC started with %zu pages.\n", nvpc.nvpc_sz);
 
-    // NVTODO: start when kernel init or lazy start?
     knvpcd_lazy_init(); // nvpc has been activated when kernel init
 
     return 0;
@@ -278,7 +277,7 @@ struct page *nvpc_alloc_promote_page(struct page *page, unsigned long node)
          * those pages in inactive list. 
          */
         // NVXXX: set GFP_NOIO so that only clean pages can be reclaimed?
-        // NVTODO: if can't get a page here, just fucking return
+        // NVXXX: if can't get a page here, just fucking return
         // .gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_RECLAIM |
 		// 	    __GFP_THISNODE | __GFP_NOWARN |
 		// 	    __GFP_NOMEMALLOC | GFP_NOWAIT,

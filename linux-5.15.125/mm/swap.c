@@ -552,7 +552,7 @@ void mark_page_accessed(struct page *page)
 		if (nvpc.promote_level && nvpc_lru_cnt >= nvpc.promote_level) {
 			nr_promote = nvpc_promote_vec_put_page(page);
 			if (nr_promote >= NVPC_PROMOTE_VEC_SZ) {
-				wakeup_knvpcd(1, 0, 0); // NVTODO: wake up knvpcd for promotion
+				wakeup_knvpcd(1, 0, 1); // NVXXX: wake up knvpcd for promotion
 			}
 		}
 	}

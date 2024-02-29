@@ -397,7 +397,7 @@ static int too_many_isolated_nvpc(struct pglist_data *pgdat)
 	nvpc_lru = node_page_state(pgdat, NR_NVPC_FILE);
 	isolated = node_page_state(pgdat, NR_ISOLATED_NVPC);
 
-	return nvpc_lru > isolated;
+	return isolated > (nvpc_lru >> 3); // NVXXX: using file backed pages, isolated page can be more
 }
 
 // NVTODO: nr_to_scan is not used
@@ -436,6 +436,9 @@ promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 	nr_promoted = promote_page_list(&page_list, pgdat, sc, false);
 
+	pr_info("[knvpcd nr info promote] _1_ nr_promoted: %lu, nr_taken: %lu\n", 
+		nr_promoted, nr_taken);
+
 	spin_lock_irq(&lruvec->lru_lock);
 	nr_taken = nvpc_move_pages_to_lru_promote(lruvec, &page_list); // After this, page_list will be empty
 	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, -nr_taken);
@@ -443,7 +446,7 @@ promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 	// NVBUG: free nvpc pages that we won't use here?
 
-	pr_info("[knvpcd nr info promote] nr_promoted: %lu, nr_taken: %lu\n", 
+	pr_info("[knvpcd nr info promote] _2_ nr_promoted: %lu, nr_taken: %lu\n", 
 			nr_promoted, nr_taken);
 	return nr_promoted;
 }
@@ -815,6 +818,7 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 					 * leave it off the LRU).
 					 */
 					nr_reclaimed++;
+					pr_warn("[nvpc knvpcd evict] rare race with speculative reference\n");
 					continue;
 				}
 			}
@@ -825,7 +829,7 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 
 		unlock_page(page);
 free_it:
-		pr_info("[NVPC knvpcd evict] free NVPC page: %p\n", page);
+		pr_warn("[NVPC knvpcd evict] free NVPC page: %p\n", page);
 		nr_reclaimed += nr_pages;
 		list_add(&page->lru, &free_nvpc_pages);
 		continue;
@@ -837,6 +841,8 @@ keep_locked:
 		unlock_page(page);
 keep:
 		list_add(&page->lru, &ret_pages);
+		pr_warn("[nvpc knvpcd evict] keep NVPC page: %p\n", page);
+
 		VM_BUG_ON_PAGE(PageLRU(page) || PageUnevictable(page), page);
 	}
 
@@ -845,6 +851,8 @@ keep:
 	try_to_unmap_flush();
 	// NVTODO: free_unref_nvpc_page_list(&free_nvpc_pages);
 	nvpc_free_pages(&free_nvpc_pages);
+
+	pr_warn("[nvpc knvpcd evict] free pages operation\n");
 
 	list_splice(&ret_pages, page_list);
 
@@ -875,6 +883,8 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	pgdat = lruvec_pgdat(lruvec);
 	nr_to_scan = sc->nr_to_reclaim;
 
+	pr_info("[nvpc knvpcd shrink_nvpc_list] start to scan NVPC pages\n");
+
 	while (unlikely(too_many_isolated_nvpc(pgdat))) {
 		if (stalled)
 			return 0;
@@ -890,6 +900,8 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 	/* in fact, nvpc pages will never be inside a pvec, so we don't drain */
 	// lru_add_drain();
+
+	pr_info("[nvpc knvpcd shrink_nvpc_list] after while loop status\n");
 	
 	spin_lock_irq(&lruvec->lru_lock);
 	nr_taken = nvpc_isolate_evict_pages(nr_to_scan, lruvec, &page_list,
@@ -897,10 +909,14 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	__mod_node_page_state(pgdat, NR_ISOLATED_NVPC, nr_taken);
 	spin_unlock_irq(&lruvec->lru_lock);
 
-	if (nr_taken == 0)
+	if (nr_taken == 0) {
+		pr_warn("[nvpc knvpcd shrink_nvpc_list] no pages to isolate\n");
 		return 0;
+	}
 
 	nr_reclaimed = shrink_page_list(&page_list, pgdat, sc, false); // NVTODO: evicttion for nvpc
+
+	pr_info("[nvpc knvpcd shrink_nvpc_list] after shrink_page_list\n");
 
 	spin_lock_irq(&lruvec->lru_lock);
 	// page_list will contain pages that will not be moved
@@ -960,9 +976,6 @@ static int do_knvpcd_work(struct nvpc * nvpc, pg_data_t* pgdat)
                 continue;
 	    }
         blk_finish_plug(&plug);
-	    
-        if (!ret)
-		    pr_warn("[knvpcd_warn] nvpc_evict failed!\n");
     }
 
     // Demote pages from DRAM to NVPC
@@ -976,7 +989,7 @@ static int do_knvpcd_work(struct nvpc * nvpc, pg_data_t* pgdat)
 		struct zonelist *zonelist;
 		enum zone_type highest_zoneidx;
 
-		gfp_mask = GFP_KERNEL | __GFP_KSWAPD_RECLAIM; // NVTODO: review needed
+		gfp_mask = GFP_KERNEL | __GFP_KSWAPD_RECLAIM;
 		highest_zoneidx = ZONE_NORMAL; // NVTODO: review needed
 				
 		zonelist = node_zonelist(NUMA_NO_NODE, gfp_mask); // without any preferences of NUMA selection
@@ -1029,9 +1042,6 @@ static int do_knvpcd_work(struct nvpc * nvpc, pg_data_t* pgdat)
                 continue;
 	    }
         blk_finish_plug(&plug);
-
-        if (!ret)
-		    pr_warn("[knvpcd_warn] nvpc_promote failed!\n");
     }
 
     return 0;
@@ -1058,7 +1068,6 @@ static int knvpcd(void *p)
 	// NVTODO: we need to write back dirty pages in NVPC ***
 	pg_data_t *pgdat = (pg_data_t *)p;
 	struct task_struct *tsk = current;
-	int ret;
 	const struct cpumask *cpumask = cpumask_of_node(pgdat->node_id);
 	wait_queue_entry_t wait;
 
@@ -1092,10 +1101,7 @@ static int knvpcd(void *p)
 		WRITE_ONCE(nvpc.knvpcd_nr_to_reclaim, SWAP_CLUSTER_MAX);
 		WRITE_ONCE(nvpc.knvpcd_nr_to_promote, SWAP_CLUSTER_MAX);
 
-        ret = do_knvpcd_work(&nvpc, pgdat);
-
-        if (!ret)
-            pr_warn("[knvpcd_warn] do nvpc failed!\n");
+        do_knvpcd_work(&nvpc, pgdat);
 
         // NVTODO: trace mm
 		// trace_mm_vmscan_knvpcd_wake(pgdat->node_id, alloc_order);
@@ -1145,7 +1151,6 @@ EXPORT_SYMBOL_GPL(wakeup_knvpcd);
  * @brief initialize knvpcd
  * @note rely on system booting to start nvpc
  * 
- * NVTODO: NVPC start on boot
  */
 void knvpcd_run(void)
 {
