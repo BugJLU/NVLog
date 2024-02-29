@@ -610,6 +610,15 @@ void migrate_page_states(struct page *newpage, struct page *page)
 	if (PageDirty(page))
 		SetPageDirty(newpage);
 
+	if (PageNVPCPendingCopy(page))
+		SetPageNVPCPendingCopy(newpage);
+	if (PageNVPCNpDirty(page))
+		SetPageNVPCNpDirty(newpage);
+	if (PageNVPCPin(page))
+		SetPageNVPCPin(newpage);
+	if (PageNVPCPDirty(page))
+		SetPageNVPCPDirty(newpage);
+
 	if (page_is_young(page))
 		set_page_young(newpage);
 	if (page_is_idle(page))

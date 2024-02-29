@@ -21,6 +21,8 @@ struct nvpc_opts
     size_t nvpc_sz;  /* in pages */
     // size_t syn_sz;  /* in pages */
     u8 promote_level;
+    bool force;
+    bool rebuild;
 };
 
 int init_nvpc(struct nvpc_opts *opts);
@@ -34,13 +36,23 @@ static inline struct nvpc *get_nvpc(void)
 /* get the address at an offset of nvpc */
 static inline void *nvpc_get_addr(loff_t off)
 {
-    return nvpc.dax_kaddr + off;
+    return get_nvpc()->dax_kaddr + off;
 }
 
 /* get the address at a page offset of nvpc */
 static inline void *nvpc_get_addr_pg(loff_t off_pg)
 {
-    return nvpc.dax_kaddr + (off_pg << PAGE_SHIFT);
+    return get_nvpc()->dax_kaddr + (off_pg << PAGE_SHIFT);
+}
+
+static inline loff_t nvpc_get_off(void *kaddr)
+{
+    return kaddr - get_nvpc()->dax_kaddr;
+}
+
+static inline loff_t nvpc_get_off_pg(void *kaddr)
+{
+    return (((uintptr_t)kaddr & PAGE_MASK) - (uintptr_t)get_nvpc()->dax_kaddr) >> PAGE_SHIFT;
 }
 
 void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);
@@ -50,6 +62,7 @@ void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);
  * callee hold lru_free_lock
  */
 struct page *nvpc_get_new_page(struct page *page, unsigned long private);
+size_t nvpc_get_n_new_page(struct list_head *pages, size_t n);
 void nvpc_free_page(struct page *page, unsigned long private);
 void nvpc_free_lru_page(struct page *page);
 void nvpc_free_pages(struct list_head *list);
@@ -62,6 +75,8 @@ void nvpc_promote_vec_clear(void);
 int nvpc_promote_vec_isolate(struct list_head *page_list, struct lruvec *lruvec);
 // bool nvpc_should_promote(void);
 int nvpc_promote_vec_nr(void);
+void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat);
+void nvpc_wakeup_nvpc_evict(void);
 
 /* knvpcd */
 extern void knvpcd_run(void);
@@ -71,6 +86,7 @@ extern void knvpcd_lazy_init(void);
 
 // NVTODO: for debug, remove these
 extern int debug_print;
+extern int debug_ino;
 #define nv_pr_info(fmt, ...) \
 	debug_print?printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__):1==1;
 

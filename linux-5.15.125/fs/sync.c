@@ -17,6 +17,7 @@
 #include <linux/pagemap.h>
 #include <linux/quotaops.h>
 #include <linux/backing-dev.h>
+#include <linux/nvpc.h>
 #include "internal.h"
 
 #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
@@ -185,6 +186,10 @@ int vfs_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 		return -EINVAL;
 	if (!datasync && (inode->i_state & I_DIRTY_TIME))
 		mark_inode_dirty_sync(inode);
+
+	if (IS_NVPC_ON(file->f_inode) && get_nvpc()->absorb_syn)
+		return nvpc_fsync_range(file, start, end, datasync);
+	
 	return file->f_op->fsync(file, start, end, datasync);
 }
 EXPORT_SYMBOL(vfs_fsync_range);
@@ -199,6 +204,35 @@ EXPORT_SYMBOL(vfs_fsync_range);
  */
 int vfs_fsync(struct file *file, int datasync)
 {
+#ifdef CONFIG_NVPC
+	bool just_marked = false;
+#endif
+#if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
+
+	if (file->nvpc_fsync_tracker.should_track)
+	{
+		if (file->nvpc_fsync_tracker.write_since_last_sync < NVPC_ACTIVE_SYNC_THRESH)
+			file->nvpc_fsync_tracker.small_sync_time++;
+		else if (file->nvpc_fsync_tracker.write_since_last_sync >= 
+				file->nvpc_fsync_tracker.sensitivity * NVPC_ACTIVE_SYNC_THRESH)
+			file->nvpc_fsync_tracker.small_sync_time = 0;
+
+		if (!(file->f_flags & O_SYNC) && 
+			file->nvpc_fsync_tracker.small_sync_time >= file->nvpc_fsync_tracker.sensitivity)
+		{
+			// pr_info("[NVPC DEBUG]: active fsync start. \n");
+			file->f_flags |= O_SYNC;
+			just_marked = true;
+		}
+
+		file->nvpc_fsync_tracker.write_since_last_sync = 0;
+	}
+#endif
+#ifdef CONFIG_NVPC
+	if (IS_NVPC_ON(file->f_inode) && get_nvpc()->absorb_syn && !just_marked &&
+		((file->f_flags & O_SYNC) || IS_SYNC(file->f_inode)))
+		return 0;
+#endif
 	return vfs_fsync_range(file, 0, LLONG_MAX, datasync);
 }
 EXPORT_SYMBOL(vfs_fsync);

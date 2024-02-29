@@ -57,7 +57,7 @@ size_t nvpc_write_nv_iter(struct iov_iter *from, loff_t off, bool flush)
     size_t len;
 
     len = iov_iter_count(from);
-    if (off + len > (nvpc.len_pg << PAGE_SHIFT))
+    if (unlikely(off + len > (nvpc.len_pg << PAGE_SHIFT)))
     {
         len = (nvpc.len_pg << PAGE_SHIFT) - off;
     }
@@ -81,7 +81,7 @@ size_t nvpc_read_nv_iter(struct iov_iter *to, loff_t off)
     size_t len;
 
     len = iov_iter_count(to);
-    if (off + len > (nvpc.len_pg << PAGE_SHIFT))
+    if (unlikely(off + len > (nvpc.len_pg << PAGE_SHIFT)))
     {
         len = (nvpc.len_pg << PAGE_SHIFT) - off;
     }

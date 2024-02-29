@@ -141,6 +141,17 @@ enum pageflags {
 #ifdef CONFIG_KASAN_HW_TAGS
 	PG_skip_kasan_poison,
 #endif
+#ifdef CONFIG_NVPC
+	PG_NVPC_pending_copy,		/* copy this page when it is written again, for NVM page only */
+	PG_NVPC_np_dirty,			/* page cache is dirty and not persisted in NVPC, for page cache page */
+	PG_NVPC_pin, 				/* latest page cache is (partial/fully) persisted in NVPC, for pc page, 
+								 * when writeback is performed, log to cancel the page in NVPC */
+	PG_NVPC_p_dirty,			/* nvpc persisted page is dirty compared with disk */
+
+	/* the following bits are not used */
+	// PG_NVPC_persistent, 		/* nvpc page is in persistent mode */
+	// PG_NVPC_has_persistent, 	/* dram page has an nvpc copy that is in persistent mode */
+#endif
 	__NR_PAGEFLAGS,
 
 	/* Filesystems */
@@ -462,6 +473,21 @@ PAGEFLAG(Idle, idle, PF_ANY)
 PAGEFLAG(SkipKASanPoison, skip_kasan_poison, PF_HEAD)
 #else
 PAGEFLAG_FALSE(SkipKASanPoison)
+#endif
+
+#ifdef CONFIG_NVPC
+PAGEFLAG(NVPCPendingCopy, NVPC_pending_copy, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCPendingCopy, NVPC_pending_copy, PF_NO_COMPOUND)
+PAGEFLAG(NVPCNpDirty, NVPC_np_dirty, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCNpDirty, NVPC_np_dirty, PF_NO_COMPOUND)
+PAGEFLAG(NVPCPin, NVPC_pin, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCPin, NVPC_pin, PF_NO_COMPOUND)
+PAGEFLAG(NVPCPDirty, NVPC_p_dirty, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCPDirty, NVPC_p_dirty, PF_NO_COMPOUND)
+// PAGEFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
+// 	TESTSCFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
+// PAGEFLAG(NVPCHasPersistent, NVPC_has_persistent, PF_NO_COMPOUND)
+// 	TESTSCFLAG(NVPCHasPersistent, NVPC_has_persistent, PF_NO_COMPOUND)
 #endif
 
 /*

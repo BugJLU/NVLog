@@ -37,6 +37,7 @@
 #include <linux/sched/rt.h>
 #include <linux/sched/signal.h>
 #include <linux/mm_inline.h>
+#include <linux/nvpc_sync.h>
 #include <trace/events/writeback.h>
 
 #include "internal.h"
@@ -2502,6 +2503,14 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 				PAGECACHE_TAG_DIRTY);
 	}
 	xa_unlock_irqrestore(&mapping->i_pages, flags);
+#ifdef CONFIG_NVPC
+	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty\n");
+	}
+#endif
 }
 
 /*
@@ -2519,6 +2528,14 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 int __set_page_dirty_nobuffers(struct page *page)
 {
 	lock_page_memcg(page);
+#ifdef CONFIG_NVPC
+	if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty_nobuffers\n");
+	}
+#endif
 	if (!TestSetPageDirty(page)) {
 		struct address_space *mapping = page_mapping(page);
 
@@ -2612,6 +2629,14 @@ int set_page_dirty(struct page *page)
 		if (!TestSetPageDirty(page))
 			return 1;
 	}
+#ifdef CONFIG_NVPC
+	if (likely(mapping) && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ set_page_dirty\n");
+	}
+#endif
 	return 0;
 }
 EXPORT_SYMBOL(set_page_dirty);
@@ -2664,11 +2689,14 @@ void __cancel_dirty_page(struct page *page)
 
 		if (TestClearPageDirty(page))
 			account_page_cleaned(page, mapping, wb);
+		
+		// ClearPageNVPCNpDirty(page);
 
 		unlocked_inode_to_wb_end(inode, &cookie);
 		unlock_page_memcg(page);
 	} else {
 		ClearPageDirty(page);
+		// ClearPageNVPCNpDirty(page);
 	}
 }
 EXPORT_SYMBOL(__cancel_dirty_page);
@@ -2741,9 +2769,11 @@ int clear_page_dirty_for_io(struct page *page)
 			dec_wb_stat(wb, WB_RECLAIMABLE);
 			ret = 1;
 		}
+		// ClearPageNVPCNpDirty(page);
 		unlocked_inode_to_wb_end(inode, &cookie);
 		return ret;
 	}
+	// ClearPageNVPCNpDirty(page);
 	return TestClearPageDirty(page);
 }
 EXPORT_SYMBOL(clear_page_dirty_for_io);
@@ -2811,6 +2841,17 @@ int test_clear_page_writeback(struct page *page)
 		inc_node_page_state(page, NR_WRITTEN);
 	}
 	unlock_page_memcg(page);
+		
+#ifdef CONFIG_NVPC
+	/* 
+	 * log page writeback in nvpc's pmem zone using the previous wb mark in dram index.
+	 * The page is locked here, grabbing inode->nvpc_sync_ilog.log_lock will cause
+	 * deadlock, so we use work queue to postpone the logging.
+	 */
+	if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
+		nvpc_log_page_writeback(page);
+#endif
+
 	return ret;
 }
 
@@ -2863,6 +2904,17 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 	if (!ret) {
 		inc_lruvec_page_state(page, NR_WRITEBACK);
 		inc_zone_page_state(page, NR_ZONE_WRITE_PENDING);
+
+#ifdef CONFIG_NVPC
+		/* 
+		 * mark page writeback with current latest log entry of this 
+		 * page in nvpc's dram index. only mark it when the page's  
+		 * first SetPageWriteback, or we may losg some nvpc log during
+		 * the first and second SetPageWriteback
+		 */
+		if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
+			nvpc_mark_page_writeback(page);
+#endif
 	}
 	unlock_page_memcg(page);
 	access_ret = arch_make_page_accessible(page);

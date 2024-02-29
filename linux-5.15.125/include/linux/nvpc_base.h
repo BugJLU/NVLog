@@ -30,6 +30,8 @@ struct nvpc
 
     size_t nvpc_sz;
     // size_t syn_sz;
+    size_t warning_pgnum;
+    size_t evict_order;
 
     /* free lists: just per-page free list, we don't need buddy here */
     // NVTODO: add some bits in page->flags, so that we don't need to seperate lru and syn here
