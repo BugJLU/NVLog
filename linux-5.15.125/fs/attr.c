@@ -488,7 +488,7 @@ int notify_change(struct user_namespace *mnt_userns, struct dentry *dentry,
 #ifdef CONFIG_NVPC
 	if (IS_NVPC_ON(inode) && (
 		(inode->i_sb && IS_SYNC(inode)) || 
-		(inode->i_state & I_NVPC_DATA)	||
+		(inode->nvpc_i_state & I_NVPC_DATA)	||
 		((attr->ia_valid & ATTR_SIZE) && attr->ia_file && (attr->ia_file->f_flags & O_SYNC))
 	))
 		// only deal with truncate. 

@@ -22,7 +22,9 @@
 #define NVPC_IPOOP_THR PAGE_SIZE
 
 #define NVPC_ACTIVE_SYNC_SENSITVT   2
-#define NVPC_ACTIVE_SYNC_THRESH     100 // NVTODO: calculate this
+// #define NVPC_ACTIVE_SYNC_THRESH     100 // deprecated
+#define NVPC_ACTIVE_SYNC_LAT_NVM    1   // NVTODO: evaluate this
+#define NVPC_ACTIVE_SYNC_LAT_NVM1   4096  // NVTODO: evaluate this
 
 // #define NVPC_COMPACT_ON
 #define NVPC_ACTIVE_SYNC_ON

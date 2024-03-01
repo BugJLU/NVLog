@@ -249,21 +249,25 @@ out:
 
 log_inode_head_entry *nvpc_get_log_inode(struct inode *inode)
 {
-    spin_lock(&inode->i_lock);
-    if (!inode->nvpc_sync_ilog.log_head)
+    // check once first to avoid locking
+    if (unlikely(!inode->nvpc_sync_ilog.log_head))
     {
-        log_inode_head_entry *lh;
+        spin_lock(&inode->i_lock);  // may race on creating log_head
+        if (!inode->nvpc_sync_ilog.log_head)    // only once this should fail
+        {
+            log_inode_head_entry *lh;
+            spin_unlock(&inode->i_lock);
+            lh = create_log_head(inode);
+            if (!lh)
+                return NULL;
+            
+            spin_lock(&inode->i_lock);
+            inode->nvpc_sync_ilog.log_head = lh;
+            inode->nvpc_sync_ilog.log_tail = lh->committed_log_tail;
+            inode->nvpc_sync_ilog.latest_logged_attr = NULL;
+        }
         spin_unlock(&inode->i_lock);
-        lh = create_log_head(inode);
-        if (!lh)
-            return NULL;
-        
-        spin_lock(&inode->i_lock);
-        inode->nvpc_sync_ilog.log_head = lh;
-        inode->nvpc_sync_ilog.log_tail = lh->committed_log_tail;
-        inode->nvpc_sync_ilog.latest_logged_attr = NULL;
     }
-    spin_unlock(&inode->i_lock);
     return inode->nvpc_sync_ilog.log_head;
 }
 
@@ -545,9 +549,9 @@ void write_commit(struct inode *inode, nvpc_sync_log_entry *old_tail, nvpc_sync_
         sizeof(nvpc_sync_write_entry*)
     );
     // NVTODO: when to remove I_NVPC_DATA? maybe the cleanup thread
-    spin_lock(&inode->i_lock);
-    inode->i_state |= I_NVPC_DATA;
-    spin_unlock(&inode->i_lock);
+    // spin_lock(&inode->i_lock);
+    inode->nvpc_i_state |= I_NVPC_DATA;
+    // spin_unlock(&inode->i_lock);
     
     nvpc_write_commit();
 }

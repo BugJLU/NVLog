@@ -734,6 +734,7 @@ struct inode {
 	void			*i_private; /* fs or device private pointer */
 
 #ifdef CONFIG_NVPC
+	unsigned long nvpc_i_state;	// NVTODO: make this atomic
 	struct nvpc_sync_ilog
 	{
 		log_inode_head_entry *log_head;
@@ -776,6 +777,10 @@ struct inode {
 		// atomic_t log_cntr;
 		uint32_t log_cntr;
 	} nvpc_sync_ilog;
+	struct nvpc_sync_active {
+		unsigned long nr_dirtied;
+		unsigned long nr_written;
+	} nvpc_sync_active;
 #endif
 	
 } __randomize_layout;
@@ -2482,7 +2487,7 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
 //  */
 // #define I_NVPC			(1 << 18)
 // #define I_NVPC_DIRTY	(1 << 19)
-#define I_NVPC_DATA	(1 << 18)	/* some data of an inode is already in NVPC, used to instruct truncate */
+#define I_NVPC_DATA	(1 << 0)	/* some data of an inode is already in NVPC, used to instruct truncate */
 
 
 #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)

@@ -208,19 +208,32 @@ int vfs_fsync(struct file *file, int datasync)
 	bool just_marked = false;
 #endif
 #if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
-
-	if (file->nvpc_fsync_tracker.should_track)
+	// int ret;
+	if (file->nvpc_fsync_tracker.should_track && get_nvpc()->active_sync)
 	{
-		if (file->nvpc_fsync_tracker.write_since_last_sync < NVPC_ACTIVE_SYNC_THRESH)
+		unsigned long nr_all = file->f_inode->nvpc_sync_active.nr_dirtied; // + file->f_inode->nvpc_sync_active.nr_written;
+		size_t nvm_time = file->nvpc_fsync_tracker.write_since_last_sync * NVPC_ACTIVE_SYNC_LAT_NVM;
+		size_t disk_time = nr_all*NVPC_ACTIVE_SYNC_LAT_NVM1;
+		// pr_info("[NVPC DEBUG]: s: active fsync dirtiedpg: %lu, written: %lu. \n", file->f_inode->nvpc_sync_active.nr_dirtied, file->nvpc_fsync_tracker.write_since_last_sync);
+		// pr_info("[NVPC DEBUG]: s: active fsync time: n %lu; d %lu. \n", nvm_time, disk_time);
+		if (nvm_time < disk_time)
+		{
 			file->nvpc_fsync_tracker.small_sync_time++;
-		else if (file->nvpc_fsync_tracker.write_since_last_sync >= 
-				file->nvpc_fsync_tracker.sensitivity * NVPC_ACTIVE_SYNC_THRESH)
+			// pr_info("[NVPC DEBUG]: s: active fsync cnt add to %d, sensitivity: %d. \n", 
+					// file->nvpc_fsync_tracker.small_sync_time, 
+					// file->nvpc_fsync_tracker.sensitivity);
+		}
+		else if (file->f_flags & O_SYNC) // (nvm_time >= disk_time)
+		{
+			// pr_info("[NVPC DEBUG]: s: active fsync quit. \n");
 			file->nvpc_fsync_tracker.small_sync_time = 0;
+			file->f_flags &= ~O_SYNC;
+		}
 
 		if (!(file->f_flags & O_SYNC) && 
 			file->nvpc_fsync_tracker.small_sync_time >= file->nvpc_fsync_tracker.sensitivity)
 		{
-			// pr_info("[NVPC DEBUG]: active fsync start. \n");
+			// pr_info("[NVPC DEBUG]: s: active fsync start. \n");
 			file->f_flags |= O_SYNC;
 			just_marked = true;
 		}
@@ -233,7 +246,14 @@ int vfs_fsync(struct file *file, int datasync)
 		((file->f_flags & O_SYNC) || IS_SYNC(file->f_inode)))
 		return 0;
 #endif
+// #if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
+// 	ret = vfs_fsync_range(file, 0, LLONG_MAX, datasync);
+// 	// file->f_inode->nvpc_sync_active.nr_dirtied = 0;
+// 	// file->f_inode->nvpc_sync_active.nr_written = 0;		// may lose some count here, whatever
+// 	return ret;
+// #else
 	return vfs_fsync_range(file, 0, LLONG_MAX, datasync);
+// #endif
 }
 EXPORT_SYMBOL(vfs_fsync);
 

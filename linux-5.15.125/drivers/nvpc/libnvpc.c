@@ -3,6 +3,7 @@
 #include <linux/printk.h>
 #include <linux/init.h>
 #include <linux/module.h>
+#include <linux/moduleparam.h>
 #include <linux/device.h>
 #include <linux/cdev.h>
 #include <linux/stat.h>
@@ -10,7 +11,7 @@
 #include <linux/namei.h>
 #include <linux/nvpc_sync.h>
 
-#define NVPC_ALL_STRICT
+// #define NVPC_ALL_STRICT
 
 // NVTODO: remove this
 #define DEBUG
@@ -37,6 +38,29 @@ static bool nvpc_wbarrier = true;
 
 module_param(nvpc_flush, bool, S_IRUGO|S_IWUSR);
 module_param(nvpc_wbarrier, bool, S_IRUGO|S_IWUSR);
+
+
+static bool nvpc_active_sync = true;
+int notify_param_nvpc_active_sync(const char *val, const struct kernel_param *kp)
+{
+    int res = param_set_bool(val, kp);
+    if (res)
+        return -1;
+    
+    get_nvpc()->active_sync = nvpc_active_sync;
+    pr_info("Libnvpc: NVPC active_sync function is set to %d. \n", nvpc_active_sync);
+    return 0;
+}
+int param_get_nvpc_active_sync(char *buffer, const struct kernel_param *kp)
+{
+	/* Y and N chosen as being relatively non-coder friendly */
+	return sprintf(buffer, "%c\n", get_nvpc()->active_sync ? 'Y' : 'N');
+}
+const struct kernel_param_ops nvpc_param_ops_nvpc_active_sync = {
+    .set = &notify_param_nvpc_active_sync, 
+    .get = &param_get_bool, 
+};
+module_param_cb(nvpc_active_sync, &nvpc_param_ops_nvpc_active_sync, &nvpc_active_sync, S_IRUGO|S_IWUSR);
 
 typedef struct nvpc_init_s
 {
@@ -78,7 +102,7 @@ static void get_nvpc_usage(nvpc_usage_t *usage)
     pr_info(NO_NVPC_INFO);
 }
 
-static int open_nvpc_onsb_path(char *fpath)
+static int open_nvpc_onsb_path(char *fpath, int mode)
 {pr_info(NO_NVPC_INFO);}
 
 static int close_nvpc_onsb_path(char *fpath)
@@ -217,14 +241,14 @@ static void do_nvpc_test1(char *name, size_t len, __user char *data)
     
     // pr_info("Libnvpc TEST: ino %lu log_head %px\n", inode, inode->nvpc_sync_ilog.log_head);
     
-    // nvpc_print_inode_pages(inode);
+    nvpc_print_inode_pages(inode);
 
     debug_ino = inode->i_ino;
     path_put(&path);
 }
 
 /* enable nvpc on the superblock of fs at a given path */
-static int open_nvpc_onsb_path(char *fpath)
+static int open_nvpc_onsb_path(char *fpath, int mode)
 {
     struct path path;
     struct super_block *sb = NULL;
@@ -243,9 +267,10 @@ static int open_nvpc_onsb_path(char *fpath)
     // pr_info("Libnvpc TEST: sb2 %p\n", sb2);
     sb->s_nvpc_flags |= SB_NVPC_ON;
 
-#ifdef NVPC_ALL_STRICT
-    sb->s_nvpc_flags |= SB_NVPC_STRICT;
-#endif
+// #ifdef NVPC_ALL_STRICT
+    if (mode)
+        sb->s_nvpc_flags |= SB_NVPC_STRICT;
+// #endif
 
     pr_info("Libnvpc: nvpc is open on path %s with fs %s.\n", fpath, sb->s_type->name);
     pr_info("[NVPC TEST] Libnvpc: sb: %p sb->s_nvpc_flags: %lx\n", sb, sb->s_nvpc_flags);
@@ -292,6 +317,10 @@ static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
         size_t len;
         __user char *tmp1;
     } test1;
+    struct open_s {
+        char *path;
+        int mode;
+    } openarg;
 
     ret = 0;
     switch (cmd)
@@ -324,9 +353,11 @@ static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
         do_nvpc_test1(nvpc_path_tmp, test1.len, test1.tmp1);
         break;
     case LIBNVPC_IOC_OPEN:
-        if (copy_from_user(nvpc_path_tmp, (char *)arg, PATH_MAX))
+        if (copy_from_user(&openarg, (char *)arg, sizeof(struct open_s)))
             ret = -EFAULT;
-        ret = open_nvpc_onsb_path(nvpc_path_tmp);
+        if (copy_from_user(nvpc_path_tmp, openarg.path, PATH_MAX))
+            ret = -EFAULT;
+        ret = open_nvpc_onsb_path(nvpc_path_tmp, openarg.mode);
         break;
     case LIBNVPC_IOC_CLOSE:
         if (copy_from_user(nvpc_path_tmp, (char *)arg, PATH_MAX))

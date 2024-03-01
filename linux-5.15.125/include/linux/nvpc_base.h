@@ -21,6 +21,8 @@ struct nvpc
     bool extend_lru;
     bool absorb_syn;
 
+    bool active_sync;
+
     // /* the separator of lru zone and syn zone */
     // void *sep_lru_syn;
 

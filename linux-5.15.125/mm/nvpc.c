@@ -31,7 +31,8 @@ struct nvpc nvpc = {
     .enabled = false, 
     .extend_lru = false,
     .absorb_syn = false, 
-    .promote_level = 4
+    .promote_level = 4, 
+    .active_sync = true, 
 };
 EXPORT_SYMBOL_GPL(nvpc);
 
