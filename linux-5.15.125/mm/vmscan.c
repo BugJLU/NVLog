@@ -1581,7 +1581,8 @@ retry:
 
 #ifdef CONFIG_NVPC
 		// demote
-		if (do_nvpc_pass &&
+		if (do_nvpc_pass && 
+			page->mapping && PageSBNVPC(page) && // If inode is nvpc-enabled
 			page_is_file_lru(page) && // this line is redundant
 			!PageAnon(page) &&
 			!PageSwapBacked(page) &&	// only move file-backed pages
@@ -1879,7 +1880,7 @@ keep:
 #ifdef CONFIG_NVPC
 	/* Demote: Migrate DRAM pages to NVPC lru */
 	if (do_nvpc_pass) {
-		nr_reclaimed += demote_pages_to_nvpc(&nvpc_demote_pages);
+		nr_reclaimed += demote_pages_to_nvpc(&nvpc_demote_pages); // include list empty check
 		if (!list_empty(&nvpc_demote_pages))
 		{
 			list_splice_init(&nvpc_demote_pages, page_list);
