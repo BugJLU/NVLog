@@ -46,9 +46,7 @@ EXPORT_SYMBOL_GPL(nvpc);
 static bool support_clwb;
 
 /* vector that temporarily stores NVPC pages that reach the promote level */
-static struct page *promote_vec[NVPC_PROMOTE_VEC_SZ];
-static atomic_t nr_promote_vec;
-static DEFINE_SPINLOCK(promote_vec_lock);
+
 int promote_order = order_base_2(NVPC_PROMOTE_VEC_SZ);
 
 #ifdef NVPC_PERCPU_FREELIST
@@ -68,6 +66,22 @@ struct list_head *get_nvpc_pcpu_free_list(int cpuid)
     return &per_cpu(nvpc_pcpu_free_list, cpuid);
 }
 #endif
+
+/* return the old val if success, return -1 if fail */
+static inline long atomic_fetch_inc_test_upperbound(atomic_long_t *val, long upper)
+{
+    long old, new;
+    old = atomic_long_read(&nr_promote_vec);
+
+    do
+    {
+        if (old >= upper)
+            return -1;
+        new = old+1;
+    } while (!atomic_long_try_cmpxchg(val, &old, new));
+
+    return old;
+}
 
 static size_t __nvpc_get_n_new_page(struct list_head *pages, size_t n);
 
@@ -182,7 +196,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     nvpc.evict_order   = order_base_2(max(nvpc.nvpc_sz / 100, (size_t)1) * NVPC_EVICT_PERCENT);
 
     /* init promote vec */
-    atomic_set(&nr_promote_vec, 0);
+    atomic_long_set(&nr_promote_vec, 0);
 
     /* page ref count is 1 after init */
     memmap_init_range(nvpc.nvpc_sz, nvpc.nid, ZONE_NORMAL, nvpc.pfn, 0, MEMINIT_HOTPLUG, NULL, MIGRATE_ISOLATE);
@@ -329,7 +343,7 @@ out:
 }
 #endif
 
-struct page *nvpc_get_new_page(struct page *page, unsigned long private)
+inline struct page *nvpc_get_new_page(struct page *page, unsigned long private)
 {
 #ifndef NVPC_PERCPU_FREELIST
     return __nvpc_get_new_page(page, private);
@@ -365,8 +379,8 @@ static size_t __nvpc_get_n_new_page(struct list_head *pages, size_t n)
         list_move(&newpage->lru, pages);
     }
     
-out:
     should_evict = nvpc.nvpc_free_pgnum <= nvpc.warning_pgnum;
+out:
     nvpc.nvpc_free_pgnum-=nr_taken;
     spin_unlock_irqrestore(lock, irq_flags);
 
@@ -552,57 +566,11 @@ void nvpc_free_pages(struct list_head *list)
     }
 }
 
-/**
- * @brief Originated from vmscan.c: alloc_demote_page()
- * 
- * @param page 
- * @param node 
- * @return struct page* 
- */
-struct page *nvpc_alloc_promote_page(struct page *page, unsigned long node)
-{
-    struct migration_target_control mtc = {
-        /*
-         * Allocate from DRAM of this node, enable reclaim because
-         * the page we are promoting is accessed more frequently than
-         * those pages in inactive list. 
-         */
-        // NVXXX: set GFP_NOIO so that only clean pages can be reclaimed?
-        // NVXXX: if can't get a page here, just fucking return
-        // .gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_RECLAIM |
-		// 	    __GFP_THISNODE | __GFP_NOWARN |
-		// 	    __GFP_NOMEMALLOC | GFP_NOWAIT,
-		// .nid = nvpc.nid
-        .gfp_mask = (GFP_HIGHUSER_MOVABLE & ~__GFP_RECLAIM) |
-                __GFP_THISNODE  | __GFP_NOWARN |
-                __GFP_NOMEMALLOC | GFP_NOWAIT,
-		.nid = node
-	};
-
-	return alloc_migration_target(page, (unsigned long)&mtc);
-}
-
-/* return the old val if success, return -1 if fail */
-static inline int atomic_fetch_inc_test_upperbound(atomic_t *val, int upper)
-{
-    int old, new;
-    old = atomic_read(&nr_promote_vec);
-
-    do
-    {
-        if (old >= upper)
-            return -1;
-        new = old+1;
-    } while (!atomic_try_cmpxchg(val, &old, new));
-
-    return old;
-}
-
 /* return number of pages in promote vec */
 int nvpc_promote_vec_put_page(struct page * page)
 {
     unsigned long lock_irq;
-    int idx = atomic_fetch_inc_test_upperbound(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+    long idx = atomic_fetch_inc_test_upperbound(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
 
     if (idx < 0)
         return -1;
@@ -616,61 +584,48 @@ int nvpc_promote_vec_put_page(struct page * page)
 
 // NVTODO: periodically do this
 /* clear the vec and the access count of its members */
-void nvpc_promote_vec_clear()
+inline void nvpc_promote_vec_clear()
 {
-    int i, num;
+    long i, num;
 
-    num = atomic_xchg(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
+    num = atomic_long_xchg(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
 
     for (i = 0; i < num; i++) {
         page_nvpc_lru_cnt_set(promote_vec[i], 0);
     }
-    atomic_set(&nr_promote_vec, 0);
+    atomic_long_set(&nr_promote_vec, 0);
 }
 
-/* caller must ensure that this function can manipulate NVPC lru!!! */
-int nvpc_promote_vec_isolate(struct list_head *page_list, struct lruvec *lruvec)
+/**
+ * @brief wakeup knvpcd to promote
+ * @note page promotion number is determined by promote_vec size
+ * 
+ */
+inline void nvpc_wakeup_nvpc_promote(void)
 {
-    int i, num;
-    unsigned long lock_irq;
-    struct page *page;
-
-    num = atomic_xchg(&nr_promote_vec, NVPC_PROMOTE_VEC_SZ);
-
-    spin_lock_irqsave(&promote_vec_lock, lock_irq);
-    for (i = 0; i < num; i++) {
-        page = promote_vec[i];
-
-        if (!PageLRU(page))
-            goto move;
-
-        if (unlikely(!get_page_unless_zero(page)))
-            goto move;
-
-        // If the page is not in any DRAM 
-        if (!TestClearPageLRU(page)) {
-            put_page(page);
-            goto move;
-        }
-
-move:
-        list_move(&page->lru, page_list);
-        // NVTEST: for update_lru_size()
-        // NVTODO: The lru size update should be done out of the loop for performance
-        update_lru_size(lruvec, page_lru(page), page_zonenum(page),
-			-thp_nr_pages(page));
+    unsigned long nr_to_promote = (unsigned long)atomic_long_read(&nr_promote_vec);
+    if (nr_to_promote)
+    {
+        wakeup_knvpcd(nr_to_promote, 0);
     }
-    spin_unlock_irqrestore(&promote_vec_lock, lock_irq);
-    
-    atomic_set(&nr_promote_vec, 0);
-    return num;
 }
 
-int nvpc_promote_vec_nr()
+/**
+ * @brief wakeup knvpcd to evict
+ * @note page eviction number is determined by strategy
+ * 
+ */
+inline void nvpc_wakeup_nvpc_evict(void)
 {
-    return atomic_read(&nr_promote_vec);
+    size_t evict_order = READ_ONCE(nvpc.evict_order);
+    unsigned long nr_to_evict = 1UL << evict_order;
+
+    wakeup_knvpcd(0, nr_to_evict);
 }
 
+
+
+// // Strategy:
 // bool nvpc_should_promote()
 // {
 //     /*
@@ -679,59 +634,11 @@ int nvpc_promote_vec_nr()
 //      * 2) if nvpc promote vec page number is less than
 //      *    dram unreached page number, promote
 //      */
-//     int n_pv_num = atomic_read(&nr_promote_vec);
+//     int n_pv_num = atomic_long_read(&nr_promote_vec);
 //     int d_ur_num;   // NVTODO: track this /* use inactive list !PageReferenced page num */
 
 //     return n_pv_num == PROMOTE_VEC_SZ || n_pv_num < d_ur_num;
 // }
-
-void nvpc_wakeup_nvpc_promote(pg_data_t *pgdat)
-{
-    // wakeup_kswapd();
-
-    /* 
-     * wake up kswapd on node 0 
-     * 
-     * pgdat->kswapd_highest_zoneidx is set to ZONE_NORMAL;
-     * pgdat->kswapd_order is set to the order of pages 
-     * prepared to promote;
-     * when kswapd runs, it will shrink dram lru lists to 
-     * prepare #order pages on ZONE_NORMAL for promotion
-     */
-    enum zone_type curr_idx;
-    // pg_data_t *pgdat = NODE_DATA(0);
-
-    if (!waitqueue_active(&pgdat->kswapd_wait))
-		return;
-
-    curr_idx = READ_ONCE(pgdat->kswapd_highest_zoneidx);
-
-	if (curr_idx == MAX_NR_ZONES || curr_idx < ZONE_NORMAL)
-		WRITE_ONCE(pgdat->kswapd_highest_zoneidx, ZONE_NORMAL);
-
-	if (READ_ONCE(pgdat->kswapd_order) < promote_order)
-		WRITE_ONCE(pgdat->kswapd_order, promote_order);
-
-    // trace_mm_vmscan_wakeup_kswapd(0, ZONE_NORMAL, 0,
-	// 			      0);
-	// wake_up_interruptible(&pgdat->kswapd_wait);
-}
-
-void nvpc_wakeup_nvpc_evict()
-{
-    // NVTODO: wait for knvpcd to finish
-    // pg_data_t *pgdat = NODE_DATA(0);
-    // enum zone_type curr_idx;
-
-    // if (!waitqueue_active(&pgdat->knvpcd_wait))
-	// 	return;
-
-	// if (READ_ONCE(pgdat->knvpcd_order) < nvpc.evict_order)
-	// 	WRITE_ONCE(pgdat->knvpcd_order, nvpc.evict_order);
-    
-    // wake_up_interruptible(&pgdat->knvpcd_wait);
-}
-
 
 // NVTODO: debug, remove this
 int debug_print = 0;

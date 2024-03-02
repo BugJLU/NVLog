@@ -202,7 +202,6 @@ EXPORT_SYMBOL_GPL(get_kernel_pages);
 // 		return 0;
 
 // 	/* Demotion ignores all cpuset and mempolicy settings */
-// 	// NVTODO: where to promote? active or inactive?
 // 	err = migrate_pages(promote_pages, nvpc_alloc_promote_page, NULL,
 // 			    nid, MIGRATE_ASYNC, MR_NVPC_LRU_PROMOTE, &nr_succeeded);
 
@@ -552,7 +551,7 @@ void mark_page_accessed(struct page *page)
 		if (nvpc.promote_level && nvpc_lru_cnt >= nvpc.promote_level) {
 			nr_promote = nvpc_promote_vec_put_page(page);
 			if (nr_promote >= NVPC_PROMOTE_VEC_SZ) {
-				wakeup_knvpcd(1, 0, 1); // NVXXX: wake up knvpcd for promotion
+				nvpc_wakeup_nvpc_promote();
 			}
 		}
 	}

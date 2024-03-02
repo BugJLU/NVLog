@@ -63,8 +63,6 @@ struct nvpc
      *  lru_free_lock   --  only when getting free lru page
      *  syn_lock        --  lock syn list
      *  syn_free_lock   --  only when getting free syn page
-     * 
-     * 
      */
     
     // NVTODO: reconsider the locks
@@ -86,10 +84,6 @@ struct nvpc
 
     unsigned long knvpcd_nr_to_promote;
     unsigned long knvpcd_nr_to_reclaim;
-
-    unsigned int knvpcd_promote; // If knvpcd_promote is set, promotion will be done
-    unsigned int knvpcd_demote; // If knvpcd_demote is set, reclaim will be done
-    unsigned int knvpcd_evict; // If knvpcd_evict is set, evict will be done
 
     // NVTODO: function undone
     // atomic_t knvpcd_failures; // number of demotes || evictions || promoted == 0 returns
