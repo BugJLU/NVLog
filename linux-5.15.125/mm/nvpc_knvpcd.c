@@ -1064,7 +1064,7 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
 	target_lruvec = mem_cgroup_lruvec(NULL, pgdat);
 
     // Evict pages from NVPC to Disk
-    if (knvpcd_nr_to_reclaim)
+    if (nvpc->nvpc_lru_evict && knvpcd_nr_to_reclaim)
     {
 	    unsigned long nr_to_reclaim = knvpcd_nr_to_reclaim;
 	    unsigned long nr_reclaimed = 0;
@@ -1292,8 +1292,10 @@ void knvpcd_lazy_init(void)
 {
 	if (!waitqueue_active(&nvpc.knvpcd_wait))
 		init_waitqueue_head(&nvpc.knvpcd_wait);
-	if (!waitqueue_active(&nvpc.pmemalloc_wait))
-    	init_waitqueue_head(&nvpc.pmemalloc_wait);
+
+	// NVXXX: memalloc is managed by free_nvpc_list, so deprecated
+	// if (!waitqueue_active(&nvpc.pmemalloc_wait))
+    // 	init_waitqueue_head(&nvpc.pmemalloc_wait);
 
     knvpcd_run();
 }
@@ -1302,7 +1304,9 @@ EXPORT_SYMBOL_GPL(knvpcd_lazy_init);
 static int __init knvpcd_init(void)
 {
     init_waitqueue_head(&nvpc.knvpcd_wait);
-    init_waitqueue_head(&nvpc.pmemalloc_wait);
+
+	// NVXXX: memalloc is managed by free_nvpc_list, so deprecated
+    // init_waitqueue_head(&nvpc.pmemalloc_wait);
 
     knvpcd_run();
 	return 0;

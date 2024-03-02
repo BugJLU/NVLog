@@ -19,19 +19,24 @@ struct nvpc_opts
     int nid;        /* numa node id */
     bool extend_lru;
     bool absorb_syn;
+    bool nvpc_lru_evict;
+    u8 promote_level;
     size_t nvpc_sz;  /* in pages */
     // size_t syn_sz;  /* in pages */
-    u8 promote_level;
-    bool force;
-    bool rebuild;
+    bool force; // force to initialize
+    bool rebuild; // rebuild the nvpc data in NVM
 };
 
+/* vector that temporarily stores NVPC pages that reach the promote level */
 extern struct page *promote_vec[NVPC_PROMOTE_VEC_SZ];
 extern atomic_long_t nr_promote_vec;
 extern spinlock_t promote_vec_lock;
 
+// Initialize and finalize the NVPC subsystem
 int init_nvpc(struct nvpc_opts *opts);
 void fini_nvpc(void);
+
+/* get the nvpc struct */
 static inline struct nvpc *get_nvpc(void)
 {
     // if nvpc is per-node, we should return the one in the local node

@@ -134,7 +134,7 @@ static int set_nvpc_device_with_path(char *path)
     opts.extend_lru = true;
     opts.absorb_syn = true;
     opts.nvpc_sz = -1;
-    opts.promote_level = 1;
+    opts.promote_level = 1; // NVXXX: Deprecated
     ret = init_nvpc(&opts);
     if (ret < 0)
     {

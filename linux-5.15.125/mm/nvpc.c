@@ -35,19 +35,17 @@
 #include "internal.h"
 
 /* NVPC is global, use get_nvpc to get the pointer to this instance */
+// These are just default values - will be overwritten in init_nvpc()
 struct nvpc nvpc = {
     .enabled = false, 
     .extend_lru = false,
     .absorb_syn = false, 
-    .promote_level = 4
+    .promote_level = 4,
 };
 EXPORT_SYMBOL_GPL(nvpc);
 
+// NVTODO: this param does not make sense
 static bool support_clwb;
-
-/* vector that temporarily stores NVPC pages that reach the promote level */
-
-int promote_order = order_base_2(NVPC_PROMOTE_VEC_SZ);
 
 #ifdef NVPC_PERCPU_FREELIST
 DEFINE_PER_CPU(struct list_head, nvpc_pcpu_free_list);
@@ -162,6 +160,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     unsigned long irq_flags;
     int cpu_i;
 
+    // NVTODO: this param doesn't make sense
     support_clwb = static_cpu_has(X86_FEATURE_CLWB);
 
     rwlock_init(&nvpc.meta_lock);
@@ -190,6 +189,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
 
     nvpc.extend_lru = opts->extend_lru;
     nvpc.absorb_syn = opts->absorb_syn;
+    nvpc.nvpc_lru_evict = opts->nvpc_lru_evict;
 
     nvpc.nvpc_free_pgnum = nvpc.nvpc_sz = opts->nvpc_sz;
     nvpc.warning_pgnum = max(nvpc.nvpc_sz / 100, (size_t)1) * NVPC_EVICT_WATERMARK;
