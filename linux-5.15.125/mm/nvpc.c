@@ -181,7 +181,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     if (try_rebuild_nvpc(opts))
         return -1;
 
-    if (opts->extend_lru && opts->nvpc_sz > nvpc.len_pg)
+    if (opts->nvpc_sz > nvpc.len_pg)
     {
         pr_info("NVPC init: nvpc_sz is larger than the available length of dax device, using the whole device for NVPC.\n");
         opts->nvpc_sz = nvpc.len_pg;

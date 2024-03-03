@@ -457,7 +457,7 @@ static int too_many_isolated_nvpc(struct pglist_data *pgdat)
 	isolated = node_page_state(pgdat, NR_ISOLATED_NVPC);
 
 	// for optimize the performance, check the threshold
-	pr_info("[nvpc knvpcd too_many_isolated_nvpc] nvpc_lru: %lu, isolated: %lu\n", nvpc_lru, isolated);
+	// pr_info("[nvpc knvpcd too_many_isolated_nvpc] nvpc_lru: %lu, isolated: %lu\n", nvpc_lru, isolated);
 
 	return isolated > (nvpc_lru >> 3); // using file backed pages, isolated page can be more
 }
@@ -511,7 +511,7 @@ skip_no_move:
     atomic_long_set(&nr_promote_vec, 0);
     spin_unlock_irqrestore(&promote_vec_lock, lock_irq);
 
-	pr_info("[nvpc knvpcd nvpc_promote_vec_isolate] nr_taken: %lu, nr_skipped: %lu\n", nr_taken, nr_skipped);
+	// pr_info("[nvpc knvpcd nvpc_promote_vec_isolate] nr_taken: %lu, nr_skipped: %lu\n", nr_taken, nr_skipped);
     update_lru_sizes(lruvec, LRU_NVPC_FILE, nr_zone_taken);
     return (unsigned long)num;
 }
@@ -943,7 +943,7 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 
 		unlock_page(page);
 free_it:
-		pr_warn("[NVPC knvpcd evict] free NVPC page: %p\n", page);
+		// pr_info("[NVPC knvpcd evict] free NVPC page: %p\n", page);
 		nr_reclaimed += nr_pages;
 		list_add(&page->lru, &free_nvpc_pages);
 		continue;
@@ -955,7 +955,7 @@ keep_locked:
 		unlock_page(page);
 keep:
 		list_add(&page->lru, &ret_pages);
-		pr_info("[nvpc knvpcd evict] keep NVPC page: %p\n", page);
+		// pr_info("[nvpc knvpcd evict] keep NVPC page: %p\n", page);
 
 		VM_BUG_ON_PAGE(PageLRU(page) || PageUnevictable(page), page);
 	}
@@ -966,7 +966,7 @@ keep:
 	// NVXXX: free_unref_nvpc_page_list(&free_nvpc_pages);
 	nvpc_free_pages(&free_nvpc_pages);
 
-	pr_info("[nvpc knvpcd evict] free pages operation\n");
+	// pr_info("[nvpc knvpcd evict] free pages operation\n");
 
 	list_splice(&ret_pages, page_list);
 
@@ -997,7 +997,7 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	pgdat = lruvec_pgdat(lruvec);
 	nr_to_scan = sc->nr_to_reclaim;
 
-	pr_info("[nvpc knvpcd shrink_nvpc_list] start to scan NVPC pages\n");
+	// pr_info("[nvpc knvpcd shrink_nvpc_list] start to scan NVPC pages\n");
 
 	while (unlikely(too_many_isolated_nvpc(pgdat))) {
 		if (stalled)
@@ -1015,7 +1015,7 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	/* in fact, nvpc pages will never be inside a pvec, so we don't drain */
 	// lru_add_drain();
 
-	pr_info("[nvpc knvpcd shrink_nvpc_list] after while loop status\n");
+	// pr_info("[nvpc knvpcd shrink_nvpc_list] after while loop status\n");
 	
 	spin_lock_irq(&lruvec->lru_lock);
 	nr_taken = nvpc_isolate_evict_pages(nr_to_scan, lruvec, &page_list,
@@ -1024,13 +1024,13 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	spin_unlock_irq(&lruvec->lru_lock);
 
 	if (nr_taken == 0) {
-		pr_warn("[nvpc knvpcd shrink_nvpc_list] no pages to isolate\n");
+		// pr_warn("[nvpc knvpcd shrink_nvpc_list] no pages to isolate\n");
 		return 0;
 	}
 
 	nr_reclaimed = shrink_page_list(&page_list, pgdat, sc, false);
 
-	pr_info("[nvpc knvpcd shrink_nvpc_list] after shrink_page_list\n");
+	// pr_info("[nvpc knvpcd shrink_nvpc_list] after shrink_page_list\n");
 
 	spin_lock_irq(&lruvec->lru_lock);
 	// page_list will contain pages that will not be moved
@@ -1085,7 +1085,7 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
             nr_reclaimed_this_time = shrink_nvpc_list(target_lruvec, &sc);
 			nr_reclaimed += nr_reclaimed_this_time;
 
-			pr_info("[NVPC DEBUG] nr_evict_this_time: %u\n", nr_reclaimed_this_time);
+			// pr_info("[NVPC DEBUG] nr_evict_this_time: %u\n", nr_reclaimed_this_time);
 
             cond_resched();
 
@@ -1140,7 +1140,7 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
             nr_promoted_this_time = promote_nvpc_list(target_lruvec, &sc);
 			nr_reclaimed += nr_promoted_this_time;
 
-			pr_info( "[NVPC DEBUG] nr_reclaimed_this_time: %u\n", nr_promoted_this_time);
+			// pr_info( "[NVPC DEBUG] nr_reclaimed_this_time: %u\n", nr_promoted_this_time);
 
             cond_resched();
 
