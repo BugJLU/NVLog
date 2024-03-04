@@ -240,7 +240,7 @@ static bool nvpc_can_promote(int nid, struct scan_control *sc)
 static unsigned int nvpc_move_pages_to_lru_promote(struct lruvec *lruvec,
 				      struct list_head *list)
 {
-	int nr_pages, nr_moved;
+	unsigned long nr_pages, nr_moved;
 	struct page *page;
 
 	nr_pages = 0;
@@ -1115,22 +1115,25 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
 		if (nvpc->extend_lru && nvpc->demote_before_promote) {
 			unsigned int order;
 			gfp_t gfp_mask;
-			struct zone * zone; // for iter 
-			struct zoneref * zref; // for iter
-			struct zonelist *zonelist;
+			struct zone * zone;
 			enum zone_type highest_zoneidx;
 
-			gfp_mask = GFP_KERNEL | __GFP_KSWAPD_RECLAIM;
-			highest_zoneidx = ZONE_NORMAL; // NVTODO: review needed
-					
-			zonelist = node_zonelist(NUMA_NO_NODE, gfp_mask); // without any preferences of NUMA selection
+			// NVTODO: optimize gfp_mask
+			gfp_mask = GFP_KERNEL | 
+					   __GFP_KSWAPD_RECLAIM
+					//    __GFP_RETRY_MAYFAIL | 
+					//    GFP_NOWAIT
+					 ;
+
+			// gfp_mask &= ~__GFP_DIRECT_RECLAIM; // we don't want to do direct reclaim
+			// gfp_mask &= ~__GFP_IO; // we don't want to do I/O here
+			// gfp_mask &= ~__GFP_FS; // we don't want to do FS here
+
+			highest_zoneidx = ZONE_NORMAL;
+			zone = &pgdat->node_zones[highest_zoneidx];
 			order = order_base_2(nr_to_scan);
 
-			// Iterate over all zones
-			// Actually, we don't need to iterate over all zones, but we don't have any information about the zone
-			for_each_zone_zonelist_nodemask(zone, zref, zonelist, highest_zoneidx, NULL) {
-				wakeup_kswapd(zone, gfp_mask, order, highest_zoneidx);
-			}
+			wakeup_kswapd(zone, gfp_mask, order, highest_zoneidx);
 		}
 	    
         blk_start_plug(&plug);
