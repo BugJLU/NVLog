@@ -5,3 +5,5 @@ start_nvpc.sh
 page_owner_sort
 page-types
 synctest
+test
+stresstest.c
