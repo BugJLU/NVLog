@@ -93,6 +93,12 @@
 #define IF_HAVE_PG_SKIP_KASAN_POISON(flag,string)
 #endif
 
+#ifdef CONFIG_NVPC
+#define IF_HAVE_PG_NVPC(flag,string) ,{1UL << flag, string}
+#else
+#define IF_HAVE_PG_NVPC(flag,string)
+#endif
+
 #define __def_pageflag_names						\
 	{1UL << PG_locked,		"locked"	},		\
 	{1UL << PG_waiters,		"waiters"	},		\
@@ -121,7 +127,13 @@ IF_HAVE_PG_HWPOISON(PG_hwpoison,	"hwpoison"	)		\
 IF_HAVE_PG_IDLE(PG_young,		"young"		)		\
 IF_HAVE_PG_IDLE(PG_idle,		"idle"		)		\
 IF_HAVE_PG_ARCH_2(PG_arch_2,		"arch_2"	)		\
-IF_HAVE_PG_SKIP_KASAN_POISON(PG_skip_kasan_poison, "skip_kasan_poison")
+IF_HAVE_PG_SKIP_KASAN_POISON(PG_skip_kasan_poison, "skip_kasan_poison")	\
+IF_HAVE_PG_NVPC(PG_NVPC_pending_copy, "nvpc_pending_copy")	\
+IF_HAVE_PG_NVPC(PG_NVPC_np_dirty, "nvpc_np_dirty")	\
+IF_HAVE_PG_NVPC(PG_NVPC_pin, "nvpc_pin") \
+IF_HAVE_PG_NVPC(PG_NVPC_p_dirty, "nvpc_p_dirty")
+// IF_HAVE_PG_NVPC(PG_NVPC_persistent, "nvpc_persistent")	
+// IF_HAVE_PG_NVPC(PG_NVPC_has_persistent, "nvpc_has_persistent")
 
 #define show_page_flags(flags)						\
 	(flags) ? __print_flags(flags, "|",				\

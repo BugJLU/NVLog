@@ -1,2 +1,5 @@
 /test
 /.vscode
+/log
+*.asm
+*.objdump

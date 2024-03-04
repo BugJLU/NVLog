@@ -161,3 +161,7 @@ x509.genkey
 
 # Documentation toolchain
 sphinx_*/
+
+# nvpc development
+!.config.example
+/modules_build

@@ -42,6 +42,7 @@
 #include <linux/psi.h>
 #include <linux/ramfs.h>
 #include <linux/page_idle.h>
+#include <linux/nvpc.h>
 #include <asm/pgalloc.h>
 #include <asm/tlbflush.h>
 #include "internal.h"
@@ -238,6 +239,11 @@ static void page_cache_free_page(struct address_space *mapping,
 	void (*freepage)(struct page *);
 
 	freepage = mapping->a_ops->freepage;
+	// if (PageNVPC(page))
+	// {
+	// 	 pr_info("[NVPC DEBUG].page_cache_free_page pg=%p lru=%d ref=%d\n", page, PageLRU(page), page_count(page));
+	// }
+	
 	if (freepage)
 		freepage(page);
 
@@ -247,6 +253,18 @@ static void page_cache_free_page(struct address_space *mapping,
 	} else {
 		put_page(page);
 	}
+
+// #ifdef CONFIG_NVPC
+// 	/* 
+// 	 * NVTODO: this is a slow way to free NVPC pages. 
+// 	 * Use kthread (like kswapd) to take the page out 
+// 	 * from lru and free it, also make it per-cpu and 
+// 	 * bulk free.
+// 	 */
+// 	if (PageNVPC(page) && PageLRU(page)) {
+// 		nvpc_free_lru_page(page);
+// 	}
+// #endif
 }
 
 /**
@@ -3777,6 +3795,23 @@ again:
 						&page, &fsdata);
 		if (unlikely(status < 0))
 			break;
+
+		// page is dirtied and locked here
+		if (PageSBNVPC(page) && PageNVPC(page) && get_nvpc()->absorb_syn && 
+			PageNVPCPendingCopy(page))
+		{
+			// check expire(pdirty), copy, log, clear pending
+			if (PageNVPCPDirty(page))
+			{
+				if (!nvpc_copy_pending_page(page))
+				{
+					ClearPageNVPCPendingCopy(page);
+				}
+			}
+			// if already expire, then just clear pending bit
+			else
+				ClearPageNVPCPendingCopy(page);
+		}
 
 		if (mapping_writably_mapped(mapping))
 			flush_dcache_page(page);

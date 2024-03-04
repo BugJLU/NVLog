@@ -302,12 +302,12 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
 	return __pmem_direct_access(pmem, pgoff, nr_pages, kaddr, pfn);
 }
 
-static long pmem_map_whole_dev(struct dax_device *dax_dev, void **kaddr)
+static long pmem_map_whole_dev(struct dax_device *dax_dev, void **kaddr, pfn_t *pfn)
 {
 	long size_p;
 	struct pmem_device *pmem = dax_get_private(dax_dev);
 	size_p = pmem->size / PAGE_SIZE;
-	return __pmem_direct_access(pmem, 0, size_p, kaddr, NULL);
+	return __pmem_direct_access(pmem, 0, size_p, kaddr, pfn);
 }
 
 /*

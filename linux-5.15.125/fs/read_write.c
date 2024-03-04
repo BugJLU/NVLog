@@ -25,6 +25,8 @@
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
 
+#include <linux/nvpc.h>
+
 const struct file_operations generic_ro_fops = {
 	.llseek		= generic_file_llseek,
 	.read_iter	= generic_file_read_iter,
@@ -597,6 +599,25 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
 	if (ret > 0) {
 		fsnotify_modify(file);
 		add_wchar(current, ret);
+#if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
+		if (file->nvpc_fsync_tracker.should_track && get_nvpc()->active_sync)
+		{
+			unsigned long nr_all = file->f_inode->nvpc_sync_active.nr_dirtied; // + file->f_inode->nvpc_sync_active.nr_written;
+			file->nvpc_fsync_tracker.write_since_last_sync += ret;
+			// if (file->nvpc_fsync_tracker.write_since_last_sync > NVPC_ACTIVE_SYNC_THRESH)
+			// 	file->nvpc_fsync_tracker.small_sync_time = file->nvpc_fsync_tracker.sensitivity;
+			// pr_info("[NVPC DEBUG]: w: active fsync dirtiedpg: %lu, written: %lu. \n", file->f_inode->nvpc_sync_active.nr_dirtied, file->nvpc_fsync_tracker.write_since_last_sync);
+
+			// cancel active sync
+			if (file->nvpc_fsync_tracker.write_since_last_sync * NVPC_ACTIVE_SYNC_LAT_NVM >= 
+				nr_all*NVPC_ACTIVE_SYNC_LAT_NVM1)
+			{
+				// pr_info("[NVPC DEBUG]: w: active fsync quit. \n");
+				file->nvpc_fsync_tracker.small_sync_time = 0;
+				file->f_flags &= ~O_SYNC;
+			}
+		}
+#endif
 	}
 	inc_syscw(current);
 	file_end_write(file);
@@ -928,6 +949,24 @@ static ssize_t vfs_writev(struct file *file, const struct iovec __user *vec,
 		ret = do_iter_write(file, &iter, pos, flags);
 		file_end_write(file);
 		kfree(iov);
+#if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
+		if (file->nvpc_fsync_tracker.should_track && get_nvpc()->active_sync)
+		{
+			unsigned long nr_all = file->f_inode->nvpc_sync_active.nr_dirtied; // + file->f_inode->nvpc_sync_active.nr_written;
+			file->nvpc_fsync_tracker.write_since_last_sync += ret;
+			// if (file->nvpc_fsync_tracker.write_since_last_sync > NVPC_ACTIVE_SYNC_THRESH)
+			// 	file->nvpc_fsync_tracker.small_sync_time = file->nvpc_fsync_tracker.sensitivity;
+			
+			// cancel active sync
+			if (file->nvpc_fsync_tracker.write_since_last_sync * NVPC_ACTIVE_SYNC_LAT_NVM >= 
+				nr_all*NVPC_ACTIVE_SYNC_LAT_NVM1)
+			{
+				// pr_info("[NVPC DEBUG]: wv: active fsync quit. \n");
+				file->nvpc_fsync_tracker.small_sync_time = 0;
+				file->f_flags &= ~O_SYNC;
+			}
+		}
+#endif
 	}
 	return ret;
 }

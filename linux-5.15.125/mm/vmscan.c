@@ -1052,6 +1052,7 @@ static pageout_t pageout(struct page *page, struct address_space *mapping)
 		if (page_has_private(page)) {
 			if (try_to_free_buffers(page)) {
 				ClearPageDirty(page);
+				// ClearPageNVPCNpDirty(page);
 				pr_info("%s: orphaned page\n", __func__);
 				return PAGE_CLEAN;
 			}
@@ -1363,7 +1364,7 @@ static unsigned int demote_page_list(struct list_head *demote_pages,
 /*
  * Like demote_page_list, take pages and migrate to nvpc.
  */
-static unsigned int migrate_pages_to_nvpc(struct list_head *nvpc_pages)
+static unsigned int demote_pages_to_nvpc(struct list_head *nvpc_pages)
 {
 	unsigned int nr_succeeded;
 	struct nvpc *nvpc;
@@ -1374,18 +1375,19 @@ static unsigned int migrate_pages_to_nvpc(struct list_head *nvpc_pages)
 	if (list_empty(nvpc_pages))
 		return 0;
 
-	read_lock_irq(&nvpc->meta_lock);
+	// read_lock_irq(&nvpc->meta_lock);
 	if (!nvpc->enabled && !nvpc->extend_lru)
 	{
 		nr_succeeded = 0;
-		read_unlock_irq(&nvpc->meta_lock);
+		// read_unlock_irq(&nvpc->meta_lock);
 		goto out;
 	}
 	
-	// TODO: we may need to save the information of previous node of page?
-	err = migrate_pages(nvpc_pages, nvpc_get_new_page, nvpc_free_page, 0, 
+	// NVTODO: we may need to save the information of previous node of page?
+	/* Don't pass nvpc_free_page as free function. put_page() will do the free work */
+	err = migrate_pages(nvpc_pages, nvpc_get_new_page, NULL, 0, 
 						MIGRATE_ASYNC, MR_NVPC_LRU_DEMOTE, &nr_succeeded);
-	read_unlock_irq(&nvpc->meta_lock);
+	// read_unlock_irq(&nvpc->meta_lock);
 
 	if (current_is_kswapd())
 		__count_vm_events(PGNVPC_DEMOTE_KSWAPD, nr_succeeded);
@@ -1395,6 +1397,7 @@ static unsigned int migrate_pages_to_nvpc(struct list_head *nvpc_pages)
 out:
 	return nr_succeeded;
 }
+
 
 /*
  * shrink_page_list() returns the number of reclaimed pages
@@ -1408,17 +1411,24 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 	LIST_HEAD(ret_pages);
 	LIST_HEAD(free_pages);
 	LIST_HEAD(demote_pages);
-	LIST_HEAD(nvpc_pages);
+#ifdef CONFIG_NVPC
+	LIST_HEAD(nvpc_demote_pages);
+	LIST_HEAD(free_nvpc_pages);
+#endif /* CONFIG_NVPC */
+
 	unsigned int nr_reclaimed = 0;
 	unsigned int pgactivate = 0;
 	bool do_demote_pass;
+
+#ifdef CONFIG_NVPC
 	bool do_nvpc_pass;
 	struct nvpc *nvpc = get_nvpc();
+	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
+#endif
 
 	memset(stat, 0, sizeof(*stat));
 	cond_resched();
 	do_demote_pass = can_demote(pgdat->node_id, sc);
-	do_nvpc_pass = nvpc->enabled && nvpc->extend_lru;
 
 retry:
 	while (!list_empty(page_list)) {
@@ -1570,26 +1580,19 @@ retry:
 		}
 
 #ifdef CONFIG_NVPC
-		/*
-		 * If nvpc is enabled, try to migrate pages to nvpc first.
-		 * NVPC only accept file-backed pages, and the behavior
-		 * of migrating to nvpc is basically the same as demoting.
-		 * However, even if no_demotion is set, or to say, we are 
-		 * in a reclaim progress, it is ok to move pages to nvpc 
-		 * because the NVM is now isolated from the whole memory.
-		 */
-		if (do_nvpc_pass)
+		// demote
+		if (do_nvpc_pass && 
+			page->mapping && PageSBNVPC(page) && // If inode is nvpc-enabled
+			page_is_file_lru(page) && // this line is redundant
+			!PageAnon(page) &&
+			!PageSwapBacked(page) &&	// only move file-backed pages
+			!PageTransHuge(page) && // huge pages not support yet
+			!PageCompound(page) &&
+			!page_mapped(page))	// page should not be mmapped, keep it in DRAM
 		{
-			// TODO: add more logic here to judge if migration is good
-
-			if (page_is_file_lru(page) && // this line is redundant
-				!PageAnon(page) && !PageSwapBacked(page) &&	// only move file-backed pages
-				!PageTransHuge(page))	// TODO: huge pages not support yet
-			{
-				list_add(&page->lru, &nvpc_pages);
-				unlock_page(page);
-				continue;
-			}
+			list_add(&page->lru, &nvpc_demote_pages);
+			unlock_page(page);
+			continue;
 		}
 #endif
 
@@ -1597,7 +1600,7 @@ retry:
 		 * Before reclaiming the page, try to relocate
 		 * its contents to another node.
 		 */
-		if (do_demote_pass &&
+		if (do_demote_pass && !PageNVPC(page) &&
 		    (thp_migration_supported() || !PageTransHuge(page))) {
 			list_add(&page->lru, &demote_pages);
 			unlock_page(page);
@@ -1610,6 +1613,8 @@ retry:
 		 * Lazyfree page could be freed directly
 		 */
 		if (PageAnon(page) && PageSwapBacked(page)) {
+			/* nvpc page shouldn't be anon & swapbacked */
+			WARN_ON(PageNVPC(page));
 			if (!PageSwapCache(page)) {
 				if (!(sc->gfp_mask & __GFP_IO))
 					goto keep_locked;
@@ -1649,6 +1654,8 @@ retry:
 				mapping = page_mapping(page);
 			}
 		} else if (unlikely(PageTransHuge(page))) {
+			/* nvpc page shouldn't be THP */
+			WARN_ON(PageNVPC(page));
 			/* Split file THP */
 			if (split_huge_page_to_list(page, page_list))
 				goto keep_locked;
@@ -1662,6 +1669,8 @@ retry:
 		 * reach here.
 		 */
 		if ((nr_pages > 1) && !PageTransHuge(page)) {
+			/* nvpc page shouldn't be thp */
+			WARN_ON(PageNVPC(page));
 			sc->nr_scanned -= (nr_pages - 1);
 			nr_pages = 1;
 		}
@@ -1670,7 +1679,7 @@ retry:
 		 * The page is mapped into the page tables of one or more
 		 * processes. Try to unmap it here.
 		 */
-		if (page_mapped(page)) {
+		if (page_mapped(page) && !PageNVPC(page)) {
 			enum ttu_flags flags = TTU_BATCH_FLUSH;
 			bool was_swapbacked = PageSwapBacked(page);
 
@@ -1796,6 +1805,7 @@ retry:
 		}
 
 		if (PageAnon(page) && !PageSwapBacked(page)) {
+			WARN_ON(PageNVPC(page));
 			/* follow __remove_mapping for reference */
 			if (!page_ref_freeze(page, 1))
 				goto keep_locked;
@@ -1827,6 +1837,10 @@ free_it:
 		 */
 		if (unlikely(PageTransHuge(page)))
 			destroy_compound_page(page);
+#ifdef CONFIG_NVPC
+		else if(PageNVPC(page))
+			list_add(&page->lru, &free_nvpc_pages);
+#endif
 		else
 			list_add(&page->lru, &free_pages);
 		continue;
@@ -1841,6 +1855,9 @@ activate_locked_split:
 			nr_pages = 1;
 		}
 activate_locked:
+		if (PageNVPC(page))
+			goto keep_locked;
+		
 		/* Not a candidate for swapping, so reclaim swap space. */
 		if (PageSwapCache(page) && (mem_cgroup_swap_full(page) ||
 						PageMlocked(page)))
@@ -1860,15 +1877,18 @@ keep:
 	}
 	/* 'page_list' is always empty here */
 
-	/* Migrate pages to nvpc lru */
-	// TODO: deal with nvpc_pages
-	nr_reclaimed += migrate_pages_to_nvpc(&nvpc_pages);
-	if (!list_empty(&nvpc_pages))
-	{
-		list_splice_init(&nvpc_pages, page_list);
-		do_nvpc_pass = false;
-		goto retry;
+#ifdef CONFIG_NVPC
+	/* Demote: Migrate DRAM pages to NVPC lru */
+	if (do_nvpc_pass) {
+		nr_reclaimed += demote_pages_to_nvpc(&nvpc_demote_pages); // include list empty check
+		if (!list_empty(&nvpc_demote_pages))
+		{
+			list_splice_init(&nvpc_demote_pages, page_list);
+			do_nvpc_pass = false;
+			goto retry;
+		}
 	}
+#endif
 
 	/* Migrate pages selected for demotion */
 	nr_reclaimed += demote_page_list(&demote_pages, pgdat);
@@ -1881,6 +1901,10 @@ keep:
 	}
 
 	pgactivate = stat->nr_activate[0] + stat->nr_activate[1];
+
+#ifdef CONFIG_NVPC
+	nvpc_free_pages(&free_nvpc_pages);
+#endif
 
 	mem_cgroup_uncharge_list(&free_pages);
 	try_to_unmap_flush();
@@ -2155,6 +2179,8 @@ static int too_many_isolated(struct pglist_data *pgdat, int file,
 
 	return isolated > inactive;
 }
+
+
 
 /*
  * move_pages_to_lru() moves pages from private @list to appropriate LRU list.
@@ -2826,7 +2852,7 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 
 	blk_start_plug(&plug);
 	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
-					nr[LRU_INACTIVE_FILE]) {
+							nr[LRU_INACTIVE_FILE]) {
 		unsigned long nr_anon, nr_file, percentage;
 		unsigned long nr_scanned;
 
@@ -2836,7 +2862,7 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 				nr[lru] -= nr_to_scan;
 
 				nr_reclaimed += shrink_list(lru, nr_to_scan,
-							    lruvec, sc);
+								lruvec, sc);
 			}
 		}
 
@@ -2846,21 +2872,21 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 			continue;
 
 		/*
-		 * For kswapd and memcg, reclaim at least the number of pages
-		 * requested. Ensure that the anon and file LRUs are scanned
-		 * proportionally what was requested by get_scan_count(). We
-		 * stop reclaiming one LRU and reduce the amount scanning
-		 * proportional to the original scan target.
-		 */
+		* For kswapd and memcg, reclaim at least the number of pages
+		* requested. Ensure that the anon and file LRUs are scanned
+		* proportionally what was requested by get_scan_count(). We
+		* stop reclaiming one LRU and reduce the amount scanning
+		* proportional to the original scan target.
+		*/
 		nr_file = nr[LRU_INACTIVE_FILE] + nr[LRU_ACTIVE_FILE];
 		nr_anon = nr[LRU_INACTIVE_ANON] + nr[LRU_ACTIVE_ANON];
 
 		/*
-		 * It's just vindictive to attack the larger once the smaller
-		 * has gone to zero.  And given the way we stop scanning the
-		 * smaller below, this makes sure that we only make one nudge
-		 * towards proportionality once we've got nr_to_reclaim.
-		 */
+		* It's just vindictive to attack the larger once the smaller
+		* has gone to zero.  And given the way we stop scanning the
+		* smaller below, this makes sure that we only make one nudge
+		* towards proportionality once we've got nr_to_reclaim.
+		*/
 		if (!nr_file || !nr_anon)
 			break;
 
@@ -2881,9 +2907,9 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 		nr[lru + LRU_ACTIVE] = 0;
 
 		/*
-		 * Recalculate the other LRU scan count based on its original
-		 * scan target and the percentage scanning already complete
-		 */
+		* Recalculate the other LRU scan count based on its original
+		* scan target and the percentage scanning already complete
+		*/
 		lru = (lru == LRU_FILE) ? LRU_BASE : LRU_FILE;
 		nr_scanned = targets[lru] - nr[lru];
 		nr[lru] = targets[lru] * (100 - percentage) / 100;
@@ -2900,6 +2926,9 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 	/*
 	 * Even if we did not try to evict anon pages at all, we want to
 	 * rebalance the anon lru active/inactive ratio.
+	 * 
+	 * NVTODO: But when nvpc is enabled, we do not need to rebalance the 
+	 * anon lru active/inactive ratio.
 	 */
 	if (can_age_anon_pages(lruvec_pgdat(lruvec), sc) &&
 	    inactive_is_low(lruvec, LRU_INACTIVE_ANON))

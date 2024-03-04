@@ -70,6 +70,13 @@ config DEV_DAX_KMEM
 
 	  Say N if unsure.
 
+config DEV_DAX_NVPC
+	tristate "NVPC DAX: use persistent memory as non-volatile page cache"
+	default DEV_DAX
+	depends on DEV_DAX
+	depends on MEMORY_HOTPLUG # for add_memory() and friends
+	depends on NVPC
+
 config DEV_DAX_PMEM_COMPAT
 	tristate "PMEM DAX: support the deprecated /sys/class/dax interface"
 	depends on m && DEV_DAX_PMEM=m

@@ -58,6 +58,11 @@ typedef int __bitwise mhp_t;
 #define MHP_NID_IS_MGID		((__force mhp_t)BIT(2))
 
 /*
+ * Do not online the memory in any case.
+ */
+#define MHP_NO_ONLINE		((__force mhp_t)BIT(3))
+
+/*
  * Extended parameters for memory hotplug:
  * altmap: alternative allocator for memmap array (optional)
  * pgprot: page protection flags to apply to newly created page tables

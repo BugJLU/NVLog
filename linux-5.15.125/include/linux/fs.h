@@ -42,6 +42,7 @@
 #include <linux/mount.h>
 #include <linux/cred.h>
 #include <linux/mnt_idmapping.h>
+#include <linux/nvpc_sync.h>
 
 #include <asm/byteorder.h>
 #include <uapi/linux/fs.h>
@@ -477,8 +478,6 @@ struct address_space {
 	spinlock_t		private_lock;
 	struct list_head	private_list;
 	void			*private_data;
-	/* NVPC: NVM part page cache*/
-	// struct xarray		i_nv_pages;
 } __attribute__((aligned(sizeof(long)))) __randomize_layout;
 	/*
 	 * On most architectures that alignment is already the case; but
@@ -661,7 +660,7 @@ struct inode {
 	struct timespec64	i_atime;
 	struct timespec64	i_mtime;
 	struct timespec64	i_ctime;
-	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */
+	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */ /* also lock nvpc struct */
 	unsigned short          i_bytes;
 	u8			i_blkbits;
 	u8			i_write_hint;
@@ -733,6 +732,57 @@ struct inode {
 #endif
 
 	void			*i_private; /* fs or device private pointer */
+
+#ifdef CONFIG_NVPC
+	unsigned long nvpc_i_state;	// NVTODO: make this atomic
+	struct nvpc_sync_ilog
+	{
+		log_inode_head_entry *log_head;
+
+		// NVNEXT: not used yet. implement in next step
+		/* log entries from this pointer is available */
+		nvpc_sync_log_entry *log_tail;
+
+		/* 
+		 * An index to the last effective page (or part of page), 
+		 * the index is like pfn num (file_off >> PAGE_SHIFT). 
+		 * If the entry is ip write, then it is the last part of
+		 * the modification of this page, and there is a chain so
+		 * we can trace back to find all the write on this page. 
+		 * If the entry is oop write, then it is the latest version 
+		 * of this page. 
+		 * 
+		 * write_ip should store the last partial write to a page here;
+		 * write_oop should store the last write to a page here;
+		 * writeback should remove the index here;
+		 * replay should remove the index here;
+		 */
+		struct xarray inode_log_pages;
+
+		/* 
+		 * a big lock for the log 
+		 * log_lock --> page->lock
+		 * log_lock --> compact_lock
+		 */
+		struct mutex log_lock;
+
+		/* 
+		 * lock for modifing previous entries and log compaction 
+		 * log_lock --> compact_lock
+		 * page->lock --> compact_lock
+		 */
+		struct mutex compact_lock;
+
+		nvpc_sync_attr_entry *latest_logged_attr;
+		// atomic_t log_cntr;
+		uint32_t log_cntr;
+	} nvpc_sync_ilog;
+	struct nvpc_sync_active {
+		unsigned long nr_dirtied;
+		unsigned long nr_written;
+	} nvpc_sync_active;
+#endif
+	
 } __randomize_layout;
 
 struct timespec64 timestamp_truncate(struct timespec64 t, struct inode *inode);
@@ -1003,6 +1053,29 @@ struct file {
 	struct address_space	*f_mapping;
 	errseq_t		f_wb_err;
 	errseq_t		f_sb_err; /* for syncfs */
+
+#ifdef CONFIG_NVPC
+	/*
+	 * Track sync and write operations to judge if we should route all subsequent
+	 * writes to nvpc. When sync is called, check if write_since_last_sync is less
+	 * than NVPC_ACTIVE_SYNC_THRESH, if so we increase small_sync_time. Then we 
+	 * check if small_sync_time is larger than sensitivity, if so we mark this file 
+	 * as O_SYNC to lead the following writes to nvpc directly. When write is called, 
+	 * we add the written bytes to write_since_last_sync, and check if write_since_
+	 * last_sync is larger than NVPC_ACTIVE_SYNC_THRESH. If so we set small_sync_time 
+	 * to sensitivity. We also check if write_since_last_sync is larger than 
+	 * sensitivity * NVPC_ACTIVE_SYNC_THRESH, if so we clear small_sync_time and clear
+	 * the O_SYNC flag of this file.
+	 * Add a flag to track if this file's O_SYNC flag is set by NVPC.
+	 */
+	struct nvpc_fsync_tracker {
+		size_t write_since_last_sync;	// how many bytes written since last sync
+		int small_sync_time;
+		int sensitivity;	// how many time of detect before we change sync mode
+		bool should_track;	// false if the file is already O_SYNC
+		/* no lock for this struct, should not be accessed concurrently */
+	} nvpc_fsync_tracker;
+#endif
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
 
@@ -1424,6 +1497,11 @@ extern int send_sigurg(struct fown_struct *fown);
 #define SB_ACTIVE       BIT(30)
 #define SB_NOUSER       BIT(31)
 
+#ifdef CONFIG_NVPC
+#define SB_NVPC_ON		BIT(0) 	/* this fs is enabled to use nvpc */
+#define SB_NVPC_STRICT	BIT(1)	/* if true, this sb is in strict nvpc mode */
+#endif
+
 /* These flags relate to encoding and casefolding */
 #define SB_ENC_STRICT_MODE_FL	(1 << 0)
 
@@ -1484,6 +1562,9 @@ struct super_block {
 	const struct export_operations *s_export_op;
 	unsigned long		s_flags;
 	unsigned long		s_iflags;	/* internal SB_I_* flags */
+#ifdef CONFIG_NVPC
+	unsigned long 		s_nvpc_flags;
+#endif
 	unsigned long		s_magic;
 	struct dentry		*s_root;
 	struct rw_semaphore	s_umount;
@@ -2238,6 +2319,11 @@ static inline bool sb_rdonly(const struct super_block *sb) { return sb->s_flags 
 #define IS_WHITEOUT(inode)	(S_ISCHR(inode->i_mode) && \
 				 (inode)->i_rdev == WHITEOUT_DEV)
 
+#define __IS_NVFLG(inode, flg)	((inode)->i_sb->s_nvpc_flags & (flg))
+// #define IS_NVPC_ON(inode)		(get_nvpc()->enabled && __IS_NVFLG(inode, SB_NVPC_ON))
+#define IS_NVPC_ON(inode)		__IS_NVFLG(inode, SB_NVPC_ON)
+#define	IS_NVPC_STRICT(inode)	__IS_NVFLG(inode, SB_NVPC_STRICT)
+
 static inline bool HAS_UNMAPPED_ID(struct user_namespace *mnt_userns,
 				   struct inode *inode)
 {
@@ -2384,6 +2470,25 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
 #define I_CREATING		(1 << 15)
 #define I_DONTCACHE		(1 << 16)
 #define I_SYNC_QUEUED		(1 << 17)
+
+// /*
+//  * Inode states for NVPC 
+//  *
+//  * I_NVPC		The inode's backend persistent device is NVPC.
+//  * 
+//  * I_NVPC_DIRTY		The inode is dirty in NVPC.
+//  * 
+//  * NOTE: If I_NVPC is marked, all dirty data / metadata write back should 
+//  * be directed to NVPC. I_NVPC_DIRTY represents that the inode's data / 
+//  * metadata in NVPC is not consistent with the underlying device and should
+//  * be flushed in sometime. I_NVPC_DIRTY is set only after there is a sync 
+//  * on the inode. Once I_NVPC_DIRTY is set, no more data should be written 
+//  * back to the underlying device until the flag is cleared.
+//  */
+// #define I_NVPC			(1 << 18)
+// #define I_NVPC_DIRTY	(1 << 19)
+#define I_NVPC_DATA	(1 << 0)	/* some data of an inode is already in NVPC, used to instruct truncate */
+
 
 #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
 #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)

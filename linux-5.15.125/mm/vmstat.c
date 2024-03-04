@@ -1173,6 +1173,7 @@ const char * const vmstat_text[] = {
 	"nr_zone_inactive_file",
 	"nr_zone_active_file",
 	"nr_zone_unevictable",
+	"nr_zone_nvpc_file",
 	"nr_zone_write_pending",
 	"nr_mlock",
 	"nr_bounce",
@@ -1197,10 +1198,12 @@ const char * const vmstat_text[] = {
 	"nr_inactive_file",
 	"nr_active_file",
 	"nr_unevictable",
+	"nr_nvpc_file",
 	"nr_slab_reclaimable",
 	"nr_slab_unreclaimable",
 	"nr_isolated_anon",
 	"nr_isolated_file",
+	"nr_isolated_nvpc",
 	"workingset_nodes",
 	"workingset_refault_anon",
 	"workingset_refault_file",
@@ -1275,10 +1278,16 @@ const char * const vmstat_text[] = {
 	"pgsteal_anon",
 	"pgsteal_file",
 #ifdef CONFIG_NVPC
+	"pgnvpc_steal_kswapd",
+	"pgnvpc_steal_direct",
 	"pgnvpc_demote_kswapd",
 	"pgnvpc_demote_direct",
 	"pgnvpc_promote_kswapd",
 	"pgnvpc_promote_direct",
+	"pgnvpc_scan_kswapd",
+	"pgnvpc_scan_direct",
+	"pgscan_nvpc",
+	"pgsteal_nvpc",
 #endif
 
 #ifdef CONFIG_NUMA

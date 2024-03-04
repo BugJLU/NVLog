@@ -17,6 +17,7 @@
 #include <linux/security.h>
 #include <linux/evm.h>
 #include <linux/ima.h>
+#include <linux/nvpc_sync.h>
 
 #include "internal.h"
 
@@ -484,6 +485,16 @@ int notify_change(struct user_namespace *mnt_userns, struct dentry *dentry,
 	if (error)
 		return error;
 
+#ifdef CONFIG_NVPC
+	if (IS_NVPC_ON(inode) && (
+		(inode->i_sb && IS_SYNC(inode)) || 
+		(inode->nvpc_i_state & I_NVPC_DATA)	||
+		((attr->ia_valid & ATTR_SIZE) && attr->ia_file && (attr->ia_file->f_flags & O_SYNC))
+	))
+		// only deal with truncate. 
+		error = nvpc_sync_setattr(mnt_userns, dentry, attr);
+	// else 
+#endif
 	if (inode->i_op->setattr)
 		error = inode->i_op->setattr(mnt_userns, dentry, attr);
 	else

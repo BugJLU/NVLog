@@ -48,6 +48,7 @@
 #include <linux/sched/mm.h>
 #include <trace/events/block.h>
 #include <linux/fscrypt.h>
+#include <linux/nvpc.h>
 
 #include "internal.h"
 
@@ -637,6 +638,14 @@ int __set_page_dirty_buffers(struct page *page)
 	 */
 	lock_page_memcg(page);
 	newly_dirty = !TestSetPageDirty(page);
+#ifdef CONFIG_NVPC
+	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty_buffers\n");
+	}
+#endif
 	spin_unlock(&mapping->private_lock);
 
 	if (newly_dirty)
@@ -1081,9 +1090,19 @@ __getblk_slow(struct block_device *bdev, sector_t block,
  */
 void mark_buffer_dirty(struct buffer_head *bh)
 {
+	struct page *page = bh->b_page;
 	WARN_ON_ONCE(!buffer_uptodate(bh));
 
 	trace_block_dirty_buffer(bh);
+
+#ifdef CONFIG_NVPC
+	if (page_mapping(page) && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		WARN_ON(!PageLocked(page));
+		SetPageNVPCNpDirty(page);
+		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ mark_buffer_dirty\n");
+	}
+#endif
 
 	/*
 	 * Very *carefully* optimize the it-is-already-dirty case.
@@ -1098,7 +1117,7 @@ void mark_buffer_dirty(struct buffer_head *bh)
 	}
 
 	if (!test_set_buffer_dirty(bh)) {
-		struct page *page = bh->b_page;
+		// struct page *page = bh->b_page;
 		struct address_space *mapping = NULL;
 
 		lock_page_memcg(page);
@@ -1107,6 +1126,15 @@ void mark_buffer_dirty(struct buffer_head *bh)
 			if (mapping)
 				__set_page_dirty(page, mapping, 0);
 		}
+// #ifdef CONFIG_NVPC
+// 		else if (page_mapping(page) && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+// 		{
+// 			WARN_ON(!PageLocked(page));
+// 			SetPageNVPCNpDirty(page);
+// 			// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ mark_buffer_dirty\n");
+// 		}
+// #endif
+
 		unlock_page_memcg(page);
 		if (mapping)
 			__mark_inode_dirty(mapping->host, I_DIRTY_PAGES);

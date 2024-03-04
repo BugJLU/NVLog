@@ -32,6 +32,7 @@
 #include <linux/sched.h>
 #include <linux/pgtable.h>
 #include <linux/kasan.h>
+#include <linux/nvpc_base.h>
 
 struct mempolicy;
 struct anon_vma;
@@ -1157,12 +1158,20 @@ static inline bool is_zone_movable_page(const struct page *page)
 void free_devmap_managed_page(struct page *page);
 DECLARE_STATIC_KEY_FALSE(devmap_managed_key);
 
+#ifdef CONFIG_NVPC
+static inline bool PageNVPC(struct page *page);
+#endif
 static inline bool page_is_devmap_managed(struct page *page)
 {
 	if (!static_branch_unlikely(&devmap_managed_key))
 		return false;
 	if (!is_zone_device_page(page))
 		return false;
+#ifdef CONFIG_NVPC
+	if (PageNVPC(page))
+		return false;
+#endif
+	
 	switch (page->pgmap->type) {
 	case MEMORY_DEVICE_PRIVATE:
 	case MEMORY_DEVICE_FS_DAX:
@@ -1552,9 +1561,6 @@ static inline void page_kasan_tag_reset(struct page *page) { }
 /* get page nvpc lru counter */
 static inline u8 page_nvpc_lru_cnt(const struct page *page)
 {
-	// if (!nvpc.enabled)
-	// 	return 0;
-
 	return (page->flags >> NVPC_LRU_PGSHIFT) & NVPC_LRU_MASK;
 }
 /* set page nvpc lru counter */
@@ -1563,15 +1569,15 @@ static inline void page_nvpc_lru_cnt_set(struct page *page, u8 cnt)
 	unsigned long old_flags, new_flags;
 
 	VM_WARN_ON_ONCE(cnt > NVPC_LRU_LEVEL_MAX);
-	// if (!nvpc.enabled)
-	// 	return;
+
 	/* clear high bits */
-	cnt &= (1<<(NVPC_LRU_LEVEL_SHIFT+1))-1;
+	cnt &= (1<<NVPC_LRU_LEVEL_SHIFT)-1;
 
 	old_flags = READ_ONCE(page->flags);
 
 	/* atomic update */
 	do {
+		new_flags = old_flags;
 		new_flags &= ~(NVPC_LRU_MASK << NVPC_LRU_PGSHIFT);
 		new_flags |= (cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
 	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));
@@ -1582,9 +1588,6 @@ static inline u8 page_nvpc_lru_cnt_inc(struct page *page)
 {
 	u8 old_cnt, new_cnt;
 	unsigned long old_flags, new_flags;
-
-	// if (!nvpc.enabled)
-	// 	return;
 	
 	old_flags = READ_ONCE(page->flags);
 
@@ -1592,11 +1595,12 @@ static inline u8 page_nvpc_lru_cnt_inc(struct page *page)
 		old_cnt = (old_flags >> NVPC_LRU_PGSHIFT) & NVPC_LRU_MASK;
 		new_cnt = min((old_cnt + 1), NVPC_LRU_LEVEL_MAX);
 
+		new_flags = old_flags;
 		new_flags &= ~(NVPC_LRU_MASK << NVPC_LRU_PGSHIFT);
 		new_flags |= (new_cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
 	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));
 
-	return new_flags;
+	return new_cnt;
 }
 #else
 static inline u8 page_nvpc_lru_cnt(const struct page *page)
@@ -1737,6 +1741,26 @@ static inline pgoff_t page_index(struct page *page)
 
 bool page_mapped(struct page *page);
 struct address_space *page_mapping(struct page *page);
+
+#ifdef CONFIG_NVPC
+#define NVPC_ADDR_LOW   (nvpc.dax_kaddr)
+#define NVPC_ADDR_HIGH  (nvpc.dax_kaddr + (nvpc.len_pg << PAGE_SHIFT))
+static inline bool PageNVPC(struct page *page)
+{
+    return page_address(page) >= NVPC_ADDR_LOW && page_address(page) < NVPC_ADDR_HIGH;
+}
+
+/* the super block of this page's inode is enabled to use nvpc */
+static inline bool PageSBNVPC(struct page *page)
+{
+	return IS_NVPC_ON(page->mapping->host);
+}
+
+static inline bool nvpc_enabled(void)
+{
+    return nvpc.enabled;
+}
+#endif
 
 /*
  * Return true only if the page has been allocated with

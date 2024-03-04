@@ -37,7 +37,7 @@ struct dax_operations {
 	/* zero_page_range: required operation. Zero page range   */
 	int (*zero_page_range)(struct dax_device *, pgoff_t, size_t);
 	/* map_whole_dev: map the whole device to kaddr */
-	long (*map_whole_dev)(struct dax_device *, void **);
+	long (*map_whole_dev)(struct dax_device *, void **, pfn_t *);
 };
 
 extern struct attribute_group dax_attribute_group;
@@ -201,10 +201,8 @@ size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
 		size_t bytes, struct iov_iter *i);
 int dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
 			size_t nr_pages);
-long dax_map_whole_dev(struct dax_device *dax_dev, void ** kaddr);
+long dax_map_whole_dev(struct dax_device *dax_dev, void ** kaddr, pfn_t *pfn);
 void dax_flush(struct dax_device *dax_dev, void *addr, size_t size);
-bool dax_occupied(struct dax_device *dax_dev);
-void set_dax_occupied(struct dax_device *dax_dev);
 
 ssize_t dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
 		const struct iomap_ops *ops);

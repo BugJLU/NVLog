@@ -1419,6 +1419,7 @@ static const struct memory_stat memory_stats[] = {
 	{ "inactive_file",		NR_INACTIVE_FILE		},
 	{ "active_file",		NR_ACTIVE_FILE			},
 	{ "unevictable",		NR_UNEVICTABLE			},
+	{ "nvpc_file",			NR_NVPC_FILE			},
 	{ "slab_reclaimable",		NR_SLAB_RECLAIMABLE_B		},
 	{ "slab_unreclaimable",		NR_SLAB_UNRECLAIMABLE_B		},
 

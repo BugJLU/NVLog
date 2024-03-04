@@ -182,6 +182,12 @@ static void truncate_cleanup_page(struct page *page)
 	 */
 	cancel_dirty_page(page);
 	ClearPageMappedToDisk(page);
+
+	ClearPageNVPCPendingCopy(page); // ???
+	ClearPageNVPCNpDirty(page);
+	ClearPageNVPCPin(page);
+	ClearPageNVPCPDirty(page);
+	// NVTODO: wb_log_work_fn on page 
 }
 
 /*

@@ -73,6 +73,7 @@ void __init mminit_verify_pageflags_layout(void)
 		ZONES_WIDTH,
 		LAST_CPUPID_WIDTH,
 		KASAN_TAG_WIDTH,
+		NVPC_LRU_WIDTH,
 		NR_PAGEFLAGS);
 	mminit_dprintk(MMINIT_TRACE, "pageflags_layout_shifts",
 		"Section %d Node %d Zone %d Lastcpupid %d Kasantag %d\n",
@@ -80,14 +81,16 @@ void __init mminit_verify_pageflags_layout(void)
 		NODES_SHIFT,
 		ZONES_SHIFT,
 		LAST_CPUPID_SHIFT,
-		KASAN_TAG_WIDTH);
+		KASAN_TAG_WIDTH, 
+		NVPC_LRU_WIDTH);
 	mminit_dprintk(MMINIT_TRACE, "pageflags_layout_pgshifts",
 		"Section %lu Node %lu Zone %lu Lastcpupid %lu Kasantag %lu\n",
 		(unsigned long)SECTIONS_PGSHIFT,
 		(unsigned long)NODES_PGSHIFT,
 		(unsigned long)ZONES_PGSHIFT,
 		(unsigned long)LAST_CPUPID_PGSHIFT,
-		(unsigned long)KASAN_TAG_PGSHIFT);
+		(unsigned long)KASAN_TAG_PGSHIFT, 
+		(unsigned long)NVPC_LRU_PGSHIFT);
 	mminit_dprintk(MMINIT_TRACE, "pageflags_layout_nodezoneid",
 		"Node/Zone ID: %lu -> %lu\n",
 		(unsigned long)(ZONEID_PGOFF + ZONEID_SHIFT),

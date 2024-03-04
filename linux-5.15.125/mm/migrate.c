@@ -50,6 +50,7 @@
 #include <linux/ptrace.h>
 #include <linux/oom.h>
 #include <linux/memory.h>
+#include <linux/nvpc.h>
 
 #include <asm/tlbflush.h>
 
@@ -457,7 +458,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
 
 	xas_unlock(&xas);
 	/* Leave irq disabled to prevent preemption while updating stats */
-
+	
 	/*
 	 * If moved to a different zone then also account
 	 * the page for that zone. Other VM counters will be
@@ -471,29 +472,72 @@ int migrate_page_move_mapping(struct address_space *mapping,
 	if (newzone != oldzone) {
 		struct lruvec *old_lruvec, *new_lruvec;
 		struct mem_cgroup *memcg;
+		bool new_state, old_state;
+		new_state = !PageNVPC(newpage);
+		old_state = !PageNVPC(page);
 
-		memcg = page_memcg(page);
-		old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
-		new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
+		if (old_state)
+		{
+			memcg = page_memcg(page);
+			old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
 
-		__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
-		__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
-		if (PageSwapBacked(page) && !PageSwapCache(page)) {
-			__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
-			__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
-		}
+			__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
+			if (PageSwapBacked(page) && !PageSwapCache(page)) {
+				__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
+			}
 #ifdef CONFIG_SWAP
-		if (PageSwapCache(page)) {
-			__mod_lruvec_state(old_lruvec, NR_SWAPCACHE, -nr);
-			__mod_lruvec_state(new_lruvec, NR_SWAPCACHE, nr);
-		}
+			if (PageSwapCache(page)) {
+				__mod_lruvec_state(old_lruvec, NR_SWAPCACHE, -nr);
+			}
 #endif
-		if (dirty && mapping_can_writeback(mapping)) {
-			__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
-			__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
-			__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
-			__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
+			if (dirty && mapping_can_writeback(mapping)) {
+				__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
+				__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
+			}
 		}
+		
+		if (new_state)
+		{
+			memcg = page_memcg(newpage);
+			new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
+
+			__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
+			if (PageSwapBacked(page) && !PageSwapCache(page)) {
+				__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
+			}
+#ifdef CONFIG_SWAP
+			if (PageSwapCache(page)) {
+				__mod_lruvec_state(new_lruvec, NR_SWAPCACHE, nr);
+			}
+#endif
+			if (dirty && mapping_can_writeback(mapping)) {
+				__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
+				__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
+			}
+		}
+
+// 		memcg = page_memcg(page);
+// 		old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
+// 		new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
+
+// 		__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
+// 		__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
+// 		if (PageSwapBacked(page) && !PageSwapCache(page)) {
+// 			__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
+// 			__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
+// 		}
+// #ifdef CONFIG_SWAP
+// 		if (PageSwapCache(page)) {
+// 			__mod_lruvec_state(old_lruvec, NR_SWAPCACHE, -nr);
+// 			__mod_lruvec_state(new_lruvec, NR_SWAPCACHE, nr);
+// 		}
+// #endif
+// 		if (dirty && mapping_can_writeback(mapping)) {
+// 			__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
+// 			__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
+// 			__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
+// 			__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
+// 		}
 	}
 	local_irq_enable();
 
@@ -565,6 +609,15 @@ void migrate_page_states(struct page *newpage, struct page *page)
 	/* Move dirty on pages not done by migrate_page_move_mapping() */
 	if (PageDirty(page))
 		SetPageDirty(newpage);
+
+	if (PageNVPCPendingCopy(page))
+		SetPageNVPCPendingCopy(newpage);
+	if (PageNVPCNpDirty(page))
+		SetPageNVPCNpDirty(newpage);
+	if (PageNVPCPin(page))
+		SetPageNVPCPin(newpage);
+	if (PageNVPCPDirty(page))
+		SetPageNVPCPDirty(newpage);
 
 	if (page_is_young(page))
 		set_page_young(newpage);
@@ -638,11 +691,13 @@ int migrate_page(struct address_space *mapping,
 		struct page *newpage, struct page *page,
 		enum migrate_mode mode)
 {
-	int rc;
+	int rc, extra_cnt;
 
 	BUG_ON(PageWriteback(page));	/* Writeback must be complete */
 
-	rc = migrate_page_move_mapping(mapping, newpage, page, 0);
+    extra_cnt = 0;
+
+	rc = migrate_page_move_mapping(mapping, newpage, page, extra_cnt);
 
 	if (rc != MIGRATEPAGE_SUCCESS)
 		return rc;
@@ -699,14 +754,16 @@ static int __buffer_migrate_page(struct address_space *mapping,
 		bool check_refs)
 {
 	struct buffer_head *bh, *head;
-	int rc;
+	int rc, extra_cnt;
 	int expected_count;
 
 	if (!page_has_buffers(page))
 		return migrate_page(mapping, newpage, page, mode);
 
+    extra_cnt = 0;
+
 	/* Check whether page does not have extra refs before we do more work */
-	expected_count = expected_page_refs(mapping, page);
+	expected_count = expected_page_refs(mapping, page) + extra_cnt;
 	if (page_count(page) != expected_count)
 		return -EAGAIN;
 
@@ -741,7 +798,7 @@ recheck_buffers:
 		}
 	}
 
-	rc = migrate_page_move_mapping(mapping, newpage, page, 0);
+	rc = migrate_page_move_mapping(mapping, newpage, page, extra_cnt);
 	if (rc != MIGRATEPAGE_SUCCESS)
 		goto unlock_buffers;
 
@@ -846,6 +903,7 @@ static int fallback_migrate_page(struct address_space *mapping,
 	struct page *newpage, struct page *page, enum migrate_mode mode)
 {
 	if (PageDirty(page)) {
+		// NVTODO: permit dirty pmem page to promote in NVPC
 		/* Only writeback pages in full synchronous migration */
 		switch (mode) {
 		case MIGRATE_SYNC:
@@ -861,6 +919,7 @@ static int fallback_migrate_page(struct address_space *mapping,
 	 * Buffers may be managed in a filesystem specific way.
 	 * We must have no buffers or drop them.
 	 */
+	// NVXXX: how's it working on NVPC?
 	if (page_has_private(page) &&
 	    !try_to_release_page(page, GFP_KERNEL))
 		return mode == MIGRATE_SYNC ? -EAGAIN : -EBUSY;
@@ -1194,6 +1253,7 @@ static int unmap_and_move(new_page_t get_new_page,
 	if (!thp_migration_supported() && PageTransHuge(page))
 		return -ENOSYS;
 
+	// NVTODO: which ref count should it be here for NVPC?
 	if (page_count(page) == 1) {
 		/* page was freed from under us. So we are done. */
 		ClearPageActive(page);
@@ -1240,6 +1300,18 @@ out:
 			mod_node_page_state(page_pgdat(page), NR_ISOLATED_ANON +
 					page_is_file_lru(page), -thp_nr_pages(page));
 
+#ifdef CONFIG_NVPC
+		if (reason == MR_NVPC_LRU_PROMOTE)
+		{
+			/*
+			 * Return this page back to NVPC's free list.
+			 */
+			// pr_info("[NVPC DEBUG].PROMOTE migrate unmap_and_move free put pg=%p ref=%d\n", page, page_count(page));
+			put_page(page);
+			// nvpc_free_page(page, 0);
+		}
+		else
+#endif 
 		if (reason != MR_MEMORY_FAILURE)
 			/*
 			 * We release the page in page_handle_poison.

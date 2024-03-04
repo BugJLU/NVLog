@@ -19,15 +19,18 @@ typedef unsigned char u8;
 #define LIBNVPC_IOC_INIT    _IOR(LIBNVPC_IOCTL_BASE, 0, u8*)  
 #define LIBNVPC_IOC_FINI    _IOR(LIBNVPC_IOCTL_BASE, 1, u8*)
 #define LIBNVPC_IOC_USAGE   _IOR(LIBNVPC_IOCTL_BASE, 2, u8*)
+#define LIBNVPC_IOC_TEST    _IOR(LIBNVPC_IOCTL_BASE, 3, u8*)
+#define LIBNVPC_IOC_OPEN    _IOR(LIBNVPC_IOCTL_BASE, 4, u8*)
+#define LIBNVPC_IOC_CLOSE   _IOR(LIBNVPC_IOCTL_BASE, 5, u8*)
 
 #define PATH_MAX 4096
 
 typedef struct nvpc_usage_s
 {
-    size_t lru_sz;
-    size_t lru_free;
-    size_t syn_sz;
-    size_t syn_free;
+    size_t nvpc_pgs;
+    size_t free_pgs;
+    size_t syn_used;
+
 } nvpc_usage_t;
 
 static int ln_fd;
@@ -69,6 +72,33 @@ static void stop_nvpc()
     }
 }
 
+static void open_nvpc_onsb(char *path, int mode)
+{
+    int ret;
+    struct open_s {
+        char *path;
+        int mode;
+    } openarg = {
+        .path = path, 
+        .mode = mode,
+    };
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_OPEN, &openarg)) < 0)
+    {
+        fprintf(stderr, "Libnvpc error: ioctl failed to enable nvpc for fs: %d\n", ret);
+        exit(-1);
+    }
+}
+
+static void close_nvpc_onsb(char *path)
+{
+    int ret;
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_CLOSE, path)) < 0)
+    {
+        fprintf(stderr, "Libnvpc error: ioctl failed to disable nvpc for fs: %d\n", ret);
+        exit(-1);
+    }
+}
+
 static ssize_t read_nvpc(char *buf, size_t len, off64_t off)
 {
     ssize_t ret;
@@ -102,9 +132,40 @@ static void get_nvpc_usage(nvpc_usage_t *usage)
     }
 }
 
+static void nvpc_test()
+{
+    int ret;
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_TEST, 0)) < 0)
+    {
+        // this should not happen
+        fprintf(stderr, "Libnvpc error: ioctl failed\n");
+        exit(-1);
+    }
+}
+
+static void nvpc_test1(char *path, size_t len, char *tmp1)
+{
+    int ret;
+    struct test1_s {
+        char *path;
+        size_t len;
+        char *tmp1;
+    } test1 = {
+        .path = path, 
+        .len = len,
+        .tmp1 = tmp1,
+    };
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_TEST, &test1)) < 0)
+    {
+        // this should not happen
+        fprintf(stderr, "Libnvpc error: ioctl failed\n");
+        exit(-1);
+    }
+}
+
 int main(int argc, char *argv[])
 {
-    char nvm_dev_path[PATH_MAX];
+    char nv_path[PATH_MAX];
     off64_t off;
     size_t len;
     char buf[256];
@@ -113,13 +174,14 @@ int main(int argc, char *argv[])
     int set_flag; // for flush set
     char tmp[255];
     nvpc_usage_t usage;
+    char *tmp1;
 
     if (argc >= 2)
     {
         /* nvpcctl start <path> */
         if (!strcmp(argv[1], "start") && argc == 3)
         {
-            strcpy(nvm_dev_path, argv[2]);
+            strcpy(nv_path, argv[2]);
             flag = 1;
         }
         /* nvpcctl stop */
@@ -183,18 +245,78 @@ int main(int argc, char *argv[])
         {
             flag = 9;
         }
+        /* nvpcctl test */
+        else if (!strcmp(argv[1], "test"))
+        {
+            flag = 10;
+        }
+        /* nvpcctl open <path> */
+        else if (!strcmp(argv[1], "open"))
+        {
+            if (argc == 3)
+            {
+                strcpy(nv_path, argv[2]);
+                set_flag = 0;
+                flag = 11;
+            } 
+            else if (argc == 4)
+            {
+                strcpy(nv_path, argv[2]);
+                flag = 11;
+                if (!strcmp(argv[3], "r") || !strcmp(argv[3], "relaxed"))
+                    set_flag = 0;
+                else if (!strcmp(argv[3], "s") || !strcmp(argv[3], "strict"))
+                    set_flag = 1;
+                else
+                    flag = 999;
+            }
+        }
+        /* nvpcctl close <path> */
+        else if (!strcmp(argv[1], "close") && argc == 3)
+        {
+            strcpy(nv_path, argv[2]);
+            flag = 12;
+        }
+        /* nvpcctl test1 <path> <len> */
+        else if (!strcmp(argv[1], "test1"))
+        {
+            strcpy(nv_path, argv[2]);
+            len = strtoll(argv[3], NULL, 10);
+            tmp1 = (char*)malloc(len);
+            memset(tmp1, 't', len);
+            flag = 101;
+        }
+        /* nvpcctl activesync set */
+        else if (!strcmp(argv[1], "activesync"))
+        {
+            /* nvpcctl activesync show */
+            if (argc == 3 && !strcmp(argv[2], "show"))
+            {
+                flag = 13;
+            }
+            /* nvpcctl activesync set <0/1> */
+            else if (argc == 4 && !strcmp(argv[2], "set"))
+            {
+                set_flag = atoi(argv[3]);
+                flag = 14;
+            }
+        }
     }
 
     switch (flag)
     {
     case 1:
-        printf("nvpcctl: invoking nvpc from %s\n", nvm_dev_path);
+        printf("nvpcctl: start is discarded\n");
+        break;
+        printf("nvpcctl: invoking nvpc from %s\n", nv_path);
         open_libnvpc();
-        start_nvpc(nvm_dev_path);
+        start_nvpc(nv_path);
         close_libnvpc();
         printf("nvpcctl: nvpc start ok\n");
         break;
     case 2:
+        printf("nvpcctl: stop is discarded\n");
+        break;
         printf("nvpcctl: nvpc releasing nvm\n");
         open_libnvpc();
         stop_nvpc();
@@ -239,14 +361,53 @@ int main(int argc, char *argv[])
         open_libnvpc();
         get_nvpc_usage(&usage);
         close_libnvpc();
-        printf("nvpcctl: lru usage: \t%ld \tof %ld \tpages free\n", usage.lru_free, usage.lru_sz);
-        printf("nvpcctl: syn usage: \t%ld \tof %ld \tpages free\n", usage.syn_free, usage.syn_sz);
+        // printf("nvpcctl: lru usage: \t%ld \tof %ld \tpages free\n", usage.lru_free, usage.lru_sz);
+        // printf("nvpcctl: syn usage: \t%ld \tof %ld \tpages free\n", usage.syn_free, usage.syn_sz);
+        printf("nvpcctl: total\t%ld pages\n", usage.nvpc_pgs);
+        printf("nvpcctl: used\t%ld pages\n", usage.nvpc_pgs-usage.free_pgs);
+        printf("nvpcctl: syn used\t%ld pages\n", usage.syn_used);
+        printf("nvpcctl: free\t%ld pages\n", usage.free_pgs);
+        break;
+    case 10:
+        open_libnvpc();
+        nvpc_test();
+        close_libnvpc();
+        break;
+    case 11:
+        printf("nvpcctl: enabling nvpc on fs @ %s\n", nv_path);
+        open_libnvpc();
+        open_nvpc_onsb(nv_path, set_flag);
+        close_libnvpc();
+        printf("nvpcctl: done\n");
+        break;
+    case 12:
+        printf("nvpcctl: disabling nvpc on fs @ %s\n", nv_path);
+        open_libnvpc();
+        close_nvpc_onsb(nv_path);
+        close_libnvpc();
+        printf("nvpcctl: done\n");
+        break;
+    case 13:
+        printf("nvpcctl: nvpc activesync state: \n");
+        system("cat /sys/module/libnvpc/parameters/nvpc_active_sync");
+        break;
+    case 14: 
+        sprintf(tmp, "echo %d > /sys/module/libnvpc/parameters/nvpc_active_sync", set_flag);
+        printf("nvpcctl: running cmd: %s\n", tmp);
+        system(tmp);
+        printf("nvpcctl: nvpc activesync set state to: %d\n", set_flag);
+        break;
+    case 101:
+        open_libnvpc();
+        nvpc_test1(nv_path, len, tmp1);
+        close_libnvpc();
+        free(tmp1);
         break;
     default:
         printf(
             "usage: \n"
-            "\tnvpcctl start <dev_path>\n"
-            "\tnvpcctl stop\n"
+            "\tnvpcctl start <dev_path> (discarded)\n"
+            "\tnvpcctl stop (discarded)\n"
             "\tnvpcctl read <off> <len>:\tlen<=255\n"
             "\tnvpcctl write <off> <string>:\tlen(string)<=255\n"
             "\tnvpcctl flush show\n"
@@ -254,6 +415,11 @@ int main(int argc, char *argv[])
             "\tnvpcctl wbarrier show\n"
             "\tnvpcctl wbarrier set <0/1>\n"
             "\tnvpcctl usage\n"
+            "\tnvpcctl open <path>\n"
+            "\tnvpcctl open <path> <r/relaxed/s/strict>\n"
+            "\tnvpcctl close <path>\n"
+            "\tnvpcctl activesync show\n"
+            "\tnvpcctl activesync set <0/1>\n"
         );
         break;
     }
