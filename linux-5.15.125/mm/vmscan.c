@@ -1588,7 +1588,11 @@ retry:
 			!PageSwapBacked(page) &&	// only move file-backed pages
 			!PageTransHuge(page) && // huge pages not support yet
 			!PageCompound(page) &&
-			!page_mapped(page))	// page should not be mmapped, keep it in DRAM
+			!page_mapped(page)		// page should not be mmapped, keep it in DRAM
+#ifdef NVPC_DEMOTE_REFAULT
+			&& PageNVPCDemote(page)
+#endif
+			)	
 		{
 			list_add(&page->lru, &nvpc_demote_pages);
 			unlock_page(page);

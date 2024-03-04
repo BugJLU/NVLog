@@ -7,6 +7,8 @@
 
 #define NVPC_PROMOTE_VEC_SZ 100
 
+#define NVPC_DEMOTE_REFAULT
+
 /* 
  * NVPC_EVICT_WATERMARK: percentage of PMEM memory as a warning water level
  * NVPC_EVICT_PERCENT: the percentage of pages should be evicted once
