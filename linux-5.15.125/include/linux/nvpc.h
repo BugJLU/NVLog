@@ -21,6 +21,7 @@ struct nvpc_opts
     bool absorb_syn;
     bool nvpc_lru_evict;
     u8 promote_level;
+    bool demote_before_promote;
     size_t nvpc_sz;  /* in pages */
     // size_t syn_sz;  /* in pages */
     bool force; // force to initialize

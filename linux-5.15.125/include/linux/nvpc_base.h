@@ -27,6 +27,7 @@ struct nvpc
     bool absorb_syn;
 
     bool active_sync;
+    
     /* 
      * promote to DRAM after promote_level accesses 
      * e.g. promote_level=0                     never promote (for high speed nvm)
@@ -39,6 +40,11 @@ struct nvpc
     // Enable NVPC eviction, which means that the pages in NVPC
     // can be directly evicted, but dirty pages are processed by SYN subsystem
     bool nvpc_lru_evict;
+
+    // Before promotion, we need to check whether we have enough free pages in DRAM
+    // However, when we need to promote pages, there are rarely free pages in DRAM
+    // So wake up kswapd to get more free pages
+    bool demote_before_promote;
 
     // Temporarily enable NVPC daemon to process extended LRU list
     // we Also called knvpcd

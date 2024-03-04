@@ -1066,7 +1066,7 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
     // Evict pages from NVPC to Disk
     if (nvpc->nvpc_lru_evict && knvpcd_nr_to_reclaim)
     {
-	    unsigned long nr_to_reclaim = knvpcd_nr_to_reclaim;
+	    unsigned long nr_to_reclaim;
 	    unsigned long nr_reclaimed = 0;
 	    unsigned long nr_to_scan;
         struct scan_control sc = {
@@ -1074,7 +1074,7 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
 			.nr_to_reclaim = 0, // initialize
 	    };
 
-        nr_to_scan = nr_to_reclaim;
+        nr_to_scan = nr_to_reclaim = knvpcd_nr_to_reclaim;
 	    
         blk_start_plug(&plug);
 	    while (nr_to_scan) {
@@ -1095,43 +1095,43 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
                 continue;
 	    }
         blk_finish_plug(&plug);
-    }
-
-    // // Demote pages from DRAM to NVPC
-    // if (READ_ONCE(nvpc->knvpcd_demote))
-    // {
-	// 	// NVTODO: forced demote
-	// 	unsigned int order;
-	// 	gfp_t gfp_mask;
-	// 	struct zone * zone; // for iter 
-	// 	struct zoneref * zref; // for iter
-	// 	struct zonelist *zonelist;
-	// 	enum zone_type highest_zoneidx;
-
-	// 	gfp_mask = GFP_KERNEL | __GFP_KSWAPD_RECLAIM;
-	// 	highest_zoneidx = ZONE_NORMAL; // NVTODO: review needed
-				
-	// 	zonelist = node_zonelist(NUMA_NO_NODE, gfp_mask); // without any preferences of NUMA selection
-	// 	order = order_base_2(READ_ONCE(nvpc->knvpcd_nr_to_promote));
-
-	// 	// Iterate over all zones
-	// 	// Actually, we don't need to iterate over all zones, but we don't have any information about the zone
-	// 	for_each_zone_zonelist_nodemask(zone, zref, zonelist, highest_zoneidx, NULL)
-	// 	{
-	// 		wakeup_kswapd(zone, gfp_mask, order, highest_zoneidx);
-	// 	}
-    // }
+	}
 
     // Promote pages from NVPC to DRAM
+	// page num is determined by promote_vec_cnt
     if (knvpcd_nr_to_promote)
     {
 	    unsigned long nr_reclaimed = 0;
 	    unsigned long nr_to_scan;
         struct scan_control sc = {
-            .nvpc_promote = 1, // only promotion can be executed
+            .nvpc_promote = 1, // enable promote
 	    };
 
         nr_to_scan = knvpcd_nr_to_promote;
+
+		// Before promotion, we need to check whether we have enough free pages in DRAM
+		// However, when we need to promote pages, there are rarely free pages in DRAM
+		// So wake up kswapd to get more free pages
+		if (nvpc->extend_lru && nvpc->demote_before_promote) {
+			unsigned int order;
+			gfp_t gfp_mask;
+			struct zone * zone; // for iter 
+			struct zoneref * zref; // for iter
+			struct zonelist *zonelist;
+			enum zone_type highest_zoneidx;
+
+			gfp_mask = GFP_KERNEL | __GFP_KSWAPD_RECLAIM;
+			highest_zoneidx = ZONE_NORMAL; // NVTODO: review needed
+					
+			zonelist = node_zonelist(NUMA_NO_NODE, gfp_mask); // without any preferences of NUMA selection
+			order = order_base_2(nr_to_scan);
+
+			// Iterate over all zones
+			// Actually, we don't need to iterate over all zones, but we don't have any information about the zone
+			for_each_zone_zonelist_nodemask(zone, zref, zonelist, highest_zoneidx, NULL) {
+				wakeup_kswapd(zone, gfp_mask, order, highest_zoneidx);
+			}
+		}
 	    
         blk_start_plug(&plug);
 	    while (nr_to_scan) {

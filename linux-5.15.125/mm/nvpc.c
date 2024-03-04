@@ -181,6 +181,7 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     nvpc.extend_lru = opts->extend_lru;
     nvpc.absorb_syn = opts->absorb_syn;
     nvpc.nvpc_lru_evict = opts->nvpc_lru_evict;
+    nvpc.demote_before_promote = opts->demote_before_promote;
 
     nvpc.nvpc_free_pgnum = nvpc.nvpc_sz = opts->nvpc_sz;
     nvpc.warning_pgnum = max(nvpc.nvpc_sz / 100, (size_t)1) * NVPC_EVICT_WATERMARK;
