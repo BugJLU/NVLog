@@ -72,10 +72,17 @@ static void stop_nvpc()
     }
 }
 
-static void open_nvpc_onsb(char *path)
+static void open_nvpc_onsb(char *path, int mode)
 {
     int ret;
-    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_OPEN, path)) < 0)
+    struct open_s {
+        char *path;
+        int mode;
+    } openarg = {
+        .path = path, 
+        .mode = mode,
+    };
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_OPEN, &openarg)) < 0)
     {
         fprintf(stderr, "Libnvpc error: ioctl failed to enable nvpc for fs: %d\n", ret);
         exit(-1);
@@ -244,10 +251,25 @@ int main(int argc, char *argv[])
             flag = 10;
         }
         /* nvpcctl open <path> */
-        else if (!strcmp(argv[1], "open") && argc == 3)
+        else if (!strcmp(argv[1], "open"))
         {
-            strcpy(nv_path, argv[2]);
-            flag = 11;
+            if (argc == 3)
+            {
+                strcpy(nv_path, argv[2]);
+                set_flag = 0;
+                flag = 11;
+            } 
+            else if (argc == 4)
+            {
+                strcpy(nv_path, argv[2]);
+                flag = 11;
+                if (!strcmp(argv[3], "r") || !strcmp(argv[3], "relaxed"))
+                    set_flag = 0;
+                else if (!strcmp(argv[3], "s") || !strcmp(argv[3], "strict"))
+                    set_flag = 1;
+                else
+                    flag = 999;
+            }
         }
         /* nvpcctl close <path> */
         else if (!strcmp(argv[1], "close") && argc == 3)
@@ -263,6 +285,21 @@ int main(int argc, char *argv[])
             tmp1 = (char*)malloc(len);
             memset(tmp1, 't', len);
             flag = 101;
+        }
+        /* nvpcctl activesync set */
+        else if (!strcmp(argv[1], "activesync"))
+        {
+            /* nvpcctl activesync show */
+            if (argc == 3 && !strcmp(argv[2], "show"))
+            {
+                flag = 13;
+            }
+            /* nvpcctl activesync set <0/1> */
+            else if (argc == 4 && !strcmp(argv[2], "set"))
+            {
+                set_flag = atoi(argv[3]);
+                flag = 14;
+            }
         }
     }
 
@@ -339,7 +376,7 @@ int main(int argc, char *argv[])
     case 11:
         printf("nvpcctl: enabling nvpc on fs @ %s\n", nv_path);
         open_libnvpc();
-        open_nvpc_onsb(nv_path);
+        open_nvpc_onsb(nv_path, set_flag);
         close_libnvpc();
         printf("nvpcctl: done\n");
         break;
@@ -349,6 +386,16 @@ int main(int argc, char *argv[])
         close_nvpc_onsb(nv_path);
         close_libnvpc();
         printf("nvpcctl: done\n");
+        break;
+    case 13:
+        printf("nvpcctl: nvpc activesync state: \n");
+        system("cat /sys/module/libnvpc/parameters/nvpc_active_sync");
+        break;
+    case 14: 
+        sprintf(tmp, "echo %d > /sys/module/libnvpc/parameters/nvpc_active_sync", set_flag);
+        printf("nvpcctl: running cmd: %s\n", tmp);
+        system(tmp);
+        printf("nvpcctl: nvpc activesync set state to: %d\n", set_flag);
         break;
     case 101:
         open_libnvpc();
@@ -369,7 +416,10 @@ int main(int argc, char *argv[])
             "\tnvpcctl wbarrier set <0/1>\n"
             "\tnvpcctl usage\n"
             "\tnvpcctl open <path>\n"
+            "\tnvpcctl open <path> <r/relaxed/s/strict>\n"
             "\tnvpcctl close <path>\n"
+            "\tnvpcctl activesync show\n"
+            "\tnvpcctl activesync set <0/1>\n"
         );
         break;
     }

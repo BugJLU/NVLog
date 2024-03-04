@@ -27,11 +27,6 @@ struct nvpc_opts
     bool rebuild; // rebuild the nvpc data in NVM
 };
 
-/* vector that temporarily stores NVPC pages that reach the promote level */
-extern struct page *promote_vec[NVPC_PROMOTE_VEC_SZ];
-extern atomic_long_t nr_promote_vec;
-extern spinlock_t promote_vec_lock;
-
 // Initialize and finalize the NVPC subsystem
 int init_nvpc(struct nvpc_opts *opts);
 void fini_nvpc(void);

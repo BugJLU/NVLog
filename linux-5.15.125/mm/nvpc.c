@@ -40,7 +40,8 @@ struct nvpc nvpc = {
     .enabled = false, 
     .extend_lru = false,
     .absorb_syn = false, 
-    .promote_level = 4,
+    .promote_level = 4, 
+    .active_sync = true, 
 };
 EXPORT_SYMBOL_GPL(nvpc);
 
@@ -64,22 +65,6 @@ struct list_head *get_nvpc_pcpu_free_list(int cpuid)
     return &per_cpu(nvpc_pcpu_free_list, cpuid);
 }
 #endif
-
-/* return the old val if success, return -1 if fail */
-static inline long atomic_fetch_inc_test_upperbound(atomic_long_t *val, long upper)
-{
-    long old, new;
-    old = atomic_long_read(&nr_promote_vec);
-
-    do
-    {
-        if (old >= upper)
-            return -1;
-        new = old+1;
-    } while (!atomic_long_try_cmpxchg(val, &old, new));
-
-    return old;
-}
 
 static size_t __nvpc_get_n_new_page(struct list_head *pages, size_t n);
 
@@ -152,6 +137,12 @@ static int try_rebuild_nvpc(struct nvpc_opts *opts)
     }
     return 0;
 }
+
+/* vector that temporarily stores NVPC pages that reach the promote level */
+extern struct page *promote_vec[NVPC_PROMOTE_VEC_SZ];
+extern atomic_long_t nr_promote_vec;
+extern spinlock_t promote_vec_lock;
+
 
 /* sizes are in pages */
 int __ref init_nvpc(struct nvpc_opts *opts)
@@ -564,6 +555,23 @@ void nvpc_free_pages(struct list_head *list)
         // NVTODO: if page is in persistance domain, do not free!!!
         nvpc_free_page(page, 0);
     }
+}
+
+
+/* return the old val if success, return -1 if fail */
+static inline long atomic_fetch_inc_test_upperbound(atomic_long_t *val, long upper)
+{
+    long old, new;
+    old = atomic_long_read(&nr_promote_vec);
+
+    do
+    {
+        if (old >= upper)
+            return -1;
+        new = old+1;
+    } while (!atomic_long_try_cmpxchg(val, &old, new));
+
+    return old;
 }
 
 /* return number of pages in promote vec */

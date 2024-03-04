@@ -1,1 +1,0 @@
-./make_kernel.sh withmod && ./copy_kernel.sh withmod && ./run_qemu.sh 

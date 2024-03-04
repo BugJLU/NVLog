@@ -39,8 +39,6 @@
 
 #include <asm/tlbflush.h>
 
-#include <linux/nvpc.h>
-
 #include "internal.h"
 #include "shuffle.h"
 
@@ -2022,9 +2020,6 @@ int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages,
 	if (arg.status_change_nid >= 0) {
 		kswapd_stop(node);
 		kcompactd_stop(node);
-#ifdef CONFIG_NVPC
-		knvpcd_stop(); // NVTODO: useless now
-#endif
 	}
 
 	writeback_set_ratelimit();

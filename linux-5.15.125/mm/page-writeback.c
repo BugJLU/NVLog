@@ -2509,6 +2509,8 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty\n");
+		if (page->mapping)
+			page->mapping->host->nvpc_sync_active.nr_dirtied++;
 	}
 #endif
 }
@@ -2534,6 +2536,7 @@ int __set_page_dirty_nobuffers(struct page *page)
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty_nobuffers\n");
+		page->mapping->host->nvpc_sync_active.nr_dirtied++;
 	}
 #endif
 	if (!TestSetPageDirty(page)) {
@@ -2635,6 +2638,7 @@ int set_page_dirty(struct page *page)
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ set_page_dirty\n");
+		page->mapping->host->nvpc_sync_active.nr_dirtied++;
 	}
 #endif
 	return 0;
@@ -2691,12 +2695,25 @@ void __cancel_dirty_page(struct page *page)
 			account_page_cleaned(page, mapping, wb);
 		
 		// ClearPageNVPCNpDirty(page);
-
+#ifdef CONFIG_NVPC
+		if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+		{
+			page->mapping->host->nvpc_sync_active.nr_dirtied--;
+			// pr_info("[NVPC DEBUG]: --\n");
+		}
+#endif
 		unlocked_inode_to_wb_end(inode, &cookie);
 		unlock_page_memcg(page);
 	} else {
 		ClearPageDirty(page);
 		// ClearPageNVPCNpDirty(page);
+#ifdef CONFIG_NVPC
+		if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+		{
+			page->mapping->host->nvpc_sync_active.nr_dirtied--;
+			// pr_info("[NVPC DEBUG]: --\n");
+		}
+#endif
 	}
 }
 EXPORT_SYMBOL(__cancel_dirty_page);
@@ -2770,10 +2787,24 @@ int clear_page_dirty_for_io(struct page *page)
 			ret = 1;
 		}
 		// ClearPageNVPCNpDirty(page);
+#ifdef CONFIG_NVPC
+		if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+		{
+			page->mapping->host->nvpc_sync_active.nr_dirtied--;
+			// pr_info("[NVPC DEBUG]: --\n");
+		}
+#endif
 		unlocked_inode_to_wb_end(inode, &cookie);
 		return ret;
 	}
 	// ClearPageNVPCNpDirty(page);
+#ifdef CONFIG_NVPC
+	if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn)
+	{
+		page->mapping->host->nvpc_sync_active.nr_dirtied--;
+		// pr_info("[NVPC DEBUG]: --\n");
+	}
+#endif
 	return TestClearPageDirty(page);
 }
 EXPORT_SYMBOL(clear_page_dirty_for_io);
@@ -2849,7 +2880,10 @@ int test_clear_page_writeback(struct page *page)
 	 * deadlock, so we use work queue to postpone the logging.
 	 */
 	if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
+	{
 		nvpc_log_page_writeback(page);
+		page->mapping->host->nvpc_sync_active.nr_written++;
+	}
 #endif
 
 	return ret;
@@ -2913,7 +2947,10 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 		 * the first and second SetPageWriteback
 		 */
 		if (page->mapping && PageSBNVPC(page) && get_nvpc()->absorb_syn && PageNVPCPDirty(page))
+		{
 			nvpc_mark_page_writeback(page);
+			// page->mapping->host->nvpc_sync_active.nr_written++;
+		}
 #endif
 	}
 	unlock_page_memcg(page);

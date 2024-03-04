@@ -855,18 +855,24 @@ static int do_dentry_open(struct file *f,
 			return -EINVAL;
 	}
 
-#if defined(CONFIG_NVPC) && defined(NVPC_ACTIVE_SYNC_ON)
-	if (IS_NVPC_ON(inode) && get_nvpc()->absorb_syn)
+#if defined(CONFIG_NVPC)
+#if defined(NVPC_ACTIVE_SYNC_ON)
+	if (IS_NVPC_ON(inode) && get_nvpc()->absorb_syn && get_nvpc()->active_sync)
 	{
 		if (!(f->f_flags & O_DSYNC) && !IS_SYNC(inode)) {
 			f->nvpc_fsync_tracker.should_track = true;
 			f->nvpc_fsync_tracker.write_since_last_sync = 0;
 			f->nvpc_fsync_tracker.small_sync_time = 0;
 			f->nvpc_fsync_tracker.sensitivity = NVPC_ACTIVE_SYNC_SENSITVT;
-		} else {
-			f->nvpc_fsync_tracker.should_track = false;
-		}
+			f->f_inode->nvpc_sync_active.nr_dirtied = 0;
+			f->f_inode->nvpc_sync_active.nr_written = 0;
+		} 
+	} else {
+		f->nvpc_fsync_tracker.should_track = false;
 	}
+#else
+	f->nvpc_fsync_tracker.should_track = false;
+#endif
 #endif
 
 	/*

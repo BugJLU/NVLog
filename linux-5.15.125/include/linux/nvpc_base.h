@@ -26,6 +26,7 @@ struct nvpc
     // pages will be absorbed into NVPC (NVM) rather than original blockdev
     bool absorb_syn;
 
+    bool active_sync;
     /* 
      * promote to DRAM after promote_level accesses 
      * e.g. promote_level=0                     never promote (for high speed nvm)

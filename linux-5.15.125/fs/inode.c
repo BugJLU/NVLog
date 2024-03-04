@@ -205,6 +205,8 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
 	inode->i_flctx = NULL;
 
 #ifdef CONFIG_NVPC
+	// atomic_set(&inode->nvpc_i_state, 0);
+	inode->nvpc_i_state = 0;
 	inode->nvpc_sync_ilog.log_head = NULL;
 	inode->nvpc_sync_ilog.log_tail = NULL;
 	xa_init(&inode->nvpc_sync_ilog.inode_log_pages);
