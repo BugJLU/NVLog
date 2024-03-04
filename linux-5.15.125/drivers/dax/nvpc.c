@@ -202,10 +202,11 @@ static int dev_dax_nvpc_probe(struct dev_dax *dev_dax)
 	
 	init_opts.dev = dev_dax->dax_dev;
 	init_opts.nid = numa_node;
-	init_opts.extend_lru = true;
-	init_opts.absorb_syn = true;
-	init_opts.nvpc_sz = -1;
-	init_opts.promote_level = 0;
+	init_opts.extend_lru = false; 		// NVTEST: Demote
+	init_opts.promote_level = 0; 		// NVTEST: Promote Level
+	init_opts.nvpc_lru_evict = false; 	// NVTEST: Evict
+	init_opts.absorb_syn = false; 		// NVTEST: SYN Subsystem
+	init_opts.nvpc_sz = -1;		 		// NVTEST: NVPC NVM Size
 	init_opts.force = true;
 	init_opts.rebuild = true;
 	rc = init_nvpc(&init_opts);

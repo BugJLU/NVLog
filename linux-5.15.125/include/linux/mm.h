@@ -1743,6 +1743,8 @@ bool page_mapped(struct page *page);
 struct address_space *page_mapping(struct page *page);
 
 #ifdef CONFIG_NVPC
+#define NVPC_ADDR_LOW   (nvpc.dax_kaddr)
+#define NVPC_ADDR_HIGH  (nvpc.dax_kaddr + (nvpc.len_pg << PAGE_SHIFT))
 static inline bool PageNVPC(struct page *page)
 {
     return page_address(page) >= NVPC_ADDR_LOW && page_address(page) < NVPC_ADDR_HIGH;

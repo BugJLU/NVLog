@@ -202,7 +202,6 @@ EXPORT_SYMBOL_GPL(get_kernel_pages);
 // 		return 0;
 
 // 	/* Demotion ignores all cpuset and mempolicy settings */
-// 	// NVTODO: where to promote? active or inactive?
 // 	err = migrate_pages(promote_pages, nvpc_alloc_promote_page, NULL,
 // 			    nid, MIGRATE_ASYNC, MR_NVPC_LRU_PROMOTE, &nr_succeeded);
 
@@ -528,11 +527,15 @@ static void __lru_cache_activate_page(struct page *page)
  */
 void mark_page_accessed(struct page *page)
 {
-	// u8 nvpc_lru_cnt;
+#ifdef CONFIG_NVPC
+	struct lruvec *lruvec;
+#endif
 	page = compound_head(page);
 
 #ifdef CONFIG_NVPC
-	if(PageNVPC(page)) {
+	lruvec = mem_cgroup_lruvec(NULL, page_pgdat(page));
+
+	if (PageNVPC(page)) {
 		u8 nvpc_lru_cnt;
 		int nr_promote;
 		/* 
@@ -545,13 +548,12 @@ void mark_page_accessed(struct page *page)
 		 */
 		SetPageReferenced(page);
 		nvpc_lru_cnt = page_nvpc_lru_cnt_inc(page);
-		if (nvpc.promote_level && nvpc_lru_cnt >= nvpc.promote_level)
-		{
+		if (nvpc.promote_level && nvpc_lru_cnt >= nvpc.promote_level) {
 			nr_promote = nvpc_promote_vec_put_page(page);
-			if (nr_promote >= NVPC_PROMOTE_VEC_SZ)
-				wakeup_nvpc_promote();
+			if (nr_promote >= NVPC_PROMOTE_VEC_SZ) {
+				nvpc_wakeup_nvpc_promote();
+			}
 		}
-		
 	}
 	else
 #endif

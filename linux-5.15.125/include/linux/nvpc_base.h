@@ -3,6 +3,7 @@
 
 #include <linux/types.h>
 #include <linux/spinlock.h>
+#include <linux/wait.h>
 
 struct nvpc
 {
@@ -17,11 +18,46 @@ struct nvpc
     /* node id */
     int nid;
 
-    /* add an lru list inside pmem after the inactive list */
+    // Add a LRU list in NVM after DRAM inactive list
+    // Also known as the NVPC Demotion (by kswapd)
     bool extend_lru;
+
+    // Enable SYN absorption, which means that the persistent 
+    // pages will be absorbed into NVPC (NVM) rather than original blockdev
     bool absorb_syn;
 
     bool active_sync;
+    /* 
+     * promote to DRAM after promote_level accesses 
+     * e.g. promote_level=0                     never promote (for high speed nvm)
+     *      promote_level=1                     promote at the first access
+     *      promote_level=NVPC_LRU_LEVEL_MAX    promote when access time reaches
+     *                                          NVPC_LRU_LEVEL_MAX
+     */
+    u8 promote_level;   /* less than or equal to NVPC_LRU_LEVEL_MAX */
+
+    // Enable NVPC eviction, which means that the pages in NVPC
+    // can be directly evicted, but dirty pages are processed by SYN subsystem
+    bool nvpc_lru_evict;
+
+    // Temporarily enable NVPC daemon to process extended LRU list
+    // we Also called knvpcd
+    // Do not modify this flag directly, use wakeup_knvpcd()
+    unsigned int knvpcd_should_run;
+
+    // For knvpcd wakeup and sleep, do not use this directly
+    wait_queue_head_t knvpcd_wait;
+
+    // NVXXX: memalloc is managed by free_nvpc_list, so deprecated
+    // wait_queue_head_t pmemalloc_wait;
+    
+    struct task_struct *knvpcd;
+
+    unsigned long knvpcd_nr_to_promote;
+    unsigned long knvpcd_nr_to_reclaim;
+
+    // NVTODO: function undone
+    // atomic_long_t knvpcd_failures; // number of demotes || evictions || promoted == 0 returns
 
     // /* the separator of lru zone and syn zone */
     // void *sep_lru_syn;
@@ -46,14 +82,6 @@ struct nvpc
     /* working lists */
     /* the extension of file-backed lru, after the inactive list */
 
-    /* 
-     * promote to DRAM after promote_level accesses 
-     * e.g. promote_level=0                     never promote (for high speed nvm)
-     *      promote_level=1                     promote at the first access
-     *      promote_level=NVPC_LRU_LEVEL_MAX    promote when access time reaches
-     *                                          NVPC_LRU_LEVEL_MAX
-     */
-    u8 promote_level;   /* less than or equal to NVPC_LRU_LEVEL_MAX */
 
     /*
      * lock order:
@@ -64,8 +92,6 @@ struct nvpc
      *  lru_free_lock   --  only when getting free lru page
      *  syn_lock        --  lock syn list
      *  syn_free_lock   --  only when getting free syn page
-     * 
-     * 
      */
     
     // NVTODO: reconsider the locks
@@ -75,12 +101,11 @@ struct nvpc
     // spinlock_t lru_free_lock;
     spinlock_t syn_lock;
     // spinlock_t syn_free_lock;
+
+
 };
 
 extern struct nvpc nvpc;
-
-#define NVPC_ADDR_LOW   (nvpc.dax_kaddr)
-#define NVPC_ADDR_HIGH  (nvpc.dax_kaddr + (nvpc.len_pg << PAGE_SHIFT))
 
 // #ifdef CONFIG_NVPC
 // static inline bool PageNVPC(struct page *page);
