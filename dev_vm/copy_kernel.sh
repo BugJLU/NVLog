@@ -28,5 +28,3 @@ echo "utils are copied"
 
 sudo umount $VM_DIR/mnt
 echo "done"
-
-reboot
