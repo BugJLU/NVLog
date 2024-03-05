@@ -1582,13 +1582,17 @@ retry:
 #ifdef CONFIG_NVPC
 		// demote
 		if (do_nvpc_pass && 
-			page->mapping && PageSBNVPC(page) && // If inode is nvpc-enabled
 			page_is_file_lru(page) && // this line is redundant
 			!PageAnon(page) &&
 			!PageSwapBacked(page) &&	// only move file-backed pages
 			!PageTransHuge(page) && // huge pages not support yet
 			!PageCompound(page) &&
-			!page_mapped(page))	// page should not be mmapped, keep it in DRAM
+			!page_mapped(page) &&		// page should not be mmapped, keep it in DRAM
+			PageSBNVPC(page) 	// If inode is nvpc-enabled
+#ifdef NVPC_DEMOTE_REFAULT
+			&& PageNVPCDemote(page)
+#endif
+			)	
 		{
 			list_add(&page->lru, &nvpc_demote_pages);
 			unlock_page(page);

@@ -1753,7 +1753,7 @@ static inline bool PageNVPC(struct page *page)
 /* the super block of this page's inode is enabled to use nvpc */
 static inline bool PageSBNVPC(struct page *page)
 {
-	return IS_NVPC_ON(page->mapping->host);
+	return !PageSwapBacked(page) && page->mapping && page->mapping->host && page->mapping->host->i_sb && IS_NVPC_ON(page->mapping->host);
 }
 
 static inline bool nvpc_enabled(void)

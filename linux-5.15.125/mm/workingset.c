@@ -16,6 +16,8 @@
 #include <linux/dax.h>
 #include <linux/fs.h>
 #include <linux/mm.h>
+#include <linux/nvpc_flag.h>
+#include <linux/nvpc.h>
 
 /*
  *		Double CLOCK lists
@@ -388,6 +390,10 @@ void workingset_refault(struct page *page, void *shadow)
 		inc_lruvec_state(lruvec, WORKINGSET_RESTORE_BASE + file);
 	}
 out:
+#if defined(CONFIG_NVPC) && defined(NVPC_DEMOTE_REFAULT)
+	if (refault_distance < get_nvpc()->nvpc_sz)
+		SetPageNVPCDemote(page);
+#endif
 	rcu_read_unlock();
 }
 
@@ -467,6 +473,13 @@ static unsigned long count_shadow_nodes(struct shrinker *shrinker,
 	if (!nodes)
 		return SHRINK_EMPTY;
 
+#if defined(CONFIG_NVPC) && defined(NVPC_DEMOTE_REFAULT)
+	/*
+	 * If we have nvpc demote strategy enabled, we should keep  
+	 * tracking shadow entries with the size of DRAM+NVM always. 
+	 */
+	pages = get_nvpc()->nvpc_sz + totalram_pages();
+#else
 	/*
 	 * Approximate a reasonable limit for the nodes
 	 * containing shadow entries. We don't need to keep more
@@ -505,6 +518,8 @@ static unsigned long count_shadow_nodes(struct shrinker *shrinker,
 	} else
 #endif
 		pages = node_present_pages(sc->nid);
+
+#endif	// NVPC
 
 	max_nodes = pages >> (XA_CHUNK_SHIFT - 3);
 
@@ -605,7 +620,20 @@ static int __init workingset_init(void)
 	 * double the initial memory by using totalram_pages as-is.
 	 */
 	timestamp_bits = BITS_PER_LONG - EVICTION_SHIFT;
+#if defined(CONFIG_NVPC) && defined(NVPC_DEMOTE_REFAULT)
+	/* 
+	 * If we have nvpc demote strategy applied, reserve twice the 
+	 * amount of totalram_pages to calculate the bucket. We want 
+	 * to have some extra room to track more pages that are gonna
+	 * be demoted to NVM, which is larger than DRAM. This will not 
+	 * happen in most cases, as the timestamp_bits is often enough 
+	 * to represent all the DRAM+NVM size (TB level). 
+	 */
+	max_order = fls_long(2 * totalram_pages() - 1);
+#else
 	max_order = fls_long(totalram_pages() - 1);
+#endif
+	// max_order = fls_long(totalram_pages() - 1);
 	if (max_order > timestamp_bits)
 		bucket_order = max_order - timestamp_bits;
 	pr_info("workingset: timestamp_bits=%d max_order=%d bucket_order=%u\n",
