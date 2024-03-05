@@ -381,9 +381,61 @@ out:
     return nr_taken;
 }
 
+static size_t __nvpc_pcpu_get_n_new_page(struct list_head *pages, size_t n)
+{
+    struct page *newpage;
+    struct list_head *list;
+    bool should_get = false;
+    int nr_taken;
+    size_t cnt = 0;
+
+    // If we need too many pages, alloc them from the global list directly. 
+    if (n > this_cpu_read(nvpc_pcpu_free_cnt) * 2 / 3)
+    {
+        return __nvpc_get_n_new_page(pages, n);
+    }
+
+    list = &get_cpu_var(nvpc_pcpu_free_list);
+
+    for (nr_taken = 0; nr_taken < n; nr_taken++)
+    {
+        if (list_empty(list))
+        {
+            // try our best to get pages
+            this_cpu_add(nvpc_pcpu_free_cnt, __nvpc_get_n_new_page(list, nvpc_pcpu_free_sz));
+            // unless we are really drained (T_T)
+            if (list_empty(list))
+            {
+                goto out;
+            }
+        }
+
+        this_cpu_dec(nvpc_pcpu_free_cnt);
+
+        newpage = list_last_entry(list, struct page, lru);
+        list_move(&newpage->lru, pages);
+    }
+    
+    cnt = this_cpu_read(nvpc_pcpu_free_cnt);
+    should_get = cnt < nvpc_pcpu_free_sz / 3;
+out:
+
+    if (should_get)
+        this_cpu_add(nvpc_pcpu_free_cnt, __nvpc_get_n_new_page(list, nvpc_pcpu_free_sz - cnt));
+
+    put_cpu_var(nvpc_pcpu_free_list);
+
+    return nr_taken;
+}
+
 size_t nvpc_get_n_new_page(struct list_head *pages, size_t n)
 {
+#ifndef NVPC_PERCPU_FREELIST
     size_t cnt =  __nvpc_get_n_new_page(pages, n);
+#else
+    size_t cnt =  __nvpc_pcpu_get_n_new_page(pages, n);
+#endif
+    
     struct page *page;
 
     list_for_each_entry(page, pages, lru) {
