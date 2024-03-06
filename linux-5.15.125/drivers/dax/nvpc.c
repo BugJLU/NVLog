@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 2016-2019 Intel Corporation. All rights reserved. */
+/* Copyright(c) 2023-2024 Ownsky. All rights reserved. */
 #include <linux/memremap.h>
 #include <linux/pagemap.h>
 #include <linux/memory.h>
@@ -202,11 +202,12 @@ static int dev_dax_nvpc_probe(struct dev_dax *dev_dax)
 	
 	init_opts.dev = dev_dax->dax_dev;
 	init_opts.nid = numa_node;
-	init_opts.extend_lru = true; 		// NVTEST: Demote
-	init_opts.promote_level = 1; 		// NVTEST: Promote Level
-	init_opts.nvpc_lru_evict = false; 	// NVTEST: Evict
-	init_opts.absorb_syn = false; 		// NVTEST: SYN Subsystem
-	init_opts.nvpc_sz = -1;		 		// NVTEST: NVPC NVM Size
+	init_opts.extend_lru = true; 				// NVTEST: Demote
+	init_opts.promote_level = 0; 				// NVTEST: Promote Level
+	init_opts.demote_before_promote = false;   	// NVTEST: Demote Before Promote
+	init_opts.nvpc_lru_evict = true; 			// NVTEST: Evict
+	init_opts.absorb_syn = false; 				// NVTEST: SYN Subsystem
+	init_opts.nvpc_sz = -1;		 				// NVTEST: NVPC NVM Size
 	init_opts.force = true;
 	init_opts.rebuild = true;
 	rc = init_nvpc(&init_opts);
@@ -309,7 +310,7 @@ static void __exit dax_nvpc_exit(void)
 		kfree_const(nvpc_name);
 }
 
-MODULE_AUTHOR("Intel Corporation");
+MODULE_AUTHOR("Ownsky");
 MODULE_LICENSE("GPL v2");
 module_init(dax_nvpc_init);
 module_exit(dax_nvpc_exit);

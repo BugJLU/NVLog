@@ -1602,6 +1602,24 @@ static inline u8 page_nvpc_lru_cnt_inc(struct page *page)
 
 	return new_cnt;
 }
+static inline u8 page_nvpc_lru_cnt_dec(struct page *page)
+{
+	u8 old_cnt, new_cnt;
+	unsigned long old_flags, new_flags;
+	
+	old_flags = READ_ONCE(page->flags);
+
+	do {
+		old_cnt = (old_flags >> NVPC_LRU_PGSHIFT) & NVPC_LRU_MASK;
+		new_cnt = max((old_cnt - 1), 0);
+
+		new_flags = old_flags;
+		new_flags &= ~(NVPC_LRU_MASK << NVPC_LRU_PGSHIFT);
+		new_flags |= (new_cnt & NVPC_LRU_MASK) << NVPC_LRU_PGSHIFT;
+	} while (!try_cmpxchg(&page->flags, &old_flags, new_flags));
+
+	return new_cnt;
+}
 #else
 static inline u8 page_nvpc_lru_cnt(const struct page *page)
 {
@@ -1609,6 +1627,10 @@ static inline u8 page_nvpc_lru_cnt(const struct page *page)
 }
 static inline void page_nvpc_lru_cnt_set(struct page *page, u8 cnt) { }
 static inline u8 page_nvpc_lru_cnt_inc(struct page *page, u8 cnt)
+{
+	return 0;
+}
+static inline u8 page_nvpc_lru_cnt_dec(struct page *page)
 {
 	return 0;
 }

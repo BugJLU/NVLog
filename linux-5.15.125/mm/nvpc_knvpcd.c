@@ -121,14 +121,18 @@ DEFINE_SPINLOCK(promote_vec_lock);
  * @param sc 
  * @return enum page_references 
  */
-static enum page_references page_check_references(struct page *page,
-						  struct scan_control *sc)
+static enum page_references page_check_references(struct page *page)
 {
-	int referenced_ptes, referenced_page;
+	int referenced_ptes, referenced_page, nvpc_page_cnt;
 	unsigned long vm_flags;
 
-	referenced_ptes = page_referenced(page, 1, NULL, &vm_flags); // NVXXX: memcg is NULL
+	referenced_ptes = page_referenced(page, 1, get_memcg(), &vm_flags);
 	referenced_page = TestClearPageReferenced(page); // previous reference
+
+	nvpc_page_cnt = page_nvpc_lru_cnt_dec(page); // < 0 then reclaim
+	
+	if (referenced_ptes)
+		pr_warn("[nvpc knvpcd page_check_references] referenced_ptes: %d, referenced_page: %d, nvpc_page_cnt: %d, vm_flags: %lx\n", referenced_ptes, referenced_page, nvpc_page_cnt, vm_flags);
 
 	/*
 	 * Mlock lost the isolation race with us.  Let try_to_unmap()
@@ -137,7 +141,14 @@ static enum page_references page_check_references(struct page *page,
 	if (vm_flags & VM_LOCKED)
 		return PAGEREF_RECLAIM;
 
-	if (referenced_ptes) {
+	/*
+	 * If the page count of NVPC is 0 (before decrease), reclaim it. 
+	 * 
+	 */
+	if (nvpc_page_cnt < 0)
+		return PAGEREF_RECLAIM;
+
+	if (referenced_ptes || nvpc_page_cnt >= 0) {
 		/*
 		 * All mapped pages start out with page table
 		 * references from the instantiating fault, so we need
@@ -154,7 +165,7 @@ static enum page_references page_check_references(struct page *page,
 		 */
 		SetPageReferenced(page);
 
-		if (referenced_page || referenced_ptes > 1)
+		if (referenced_page || referenced_ptes > 1 || nvpc_page_cnt > 0)
 			return PAGEREF_ACTIVATE;
 
 		/*
@@ -440,27 +451,27 @@ keep:
 	return nr_reclaimed;
 }
 
-/**
- * @brief 
- * 
- * @param pgdat 
- * @return int 
- */
-static int too_many_isolated_nvpc(struct pglist_data *pgdat)
-{
-	unsigned long nvpc_lru, isolated;
+// /**
+//  * @brief 
+//  * 
+//  * @param pgdat 
+//  * @return int 
+//  */
+// static int too_many_isolated_nvpc(struct pglist_data *pgdat)
+// {
+// 	unsigned long nvpc_lru, isolated;
 
-	if (current_is_knvpcd())
-		return 0;
+// 	if (current_is_knvpcd())
+// 		return 0;
 
-	nvpc_lru = node_page_state(pgdat, NR_NVPC_FILE);
-	isolated = node_page_state(pgdat, NR_ISOLATED_NVPC);
+// 	nvpc_lru = node_page_state(pgdat, NR_NVPC_FILE);
+// 	isolated = node_page_state(pgdat, NR_ISOLATED_NVPC);
 
-	// for optimize the performance, check the threshold
-	// pr_info("[nvpc knvpcd too_many_isolated_nvpc] nvpc_lru: %lu, isolated: %lu\n", nvpc_lru, isolated);
+// 	// for optimize the performance, check the threshold
+// 	// pr_info("[nvpc knvpcd too_many_isolated_nvpc] nvpc_lru: %lu, isolated: %lu\n", nvpc_lru, isolated);
 
-	return isolated > (nvpc_lru >> 3); // using file backed pages, isolated page can be more
-}
+// 	return isolated > (nvpc_lru >> 3); // using file backed pages, isolated page can be more
+// }
 
 
 /**
@@ -531,20 +542,21 @@ promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	unsigned long nr_promoted;
 	unsigned long nr_taken;
 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
-	bool stalled = false;
+	
+	// bool stalled = false;
 
-	while (unlikely(too_many_isolated_nvpc(pgdat))) {
-		if (stalled)
-			return 0;
+	// while (unlikely(too_many_isolated_nvpc(pgdat))) {
+	// 	if (stalled)
+	// 		return 0;
 
-		/* wait a bit for the reclaimer. */
-		msleep(100);
-		stalled = true;
+	// 	/* wait a bit for the reclaimer. */
+	// 	msleep(100);
+	// 	stalled = true;
 
-		/* We are about to die and free our memory. Return now. */
-		if (fatal_signal_pending(current))
-			return SWAP_CLUSTER_MAX;
-	}
+	// 	/* We are about to die and free our memory. Return now. */
+	// 	if (fatal_signal_pending(current))
+	// 		return SWAP_CLUSTER_MAX;
+	// }
 
 	/* in fact, nvpc pages will never be inside a pvec, so we don't drain */
 	// lru_add_drain();
@@ -559,8 +571,8 @@ promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 	nr_promoted = promote_page_list(&page_list, pgdat, sc, false);
 
-	pr_info("[knvpcd nr info promote] _1_ nr_promoted: %lu, nr_taken: %lu\n", 
-		nr_promoted, nr_taken);
+	// pr_info("[knvpcd nr info promote] _1_ nr_promoted: %lu, nr_taken: %lu\n", 
+		// nr_promoted, nr_taken);
 
 	spin_lock_irq(&lruvec->lru_lock);
 	nr_taken = nvpc_move_pages_to_lru_promote(lruvec, &page_list); // After this, page_list will be empty
@@ -569,8 +581,8 @@ promote_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 
 	// NVBUG: free nvpc pages that we won't use here?
 
-	pr_info("[knvpcd nr info promote] _2_ nr_promoted: %lu, nr_taken: %lu\n", 
-			nr_promoted, nr_taken);
+	// pr_info("[knvpcd nr info promote] _2_ nr_promoted: %lu, nr_taken: %lu\n", 
+			// nr_promoted, nr_taken);
 	return nr_promoted;
 }
 
@@ -644,7 +656,7 @@ static unsigned long nvpc_isolate_evict_pages(unsigned long nr_to_scan,
 		struct lruvec *lruvec, struct list_head *dst,
 		unsigned long *nr_scanned, struct scan_control *sc)
 {
-	struct list_head *src = &lruvec->lists[LRU_NVPC_FILE]; // NVPC LRU
+	struct list_head *src = &(lruvec->lists[LRU_NVPC_FILE]); // NVPC LRU
 	unsigned long nr_taken = 0;
 	unsigned long nr_zone_taken[MAX_NR_ZONES] = { 0 };
 	unsigned long scan, total_scan, nr_pages;
@@ -652,17 +664,17 @@ static unsigned long nvpc_isolate_evict_pages(unsigned long nr_to_scan,
 
 	total_scan = 0;
 	scan = 0;
-
+	
 	while (scan < nr_to_scan && !list_empty(src)) {
 		struct list_head *move_to = src;
 		struct page *page;
 
 		page = lru_to_page(src);
-		prefetchw_prev_lru_page(page, src, flags); // NVXXX: enable prefetchw on NVDIMMS?
+		// prefetchw_prev_lru_page(page, src, flags); // NVXXX: enable prefetchw on NVDIMMS?
 
 		nr_pages = compound_nr(page);
 		total_scan += nr_pages;
-
+		
 		if (!PageNVPC(page)) {
 			move_to = &pages_skipped;
 			goto move;
@@ -675,12 +687,16 @@ static unsigned long nvpc_isolate_evict_pages(unsigned long nr_to_scan,
 		 * pages, triggering a premature OOM.
 		 * Account all tail pages of THP.
 		 */
-		scan += nr_pages;
+		scan += nr_pages; // scanned NVPC pages
 
 		if (!PageLRU(page))
+		{
 			goto move;
+		}
 		if (!sc->may_unmap && page_mapped(page))
+		{
 			goto move;
+		}
 
 		/*
 		 * Be careful not to clear PageLRU until after we're
@@ -688,7 +704,9 @@ static unsigned long nvpc_isolate_evict_pages(unsigned long nr_to_scan,
 		 * page release code relies on it.
 		 */
 		if (unlikely(!get_page_unless_zero(page)))
+		{
 			goto move;
+		}
 
 		if (!TestClearPageLRU(page)) {
 			put_page(page);
@@ -874,10 +892,10 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 		mapping = page_mapping(page);
 
 		if (!ignore_references)
-			references = page_check_references(page, sc);
+			references = page_check_references(page);
 
 		switch (references) {
-			case PAGEREF_ACTIVATE: // NVTODO: 2nd chance for NVPC
+			case PAGEREF_ACTIVATE:
 				goto activate_locked;
 			case PAGEREF_KEEP:
 				goto keep_locked;
@@ -938,7 +956,7 @@ static unsigned int shrink_page_list(struct list_head *page_list,
 			}
 		}
 
-		if (!mapping || !__remove_mapping(mapping, page, true, NULL)) // NVXXX: memcg is NULL
+		if (!mapping || !__remove_mapping(mapping, page, true, get_memcg()))
 			goto keep_locked;
 
 		unlock_page(page);
@@ -949,7 +967,7 @@ free_it:
 		continue;
 
 activate_locked:
-		; // NVTODO: 2nd chance for NVPC
+		; // NVXXX: There is no active list in NVPC, so keep it is ok
 
 keep_locked:
 		unlock_page(page);
@@ -991,31 +1009,27 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	unsigned long nr_to_scan;
 	unsigned long nr_scanned;
 	struct pglist_data *pgdat;
-	bool stalled;
+	// bool stalled;
 
-	stalled = false;
+	// stalled = false;
 	pgdat = lruvec_pgdat(lruvec);
 	nr_to_scan = sc->nr_to_reclaim;
 
-	// pr_info("[nvpc knvpcd shrink_nvpc_list] start to scan NVPC pages\n");
+	// while (unlikely(too_many_isolated_nvpc(pgdat))) {
+	// 	if (stalled)
+	// 		return 0;
 
-	while (unlikely(too_many_isolated_nvpc(pgdat))) {
-		if (stalled)
-			return 0;
+	// 	/* wait a bit for the reclaimer. */
+	// 	msleep(100);
+	// 	stalled = true;
 
-		/* wait a bit for the reclaimer. */
-		msleep(100);
-		stalled = true;
-
-		/* We are about to die and free our memory. Return now. */
-		if (fatal_signal_pending(current))
-			return SWAP_CLUSTER_MAX;
-	}
+	// 	/* We are about to die and free our memory. Return now. */
+	// 	if (fatal_signal_pending(current))
+	// 		return SWAP_CLUSTER_MAX;
+	// }
 
 	/* in fact, nvpc pages will never be inside a pvec, so we don't drain */
 	// lru_add_drain();
-
-	// pr_info("[nvpc knvpcd shrink_nvpc_list] after while loop status\n");
 	
 	spin_lock_irq(&lruvec->lru_lock);
 	nr_taken = nvpc_isolate_evict_pages(nr_to_scan, lruvec, &page_list,
@@ -1024,13 +1038,12 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	spin_unlock_irq(&lruvec->lru_lock);
 
 	if (nr_taken == 0) {
-		// pr_warn("[nvpc knvpcd shrink_nvpc_list] no pages to isolate\n");
 		return 0;
 	}
 
 	nr_reclaimed = shrink_page_list(&page_list, pgdat, sc, false);
 
-	// pr_info("[nvpc knvpcd shrink_nvpc_list] after shrink_page_list\n");
+	// pr_crit("[knvpcd shrink_nvpc_list] nr_reclaimed: %lu, nr_taken: %lu\n", nr_reclaimed, nr_taken);
 
 	spin_lock_irq(&lruvec->lru_lock);
 	// page_list will contain pages that will not be moved
@@ -1041,8 +1054,6 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
 	// NVBUG: free nvpc pages that we WON'T USE here?
 	nvpc_free_pages(&page_list);
 
-	pr_info("[knvpcd nr info evict] nr_reclaimed: %lu, nr_taken: %lu\n", 
-			nr_reclaimed, nr_taken);
 	return nr_reclaimed;
 }
 
@@ -1056,12 +1067,18 @@ shrink_nvpc_list(struct lruvec *lruvec, struct scan_control *sc)
  * @param knvpcd_nr_to_promote 
  * @return int 
  */
-static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knvpcd_nr_to_reclaim, unsigned long knvpcd_nr_to_promote)
+static int do_knvpcd_work(struct nvpc *nvpc, unsigned long knvpcd_nr_to_reclaim, unsigned long knvpcd_nr_to_promote)
 {
 	struct lruvec *target_lruvec;
+	struct pglist_data *pgdat;
 	struct blk_plug plug;
 
-	target_lruvec = mem_cgroup_lruvec(NULL, pgdat);
+	nvpc = get_nvpc();
+
+	// NVXXX: lruvec and its appendices must get here or another place inside knvpcd()
+	nvpc->lruvec = target_lruvec = mem_cgroup_page_lruvec(virt_to_page(nvpc->dax_kaddr));
+	nvpc->memcg = page_memcg(virt_to_page(nvpc->dax_kaddr));
+	pgdat = lruvec_pgdat(target_lruvec);
 
     // Evict pages from NVPC to Disk
     if (nvpc->nvpc_lru_evict && knvpcd_nr_to_reclaim)
@@ -1078,12 +1095,12 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
 	    
         blk_start_plug(&plug);
 	    while (nr_to_scan) {
-			unsigned int nr_reclaimed_this_time, nr_to_scan_this_time;
+			unsigned int nr_reclaimed_this_time;
 
 			sc.nr_to_reclaim = min(nr_to_scan, SWAP_CLUSTER_MAX); // only SWAP_CLUSTER_MAX pages can be scanned at once
-		    nr_to_scan -= nr_to_scan_this_time;
             nr_reclaimed_this_time = shrink_nvpc_list(target_lruvec, &sc);
 			nr_reclaimed += nr_reclaimed_this_time;
+		    nr_to_scan -= nr_reclaimed_this_time;
 
 			// pr_info("[NVPC DEBUG] nr_evict_this_time: %u\n", nr_reclaimed_this_time);
 
@@ -1101,7 +1118,7 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
 	// page num is determined by promote_vec_cnt
     if (knvpcd_nr_to_promote)
     {
-	    unsigned long nr_reclaimed = 0;
+	    unsigned long nr_promoted = 0;
 	    unsigned long nr_to_scan;
         struct scan_control sc = {
             .nvpc_promote = 1, // enable promote
@@ -1138,10 +1155,11 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
 	    
         blk_start_plug(&plug);
 	    while (nr_to_scan) {
-			unsigned int nr_promoted_this_time;
-		    nr_to_scan -= min(nr_to_scan, SWAP_CLUSTER_MAX); // only SWAP_CLUSTER_MAX pages can be scanned at once
+			unsigned int nr_promoted_this_time, nr_to_scan_this_time;
+		    nr_to_scan_this_time = min(nr_to_scan, SWAP_CLUSTER_MAX); // only SWAP_CLUSTER_MAX pages can be scanned at once
             nr_promoted_this_time = promote_nvpc_list(target_lruvec, &sc);
-			nr_reclaimed += nr_promoted_this_time;
+			nr_promoted += nr_promoted_this_time;
+			nr_to_scan -= nr_promoted_this_time;
 
 			// pr_info( "[NVPC DEBUG] nr_reclaimed_this_time: %u\n", nr_promoted_this_time);
 
@@ -1149,7 +1167,7 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
 
 			if (!nr_promoted_this_time) // no way to promote more
 				break;
-            if (nr_reclaimed < knvpcd_nr_to_promote) // desired number of pages not reached
+            if (nr_promoted < knvpcd_nr_to_promote) // desired number of pages not reached
                 continue;
 	    }
         blk_finish_plug(&plug);
@@ -1175,7 +1193,6 @@ static int do_knvpcd_work(struct nvpc *nvpc, pg_data_t* pgdat, unsigned long knv
  */
 static int knvpcd(void *p)
 {
-	// NVTODO: we need to write back dirty pages in NVPC ***
 	pg_data_t *pgdat = (pg_data_t *)p;
 	struct task_struct *tsk = current;
 	const struct cpumask *cpumask = cpumask_of_node(pgdat->node_id);
@@ -1215,11 +1232,10 @@ static int knvpcd(void *p)
 		nr_to_reclaim = READ_ONCE(nvpc.knvpcd_nr_to_reclaim);
 		nr_to_promote = READ_ONCE(nvpc.knvpcd_nr_to_promote);
 
+        do_knvpcd_work(&nvpc, nr_to_reclaim, nr_to_promote);
+
 		WRITE_ONCE(nvpc.knvpcd_nr_to_reclaim, 0);
 		WRITE_ONCE(nvpc.knvpcd_nr_to_promote, 0);
-
-        do_knvpcd_work(&nvpc, pgdat, nr_to_reclaim, nr_to_promote);
-
         // NVTODO: trace mm
 		// trace_mm_vmscan_knvpcd_wake(pgdat->node_id, alloc_order);
 	}

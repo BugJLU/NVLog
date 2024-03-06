@@ -62,7 +62,15 @@ struct nvpc
     unsigned long knvpcd_nr_to_promote;
     unsigned long knvpcd_nr_to_reclaim;
 
-    // NVTODO: function undone
+    // When memcg is enabled, we need memcg of the nvpc in knvpcd
+    // must get in knvpcd()
+    struct mem_cgroup *memcg;
+
+    // lruvec for knvpcd
+    // must get in knvpcd()
+    struct lruvec *lruvec;
+
+    // NVTODO: feat undone: failure and direct reclaim
     // atomic_long_t knvpcd_failures; // number of demotes || evictions || promoted == 0 returns
 
     // /* the separator of lru zone and syn zone */

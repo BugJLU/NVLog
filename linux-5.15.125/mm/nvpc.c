@@ -222,6 +222,12 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     nvpc.enabled = true;
     pr_info("NVPC init: NVPC started with %zu pages.\n", nvpc.nvpc_sz);
 
+    // get memcg and lruvec for memory operations and control
+    // However, the memcg and lruvec cannot get from here, just init here
+    // real values will be set in knvpcd()
+    nvpc.memcg = page_memcg(virt_to_page(nvpc.dax_kaddr));
+    nvpc.lruvec = mem_cgroup_page_lruvec(virt_to_page(nvpc.dax_kaddr));
+
     knvpcd_lazy_init(); // nvpc has been activated when kernel init
 
     return 0;

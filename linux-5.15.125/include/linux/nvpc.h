@@ -71,6 +71,11 @@ static inline bool do_nvpc(void)
     return get_nvpc()->enabled && get_nvpc()->extend_lru;
 }
 
+static inline struct mem_cgroup * get_memcg(void)
+{
+    return get_nvpc()->memcg;
+}
+
 void nvpc_get_usage(size_t *free, size_t *syn_usage, size_t *total);
 
 /* 
