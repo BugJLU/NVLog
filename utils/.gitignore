@@ -1,5 +1,4 @@
 nvpcctl
-/ndctl
 start_nvpc.sh
 /perf
 page_owner_sort
