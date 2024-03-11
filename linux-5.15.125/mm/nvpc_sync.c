@@ -2006,7 +2006,7 @@ int nvpc_sync_compact_onehead(log_inode_head_entry *head, nvpc_compact_one_contr
     }
     
 
-    mutex_lock(&inode->nvpc_sync_ilog.compact_lock);
+    // mutex_lock(&inode->nvpc_sync_ilog.compact_lock);
 
     /* 
      * the following are almost same with walk_log, but we only walk to the second last
@@ -2110,6 +2110,7 @@ next:
         // do log pg free logic here
         if (page_ent_status == i)   // full of useless write entries
         {
+            mutex_lock(&inode->nvpc_sync_ilog.compact_lock);
             if (prev_next_log)
             {
                 prev_next_log->next_log_page = NVPC_LOG_ENTRY_NEXT(current_log)->next_log_page;
@@ -2129,6 +2130,7 @@ next:
                 if (ncoc->reclaim_goal <= 0)
                     goto out;
             }
+            mutex_unlock(&inode->nvpc_sync_ilog.compact_lock);
         }
         else
             prev_next_log = NVPC_LOG_ENTRY_NEXT(current_log);
@@ -2141,7 +2143,7 @@ next:
     }
     
 out:
-    mutex_unlock(&inode->nvpc_sync_ilog.compact_lock);
+    // mutex_unlock(&inode->nvpc_sync_ilog.compact_lock);
     iput(inode);
     drop_super(sb);
     return 0;
