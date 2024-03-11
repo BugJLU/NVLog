@@ -26,6 +26,7 @@ struct nvpc_opts
     // size_t syn_sz;  /* in pages */
     bool force; // force to initialize
     bool rebuild; // rebuild the nvpc data in NVM
+    bool __prepared;    // prepared before init, only used by dax driver
 };
 
 // Initialize and finalize the NVPC subsystem

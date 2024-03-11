@@ -151,6 +151,11 @@ int __ref init_nvpc(struct nvpc_opts *opts)
     unsigned long irq_flags;
     int cpu_i;
 
+    pr_info("NVPC init: NVPC init options: extend_lru=%d, absorb_syn=%d, promote_level=%d, "
+            "demote_before_promote=%d, nvpc_lru_evict=%d, nvpc_sz=%d, rebuild=%d, force_start=%d\n", 
+            opts->extend_lru, opts->absorb_syn, opts->promote_level, opts->demote_before_promote, 
+            opts->nvpc_lru_evict, opts->nvpc_sz, opts->rebuild, opts->force);
+
     // NVTODO: this param doesn't make sense
     support_clwb = static_cpu_has(X86_FEATURE_CLWB);
 

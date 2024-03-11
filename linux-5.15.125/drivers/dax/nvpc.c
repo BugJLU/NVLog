@@ -73,6 +73,21 @@ static const struct dax_operations nvpc_dax_ops = {
 	.map_whole_dev = nvpc_map_whole_dev,
 };
 
+#ifdef CONFIG_LIBNVPC
+extern struct nvpc_opts prepared_init_opts;
+#else
+static struct nvpc_opts prepared_init_opts = {0};
+#endif
+static struct nvpc_opts default_opts = {
+	.extend_lru = true, 				// NVTEST: Demote
+	.promote_level = 1, 				// NVTEST: Promote Level
+	.demote_before_promote = true,   	// NVTEST: Demote Before Promote
+	.nvpc_lru_evict = true, 			// NVTEST: Evict
+	.absorb_syn = true, 				// NVTEST: SYN Subsystem
+	.nvpc_sz = -1,		 				// NVTEST: NVPC NVM Size
+	.force = true,
+	.rebuild = true,
+};
 
 static int dev_dax_nvpc_probe(struct dev_dax *dev_dax)
 {
@@ -200,16 +215,17 @@ static int dev_dax_nvpc_probe(struct dev_dax *dev_dax)
 
 	dev_dax->dax_dev = alloc_dax(dax_nvpc, "nvpc", &nvpc_dax_ops, 0);
 	
+	if (prepared_init_opts.__prepared)
+	{
+		init_opts = prepared_init_opts;
+	}
+	else
+	{
+		init_opts = default_opts;
+	}
 	init_opts.dev = dev_dax->dax_dev;
 	init_opts.nid = numa_node;
-	init_opts.extend_lru = true; 				// NVTEST: Demote
-	init_opts.promote_level = 1; 				// NVTEST: Promote Level
-	init_opts.demote_before_promote = true;   	// NVTEST: Demote Before Promote
-	init_opts.nvpc_lru_evict = true; 			// NVTEST: Evict
-	init_opts.absorb_syn = true; 				// NVTEST: SYN Subsystem
-	init_opts.nvpc_sz = -1;		 				// NVTEST: NVPC NVM Size
-	init_opts.force = true;
-	init_opts.rebuild = true;
+
 	rc = init_nvpc(&init_opts);
 
 	return 0;

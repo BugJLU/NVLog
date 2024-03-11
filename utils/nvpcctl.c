@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <sys/ioctl.h>
 
 #define NVPC_NAME "libnvpc"
@@ -22,6 +23,7 @@ typedef unsigned char u8;
 #define LIBNVPC_IOC_TEST    _IOR(LIBNVPC_IOCTL_BASE, 3, u8*)
 #define LIBNVPC_IOC_OPEN    _IOR(LIBNVPC_IOCTL_BASE, 4, u8*)
 #define LIBNVPC_IOC_CLOSE   _IOR(LIBNVPC_IOCTL_BASE, 5, u8*)
+#define LIBNVPC_IOC_CONFIG  _IOR(LIBNVPC_IOCTL_BASE, 6, u8*)
 
 #define PATH_MAX 4096
 
@@ -32,6 +34,26 @@ typedef struct nvpc_usage_s
     size_t syn_used;
 
 } nvpc_usage_t;
+
+struct nvpc_opts
+{
+    // struct dax_device *dev;
+    // int nid;        /* numa node id */
+    void *__reserved1;
+    int __reserved2;
+    bool extend_lru;
+    bool absorb_syn;
+    bool nvpc_lru_evict;
+    u8 promote_level;
+    bool demote_before_promote;
+    size_t nvpc_sz;  /* in pages */
+    // size_t syn_sz;  /* in pages */
+    bool force; // force to initialize
+    bool rebuild; // rebuild the nvpc data in NVM
+    // bool __prepared;    // prepared before init, only used by dax driver
+    bool __reserved3;
+};
+
 
 static int ln_fd;
 
@@ -163,6 +185,144 @@ static void nvpc_test1(char *path, size_t len, char *tmp1)
     }
 }
 
+static void set_nvpc_config(struct nvpc_opts *opts)
+{
+    int ret;
+    if ((ret = ioctl(ln_fd, LIBNVPC_IOC_CONFIG, opts)) < 0)
+    {
+        // this should not happen
+        fprintf(stderr, "Libnvpc error: ioctl failed\n");
+        exit(-1);
+    }
+}
+
+static char splits[] = {' ', '\t', '\n', '\0', '='};
+
+static char *find_split(char *str)
+{
+    char *t = str;
+    while (*t)
+    {
+        for (size_t i = 0; i < sizeof(splits); i++)
+        {
+            if (*t == splits[i])
+            {
+                return t;
+            }
+        }
+        t++;
+    }
+    return t;
+}
+
+static char *__opts_titles[] = {
+    "extend_lru", "absorb_syn", "promote_level", "demote_before_promote", 
+    "nvpc_lru_evict", "nvpc_sz", "rebuild", "force_start"
+};
+static int __opts_titles_sz = 8;
+
+static int __nvpc_set_opt(struct nvpc_opts *opts, char *title, char *value)
+{
+    int i;
+    int val;
+    for (i = 0; i < __opts_titles_sz; i++)
+    {
+        if (!strcmp(title, __opts_titles[i]))
+        {
+            break;
+        }
+    }
+    val = atoi(value);
+    switch (i)
+    {
+    case 0:
+        opts->extend_lru = (bool)val;
+        break;
+    case 1:
+        opts->absorb_syn = (bool)val;
+        break;
+    case 2:
+        opts->promote_level = (u8)val;
+        break;
+    case 3:
+        opts->demote_before_promote = (bool)val;
+        break;
+    case 4:
+        opts->nvpc_lru_evict = (bool)val;
+        break;
+    case 5:
+        opts->nvpc_sz = (size_t)val;
+        break;
+    case 6:
+        opts->rebuild = (bool)val;
+        break;
+    case 7:
+        opts->force = (bool)val;
+        break;
+    
+    default:
+        return -1;
+        break;
+    }
+    return 0;
+}
+
+static int nvpc_prepare_opts(struct nvpc_opts *opts, int argc, char *argv[])
+{
+    char *this, *head, *title, *value, *tmp;
+    for (int i = 0; i < argc; i++)
+    {
+        tmp = head = this = strdup(argv[i]);
+        while (*this)
+        {
+            title = value = this;
+            value=find_split(value);
+            while (*value == ' ')
+            {
+                *value = 0;
+                value++;
+            }
+            
+            if (*value != '=')
+            {
+                free(head);
+                printf("ExpErr1\n");
+                return i+2;
+            }
+            *value = 0;
+            value++;
+            tmp = find_split(value);
+            while (*tmp == ' ' || *tmp == '\t' || *tmp == '\n')
+            {
+                *tmp = 0;
+                tmp++;
+            }
+            if (*tmp == '=')
+            {
+                free(head);
+                printf("ExpErr2\n");
+                return i+2;
+            }
+            else
+            {
+                this = tmp;
+            }
+            if (__nvpc_set_opt(opts, title, value))
+            {
+                free(head);
+                printf("ExpErr3 title %s value %s; \n", title, value);
+                return i+2;
+            }
+            
+            printf("%s - %s; \n", title, value);
+        }
+
+        free(head);
+    }
+    
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     char nv_path[PATH_MAX];
@@ -175,6 +335,7 @@ int main(int argc, char *argv[])
     char tmp[255];
     nvpc_usage_t usage;
     char *tmp1;
+    struct nvpc_opts opts;
 
     if (argc >= 2)
     {
@@ -301,6 +462,19 @@ int main(int argc, char *argv[])
                 flag = 14;
             }
         }
+        else if (!strcmp(argv[1], "config"))
+        {
+            ret = nvpc_prepare_opts(&opts, argc-2, argv+2);
+            if (!ret)
+            {
+                flag = 20;
+            }
+            else
+            {
+                printf("Cannot resolve config %s. \n", argv[ret]);
+            }
+            
+        }
     }
 
     switch (flag)
@@ -397,6 +571,13 @@ int main(int argc, char *argv[])
         system(tmp);
         printf("nvpcctl: nvpc activesync set state to: %d\n", set_flag);
         break;
+    case 20:
+        printf("nvpcctl: setting config\n");
+        open_libnvpc();
+        set_nvpc_config(&opts);
+        close_libnvpc();
+        printf("nvpcctl: done\n");
+        break;
     case 101:
         open_libnvpc();
         nvpc_test1(nv_path, len, tmp1);
@@ -420,6 +601,17 @@ int main(int argc, char *argv[])
             "\tnvpcctl close <path>\n"
             "\tnvpcctl activesync show\n"
             "\tnvpcctl activesync set <0/1>\n"
+            // TODO:
+            "\tnvpcctl config set <option=value> ...:\tsetup config before init\n"
+            "config options:\n"
+            "\textend_lru=<0/1>\n"
+            "\tabsorb_syn=<0/1>\n"
+            "\tpromote_level=<u8>\n"
+            "\tdemote_before_promote=<0/1>\n"
+            "\tnvpc_lru_evict=<0/1>\n"
+            "\tnvpc_sz=<int>:\t-1 means total NVM size\n"
+            "\trebuild=<0/1>\n"
+            "\tforce_start=<0/1>\n"
         );
         break;
     }

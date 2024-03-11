@@ -66,6 +66,23 @@ Note that the path names in `env.sh` are the same as your current kernel paths, 
 
 Deploying NVPC needs NVM devices, whether virtual or real hardwares.
 
+#### Initialize NVPC
+
+You need to finish building and installing our kernel. You also need to finish building our `daxctl` tool in the utils. Now move your step to the utils directory, then run the init script:
+
+```shell
+cd <workdir>/utils
+bash ./nvpc_init.sh
+```
+
+#### Open NVPC on a Mount Point
+
+This will open NVPC on the mount point file system of the given file. 
+
+```shell
+./nvpcctl open <path_to_a_file>
+```
+
 
 ## Evaluation
 

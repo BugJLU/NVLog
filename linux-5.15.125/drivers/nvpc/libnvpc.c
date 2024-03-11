@@ -28,6 +28,7 @@ typedef unsigned char u8;
 #define LIBNVPC_IOC_TEST    _IOR(LIBNVPC_IOCTL_BASE, 3, u8*)
 #define LIBNVPC_IOC_OPEN    _IOR(LIBNVPC_IOCTL_BASE, 4, u8*)
 #define LIBNVPC_IOC_CLOSE   _IOR(LIBNVPC_IOCTL_BASE, 5, u8*)
+#define LIBNVPC_IOC_CONFIG  _IOR(LIBNVPC_IOCTL_BASE, 6, u8*)
 
 #define PATH_MAX 4096
 
@@ -110,9 +111,12 @@ static int close_nvpc_onsb_path(char *fpath)
 
 #else
 
-static struct block_device *nvpc_bdev;
+static struct block_device *nvpc_bdev;  /* Discarded */
 static char nvpc_dev_name[PATH_MAX];
-char nvpc_path_tmp[PATH_MAX];
+static char nvpc_path_tmp[PATH_MAX];
+
+struct nvpc_opts prepared_init_opts = {0};
+EXPORT_SYMBOL(prepared_init_opts);
 
 /* Discarded */
 static int set_nvpc_device_with_path(char *path)
@@ -365,6 +369,11 @@ static long libnvpc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
         if (copy_from_user(nvpc_path_tmp, (char *)arg, PATH_MAX))
             ret = -EFAULT;
         ret = close_nvpc_onsb_path(nvpc_path_tmp);
+        break;
+    case LIBNVPC_IOC_CONFIG:
+        if (ret = copy_from_user(&prepared_init_opts, (char *)arg, sizeof(struct nvpc_opts)))
+            ret = -EFAULT;
+        prepared_init_opts.__prepared = true;
         break;
     default:
         ret = -EPERM;
