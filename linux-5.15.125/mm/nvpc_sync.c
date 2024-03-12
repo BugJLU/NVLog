@@ -2598,6 +2598,8 @@ int nvpc_sync_rebuild()
 }
 
 
+// NVTODO: add/drop page reference when setting/clearing PendingCopy to prevent eviction
+
 // NVTODO: gracefully drop nvpc log when inode is deleted / closed successfully
 
 // --- following are less important ---
