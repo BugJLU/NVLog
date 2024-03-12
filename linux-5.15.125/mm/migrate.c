@@ -610,7 +610,7 @@ void migrate_page_states(struct page *newpage, struct page *page)
 	if (PageDirty(page))
 		SetPageDirty(newpage);
 
-	if (PageNVPCPendingCopy(page))
+	if (PageNVPCPendingCopy(page))	// NVXXX: should this ever happen?
 		SetPageNVPCPendingCopy(newpage);
 	if (PageNVPCNpDirty(page))
 		SetPageNVPCNpDirty(newpage);

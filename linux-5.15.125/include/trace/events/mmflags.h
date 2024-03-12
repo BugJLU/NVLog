@@ -132,7 +132,8 @@ IF_HAVE_PG_NVPC(PG_NVPC_pending_copy, "nvpc_pending_copy")	\
 IF_HAVE_PG_NVPC(PG_NVPC_np_dirty, "nvpc_np_dirty")	\
 IF_HAVE_PG_NVPC(PG_NVPC_pin, "nvpc_pin") \
 IF_HAVE_PG_NVPC(PG_NVPC_p_dirty, "nvpc_p_dirty") \
-IF_HAVE_PG_NVPC(PG_NVPC_demote, "nvpc_demote")
+IF_HAVE_PG_NVPC(PG_NVPC_demote, "nvpc_demote") \
+IF_HAVE_PG_NVPC(PG_NVPC_p_using, "nvpc_p_using") 
 // IF_HAVE_PG_NVPC(PG_NVPC_persistent, "nvpc_persistent")	
 // IF_HAVE_PG_NVPC(PG_NVPC_has_persistent, "nvpc_has_persistent")
 

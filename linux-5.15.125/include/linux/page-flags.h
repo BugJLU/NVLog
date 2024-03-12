@@ -148,6 +148,7 @@ enum pageflags {
 								 * when writeback is performed, log to cancel the page in NVPC */
 	PG_NVPC_p_dirty,			/* nvpc persisted page is dirty compared with disk */
 	PG_NVPC_demote,				/* demote to NVM instead of eviction according to refault distance */
+	PG_NVPC_p_using,			/* NVPC page is used by the persistent domain */ // NVTODO: make use of this
 
 	/* the following bits are not used */
 	// PG_NVPC_persistent, 		/* nvpc page is in persistent mode */
@@ -487,6 +488,8 @@ PAGEFLAG(NVPCPDirty, NVPC_p_dirty, PF_NO_COMPOUND)
 	TESTSCFLAG(NVPCPDirty, NVPC_p_dirty, PF_NO_COMPOUND)
 PAGEFLAG(NVPCDemote, NVPC_demote, PF_NO_COMPOUND)
 	TESTSCFLAG(NVPCDemote, NVPC_demote, PF_NO_COMPOUND)
+PAGEFLAG(NVPCPUsing, NVPC_p_using, PF_NO_COMPOUND)
+	TESTSCFLAG(NVPCPUsing, NVPC_p_using, PF_NO_COMPOUND)
 // PAGEFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
 // 	TESTSCFLAG(NVPCPersistent, NVPC_persistent, PF_NO_COMPOUND)
 // PAGEFLAG(NVPCHasPersistent, NVPC_has_persistent, PF_NO_COMPOUND)

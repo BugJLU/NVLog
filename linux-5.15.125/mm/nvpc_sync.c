@@ -1099,7 +1099,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
         pr_debug("[NVPC DEBUG]: nvpc_fsync_range 3\n");
 
         /* page already inside nvpc */
-        if (PageNVPC(page))
+        if (PageNVPC(page) && 0)    // NVTODO: now disabled
         {
             struct page *log_pg;
 
@@ -1113,11 +1113,13 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                 // copy_highpage(log_pg, page);
                 log_pg = page;
                 SetPageNVPCPendingCopy(log_pg); // pending for lazy write
+                SetPageNVPCPUsing(log_pg); 
             }
             /* if relaxed mode */
             else
             {
                 log_pg = page;
+                SetPageNVPCPUsing(log_pg);
             }
 
             pr_debug("[NVPC DEBUG]: nvpc_fsync_range 4\n");
