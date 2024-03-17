@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
             if (argc == 3)
             {
                 strcpy(nv_path, argv[2]);
-                set_flag = 0;
+                set_flag = 1;   /* default strict */
                 flag = 11;
             } 
             else if (argc == 4)
