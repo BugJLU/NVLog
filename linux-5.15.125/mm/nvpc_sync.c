@@ -726,13 +726,13 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
         
         // prev_ent = xa_load(&trans->inode->nvpc_sync_ilog.inode_log_pages, 
         //     trans->parts[i].file_off >> PAGE_SHIFT);
-        xas_lock_bh(&ilog_xas);
+        xas_lock_irq(&ilog_xas);
         xas_set(&ilog_xas, trans->parts[i].file_off >> PAGE_SHIFT);
         do {
             xas_reset(&ilog_xas);
             prev_ent_info = xas_load(&ilog_xas);
         } while (xas_retry(&ilog_xas, prev_ent_info));
-        xas_unlock_bh(&ilog_xas);
+        xas_unlock_irq(&ilog_xas);
         
         if (prev_ent_info)
         {
@@ -808,11 +808,11 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
             // spin_lock_init(&prev_ent_info->infolock);
             // NVTODO: free all info structs when inode is no longer in use
             
-            xas_lock_bh(&ilog_xas);
+            xas_lock_irq(&ilog_xas);
             do {
                 xas_store(&ilog_xas, prev_ent_info);
             } while (xas_nomem(&ilog_xas, GFP_ATOMIC));
-            xas_unlock_bh(&ilog_xas);
+            xas_unlock_irq(&ilog_xas);
 
             if (xas_error(&ilog_xas))
                 goto err;
@@ -911,7 +911,7 @@ err:
     {
         if (trans->parts[i].rollback)
         {
-            xas_lock_bh(&ilog_xas);
+            xas_lock_irq(&ilog_xas);
             xas_set(&ilog_xas, trans->parts[i].file_off >> PAGE_SHIFT);
             do {
                 xas_reset(&ilog_xas);
@@ -925,12 +925,12 @@ err:
                 // prev_ent_info->latest_write = trans->parts[i]._oldent;
                 // prev_ent_info->latest_p_page = trans->parts[i]._oldpage;
                 // spin_unlock_bh(&prev_ent_info->infolock);
-                xas_unlock_bh(&ilog_xas);; // do nothing, the update is in the second pass
+                xas_unlock_irq(&ilog_xas);; // do nothing, the update is in the second pass
             }
             else
             {
                 xas_store(&ilog_xas, NULL);
-                xas_unlock_bh(&ilog_xas);
+                xas_unlock_irq(&ilog_xas);
                 kfree(prev_ent_info);
             }
             
