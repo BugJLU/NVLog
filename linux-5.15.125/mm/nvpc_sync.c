@@ -710,6 +710,7 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
 {
     int i;
     nvpc_sync_page_info_t *prev_ent_info;
+    unsigned long flags;
 
     XA_STATE(ilog_xas, &trans->inode->nvpc_sync_ilog.inode_log_pages, 0);
 
@@ -847,11 +848,13 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
         
         prev_ent_info = trans->parts[i].info;
         // update page info, lock here because nvpc_mark_page_writeback() may race with us
-        spin_lock_bh(&prev_ent_info->infolock);
+        // spin_lock_bh(&prev_ent_info->infolock);
+        spin_lock_irqsave(&prev_ent_info->infolock, flags);
         prev_ent_info->latest_write = trans->parts[i].ent;
         prev_ent_info->latest_p_page = trans->parts[i].page;
         prev_ent_info->wb_clear_pin = false; // new write, don't clear pin, don't need to rollback this
-        spin_unlock_bh(&prev_ent_info->infolock);
+        // spin_unlock_bh(&prev_ent_info->infolock);
+        spin_unlock_irqrestore(&prev_ent_info->infolock, flags);
         if (trans->parts[i].free_n_mark)
         {
             // previous is oop, just mark and free
@@ -1808,6 +1811,7 @@ void nvpc_print_inode_pages(struct inode *inode)
 void nvpc_mark_page_writeback(struct page *page) 
 {
     struct inode *inode = page->mapping->host;
+    unsigned long flags;
 
     nvpc_sync_page_info_t *prev_ent_info;
     prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, page->index);
@@ -1817,7 +1821,8 @@ void nvpc_mark_page_writeback(struct page *page)
     pr_debug("[NVPC DEBUG]: wb set %px\n", prev_ent_info->latest_write);
     // this assignment is atomic because the page has been locked
     // lock the info to prevent racing with info update in sync commit
-    spin_lock_bh(&prev_ent_info->infolock);
+    // spin_lock_bh(&prev_ent_info->infolock);
+    spin_lock_irqsave(&prev_ent_info->infolock, flags);
     if (!(prev_ent_info->latest_write_on_wb))
     {
         // actually it is ok if we have some old value of latest_write here
@@ -1826,7 +1831,8 @@ void nvpc_mark_page_writeback(struct page *page)
         prev_ent_info->wb_clear_pin = true;
         prev_ent_info->pagecache_page = page;
     }
-    spin_unlock_bh(&prev_ent_info->infolock);
+    // spin_unlock_bh(&prev_ent_info->infolock);
+    spin_unlock_irqrestore(&prev_ent_info->infolock, flags);
     pr_debug("[NVPC DEBUG]: wb set end\n");
 }
 
@@ -1836,6 +1842,7 @@ void nvpc_log_page_writeback(struct page *page)
     struct inode *inode = page->mapping->host;
     int ret;
     bool should_work = false;
+    unsigned long flags;
 
     nvpc_sync_page_info_t *prev_ent_info;
     prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, page->index);
@@ -1844,7 +1851,8 @@ void nvpc_log_page_writeback(struct page *page)
 
     pr_debug("[NVPC DEBUG]: wb clear %px %lu\n", prev_ent_info->latest_write_on_wb, page->index);
     WARN_ON(!prev_ent_info);
-    spin_lock_bh(&prev_ent_info->infolock);
+    // spin_lock_bh(&prev_ent_info->infolock);
+    spin_lock_irqsave(&prev_ent_info->infolock, flags);
     /* 
      * maybe latest_write_on_wb is not set, then we don't do the work. this is bacause 
      * the writeback can started before nvpc do the data logging (fsync_range) work, and
@@ -1857,7 +1865,8 @@ void nvpc_log_page_writeback(struct page *page)
         prev_ent_info->latest_write_on_wb = NULL;
         should_work = true;
     }
-    spin_unlock_bh(&prev_ent_info->infolock);
+    // spin_unlock_bh(&prev_ent_info->infolock);
+    spin_unlock_irqrestore(&prev_ent_info->infolock, flags);
     pr_debug("[NVPC DEBUG]: wb clear unlock\n");
     
     // use work queue to postpone the logging
@@ -1876,6 +1885,7 @@ static void wb_log_work_fn(struct work_struct *work)
     struct page *pagecache_page;
     nvpc_sync_write_entry *wb_write_committed;
     bool wb_clear_pin;
+    unsigned long flags;
 
     pr_debug("[NVPC DEBUG]: wb work fn\n");
     info = container_of(work, nvpc_sync_page_info_t, wb_log_work);
@@ -1885,11 +1895,13 @@ static void wb_log_work_fn(struct work_struct *work)
     pr_debug("[NVPC DEBUG]: wb work fn %px\n", info->wb_write_committed);
 
     // extract info out and release the lock
-    spin_lock_bh(&info->infolock);
+    // spin_lock_bh(&info->infolock);
+    spin_lock_irqsave(&info->infolock, flags);
     pagecache_page = info->pagecache_page;
     wb_write_committed = info->wb_write_committed;
     wb_clear_pin = info->wb_clear_pin;
-    spin_unlock_bh(&info->infolock);
+    // spin_unlock_bh(&info->infolock);
+    spin_unlock_irqrestore(&info->infolock, flags);
 
 
     mutex_lock(&inode->nvpc_sync_ilog.log_lock);
