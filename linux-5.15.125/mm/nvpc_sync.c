@@ -726,13 +726,15 @@ static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *tra
         
         // prev_ent = xa_load(&trans->inode->nvpc_sync_ilog.inode_log_pages, 
         //     trans->parts[i].file_off >> PAGE_SHIFT);
-        xas_lock_irq(&ilog_xas);
+        // xas_lock_irq(&ilog_xas);
+        rcu_read_lock();
         xas_set(&ilog_xas, trans->parts[i].file_off >> PAGE_SHIFT);
         do {
             xas_reset(&ilog_xas);
             prev_ent_info = xas_load(&ilog_xas);
         } while (xas_retry(&ilog_xas, prev_ent_info));
-        xas_unlock_irq(&ilog_xas);
+        // xas_unlock_irq(&ilog_xas);
+        rcu_read_unlock();
         
         if (prev_ent_info)
         {
