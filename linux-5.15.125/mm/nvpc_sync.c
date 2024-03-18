@@ -573,7 +573,11 @@ struct nvpc_sync_transaction
 {
     int count;
     struct inode *inode;
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
     struct nvpc_sync_transaction_part *parts;
+#endif
+    nvpc_sync_log_entry *from;
+    nvpc_sync_log_entry *to;
 };
 
 // e.g. (oop->ip->...->ip)->oop, mark and free those in the bracket
@@ -671,6 +675,7 @@ struct nvpc_chain_mnf_s {
     struct inode *inode;
 };
 
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
 static void nvpc_mark_free_chained_entries_fn(struct work_struct *work)
 {
     struct nvpc_chain_mnf_s *mnf;
@@ -684,6 +689,7 @@ static void nvpc_mark_free_chained_entries_fn(struct work_struct *work)
     kfree(mnf); // NVXXX: can i do this here ???
     pr_debug("[NVPC DEBUG]: mnf fn ok\n");
 }
+#endif
 
 static void wb_log_work_fn(struct work_struct *work);
 static inline struct nvpc_sync_page_info *new_info_struct(struct inode *inode)
@@ -698,6 +704,7 @@ static inline struct nvpc_sync_page_info *new_info_struct(struct inode *inode)
     return info;
 }
 
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
 /* 
  * commit
  *
@@ -706,7 +713,7 @@ static inline struct nvpc_sync_page_info *new_info_struct(struct inode *inode)
  * then update inode_log_pages to current entry.
  * If fail anywhere, return error
  */
-static inline int nvpc_sync_commit_transaction(struct nvpc_sync_transaction *trans)
+static inline int _nvpc_sync_commit_transaction(struct nvpc_sync_transaction *trans)
 {
     int i;
     nvpc_sync_page_info_t *prev_ent_info;
@@ -961,7 +968,7 @@ err:
  *
  * Go through transaction parts, free each page (if not NULL).
  */
-static inline void nvpc_sync_rollback_transaction(struct nvpc_sync_transaction *trans)
+static inline void _nvpc_sync_rollback_transaction(struct nvpc_sync_transaction *trans)
 {
     int i;
     nvpc_sync_page_info_t *prev_ent_info;
@@ -1004,6 +1011,108 @@ static inline void nvpc_sync_rollback_transaction(struct nvpc_sync_transaction *
         nvpc_free_page(trans->parts[i].page, 0);
     }
 }
+#endif
+
+#ifdef NVPC_LIGHT_TRANS
+static bool __commit_wkr(nvpc_sync_log_entry *ent, void *opaque)
+{
+    nvpc_sync_write_entry *went = (nvpc_sync_write_entry *)ent;
+    struct inode *inode = (struct inode *)opaque;
+    if (went->last_write)
+    {
+        nvpc_sync_write_entry *last = (nvpc_sync_write_entry *)nvpc_get_addr(went->last_write);
+        if (last->page_index)
+        {
+            mutex_lock(&inode->nvpc_sync_ilog.compact_lock);
+            __nvpc_mark_free_chained_entries(last, true, false);
+            mutex_unlock(&inode->nvpc_sync_ilog.compact_lock);
+        }
+    }
+    return false;
+    
+}
+struct _nvpc_commit_light_s {
+    struct work_struct work;
+    nvpc_sync_log_entry *from;
+    nvpc_sync_log_entry *to;
+    struct inode *inode;
+};
+static void __commit_light_fn(struct work_struct *work)
+{
+    struct _nvpc_commit_light_s *cs;
+
+    pr_debug("[NVPC DEBUG]: commit fn\n");
+
+    cs = container_of(work, struct _nvpc_commit_light_s, work);
+    walk_log(cs->from, cs->to, __commit_wkr, cs->inode, false);
+    kfree(cs); 
+    pr_debug("[NVPC DEBUG]: commit fn ok\n");
+}
+static inline int _nvpc_sync_commit_transaction_light(struct nvpc_sync_transaction *trans)
+{
+    struct _nvpc_commit_light_s *cs;
+    cs = kmalloc(sizeof(struct _nvpc_commit_light_s), GFP_ATOMIC);
+    if (!cs)
+    {
+        return -1;
+    }
+    
+    nvpc_write_commit();
+    // here all transactional updates are done. following works are mark & free, both can be applied async
+
+    cs->from = trans->from;
+    cs->to = trans->to;
+    cs->inode = trans->inode;
+    INIT_WORK(&cs->work, __commit_light_fn);
+    queue_work(nvpc_sync.nvpc_sync_wq, &cs->work);
+    
+    // never fail
+    return 0;
+}
+
+static bool __rollback_wkr(nvpc_sync_log_entry *ent, void *opaque)
+{
+    nvpc_sync_write_entry *went = (nvpc_sync_write_entry *)ent;
+    if (went->page_index)
+    {
+        void *addr = nvpc_get_addr_pg(went->page_index);
+        // this should not be a previous p-page or a cached np-page anyway, just free it
+        nvpc_free_page(virt_to_page(addr), 0);
+    }
+    // set 0?
+    memset(went, 0, sizeof(nvpc_sync_write_entry));
+    arch_wb_cache_pmem(went, sizeof(nvpc_sync_write_entry*));
+    return false;
+}
+static inline void _nvpc_sync_rollback_transaction_light(struct nvpc_sync_transaction *trans)
+{
+    walk_log(trans->from, trans->to, __rollback_wkr, NULL, false);
+}
+#endif
+
+#if defined (NVPC_COMPACT_ON) 
+#if !defined(NVPC_LIGHT_TRANS)
+#define nvpc_sync_commit_transaction _nvpc_sync_commit_transaction
+#define nvpc_sync_rollback_transaction _nvpc_sync_rollback_transaction
+#else
+#define nvpc_sync_commit_transaction _nvpc_sync_commit_transaction_light
+#define nvpc_sync_rollback_transaction _nvpc_sync_rollback_transaction_light
+#endif
+#endif
+
+static int __write_previous(nvpc_sync_page_info_t *prev_ent_info, struct inode *inode, loff_t off, nvpc_sync_write_entry *this, struct page * ppage)
+{
+    if (!prev_ent_info)
+    {
+        prev_ent_info = new_info_struct(inode);
+        xa_store_irq(&inode->nvpc_sync_ilog.inode_log_pages, off>>PAGE_SHIFT, prev_ent_info, GFP_ATOMIC);
+    }
+    prev_ent_info->wb_clear_pin = false;
+    prev_ent_info->latest_write = this;
+    prev_ent_info->latest_p_page = ppage;
+    return 0;
+}
+
 
 // do write log and update tail respectively, to support transaction
 
@@ -1050,6 +1159,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 
     trans.count = 0;
     trans.inode = inode;
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
     trans.parts = (struct nvpc_sync_transaction_part*)kmalloc_array(
         (end-start)/PAGE_SIZE+2, sizeof(struct nvpc_sync_transaction_part), GFP_ATOMIC);
     if (!trans.parts)
@@ -1057,6 +1167,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
         // drained = true;
         goto fallback;
     }
+#endif
 
     pr_debug("[NVPC DEBUG]: nvpc_fsync_range 1\n");
 
@@ -1074,8 +1185,10 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
         bytes = min_t(unsigned long, PAGE_SIZE - offset, bytes_left);
         index = pos >> PAGE_SHIFT;
         
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
         trans.parts[trans.count].page = NULL;
         trans.parts[trans.count].ent = NULL;
+#endif
 
         page = pagecache_get_page(mapping, index, fgp_flags, mapping_gfp_mask(mapping));
         /* don't need wait_for_stable_page(), because we don't write to the page */
@@ -1132,27 +1245,37 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             // do not need to write anything because the data is already in page cache
 
             arch_wb_cache_pmem(page_to_virt(log_pg), PAGE_SIZE);
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
             if (write_oop(inode, log_pg, pos, (uint16_t)bytes, old_id, 
                 (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
+#else
+            if (write_oop(inode, log_pg, pos, (uint16_t)bytes, old_id, 
+                NULL, &new_tail))
+#endif
             {
                 fail = true;
                 // drained = true;
                 goto out;
             }
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
             trans.parts[trans.count].page = log_pg;
             trans.parts[trans.count].file_off = pos;
+#endif
 
             pr_debug("[NVPC DEBUG]: nvpc_fsync_range 5\n");
         }
         else 
         {
             struct page *nv_pg = NULL;
+            nvpc_sync_page_info_t *prev_ent_info;
+            nvpc_sync_write_entry *newent;
+            prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, index);
             /* relax mode */
             if (!IS_NVPC_STRICT(inode)) 
             {
-                nvpc_sync_page_info_t *prev_ent_info;
-                // search if page is already in nvm, write or malloc
-                prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, index);
+                // nvpc_sync_page_info_t *prev_ent_info;
+                // // search if page is already in nvm, write or malloc
+                // prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, index);
                 if (prev_ent_info)
                     nv_pg = prev_ent_info->latest_p_page;
             }
@@ -1175,18 +1298,25 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                     goto out;
                 }
                 pr_debug("[NVPC DEBUG]: oop @0\n");
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                 if (write_oop(inode, nv_pg, pos, (uint16_t)bytes, old_id, 
                     (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
+#else
+                if (write_oop(inode, nv_pg, pos, (uint16_t)bytes, old_id, 
+                    NULL, &new_tail))
+#endif
                 {
                     fail = true;
                     // drained = true;
                     goto out;
                 }
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                 trans.parts[trans.count].page = nv_pg;
                 trans.parts[trans.count].file_off = pos;
+#endif
             }
             /* strict mode or nv_pg not found */
-            else 
+            else // here is what we are running, only strict mode ---------------------------------------
             {
                 /* bytes is less than ip threshold, and there is previous oop write */
                 // NVTODO: ip when all open fd are sync
@@ -1198,15 +1328,28 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                     kvec.iov_len = bytes;
                     iov_iter_kvec(&i, READ, &kvec, 1, bytes);
                     pr_debug("[NVPC DEBUG]: ip @1\n");
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                     if (write_ip(inode, &i, pos, old_id, 
                         (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
+#else
+                    if (write_ip(inode, &i, pos, old_id, 
+                        (nvpc_sync_log_entry**)&newent, &new_tail))
+#endif
                     {
                         fail = true;
                         // drained = true;
                         goto out;
                     }
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                     // no trans.parts[trans.count].page for ip write
                     trans.parts[trans.count].file_off = pos;
+#else
+                    if (__write_previous(prev_ent_info, inode, pos, newent, NULL))
+                    {
+                        fail = true;
+                        goto out;
+                    }
+#endif
                 }
                 /* large write, or no previous write, oop */
                 else
@@ -1225,15 +1368,28 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                     arch_wb_cache_pmem(page_to_virt(log_pg), PAGE_SIZE);
                     pr_debug("[NVPC DEBUG]: oop @2\n");
                     // oop will add log_pg to nvpc index, migration later can use this info
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                     if (write_oop(inode, log_pg, pos, (uint16_t)bytes, old_id, 
                         (nvpc_sync_log_entry**)&trans.parts[trans.count].ent, &new_tail))
+#else
+                    if (write_oop(inode, log_pg, pos, (uint16_t)bytes, old_id, 
+                        (nvpc_sync_log_entry**)&newent, &new_tail))
+#endif
                     {
                         fail = true;
                         // drained = true;
                         goto out;
                     }
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                     trans.parts[trans.count].page = log_pg;
                     trans.parts[trans.count].file_off = pos;
+#else
+                    if (__write_previous(prev_ent_info, inode, pos, newent, log_pg))
+                    {
+                        fail = true;
+                        goto out;
+                    }
+#endif
                 }
             }
         }
@@ -1267,32 +1423,45 @@ out1:
         trans.count++;
 
     } while (bytes_left);
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
     trans.parts[trans.count].page = NULL; // last part set to NULL
     trans.parts[trans.count].ent = NULL;
+#endif
 
     pr_debug("[NVPC DEBUG]: nvpc_fsync_range 9\n");
 
     // first commit the persistent log tail
     write_commit(inode, old_tail, new_tail);
 
+    trans.from = old_tail;
+    trans.to = NULL;
+#if defined (NVPC_COMPACT_ON)
+    
     // second commit the dram index and the expired mark
     if (nvpc_sync_commit_transaction(&trans))
         goto fallback;
+#endif
 
     mutex_unlock(&inode->nvpc_sync_ilog.log_lock);
 
     pr_debug("[NVPC DEBUG]: nvpc_fsync_range 10\n");
 
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
     kfree(trans.parts);
+#endif
 
     // write_commit(inode, old_tail, new_tail);
     return ret;
 
 fallback:
     pr_debug("[NVPC DEBUG]: meet fallback under fsync\n");
+#if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
     // walk logs and free pages that has been allocated
     if (trans.parts)
         nvpc_sync_rollback_transaction(&trans);
+#elif defined (NVPC_COMPACT_ON) && defined(NVPC_LIGHT_TRANS)
+    nvpc_sync_rollback_transaction(&trans);
+#endif
     inode->nvpc_sync_ilog.log_tail = old_tail;
     inode->nvpc_sync_ilog.log_cntr = old_id;
     mutex_unlock(&inode->nvpc_sync_ilog.log_lock);

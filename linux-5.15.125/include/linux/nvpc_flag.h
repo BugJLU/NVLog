@@ -29,6 +29,7 @@
 #define NVPC_ACTIVE_SYNC_LAT_NVM1   4096  // NVTODO: evaluate this
 
 // #define NVPC_COMPACT_ON
+#define NVPC_LIGHT_TRANS
 #define NVPC_ACTIVE_SYNC_ON
 
 #endif
