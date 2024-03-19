@@ -11,6 +11,7 @@ fi
 
 sudo qemu-img create -f raw $VM_DIR/disk.img 100G
 sudo qemu-img create -f raw $VM_DIR/share.img 50G
+sudo qemu-img create -f raw $VM_DIR/nvme.img 50G
 sudo mkfs ext4 -F $VM_DIR/share.img
 sudo qemu-system-x86_64 -smp 8 -m 8G \
 	-cpu host \
