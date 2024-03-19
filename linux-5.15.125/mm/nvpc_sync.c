@@ -1269,9 +1269,11 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             struct page *nv_pg = NULL;
             nvpc_sync_page_info_t *prev_ent_info;
             nvpc_sync_write_entry *newent;
+#if defined (NVPC_COMPACT_ON) || defined(NVPC_LIGHT_TRANS)
             prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, index);
+#endif
             /* relax mode */
-            if (!IS_NVPC_STRICT(inode)) 
+            if (!IS_NVPC_STRICT(inode)) // abandoned
             {
                 // nvpc_sync_page_info_t *prev_ent_info;
                 // // search if page is already in nvm, write or malloc
@@ -1282,7 +1284,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             pr_debug("[NVPC DEBUG]: nvpc_fsync_range 6\n");
 
             /* relax, and page has been copied to nvm */
-            if (nv_pg)
+            if (nv_pg)  // abandoned
             {
                 // just write to the found page
                 struct iov_iter i;
@@ -1343,7 +1345,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 #if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                     // no trans.parts[trans.count].page for ip write
                     trans.parts[trans.count].file_off = pos;
-#else
+#elif defined(NVPC_LIGHT_TRANS)
                     if (__write_previous(prev_ent_info, inode, pos, newent, NULL))
                     {
                         fail = true;
@@ -1383,7 +1385,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 #if defined (NVPC_COMPACT_ON) && !defined(NVPC_LIGHT_TRANS)
                     trans.parts[trans.count].page = log_pg;
                     trans.parts[trans.count].file_off = pos;
-#else
+#elif defined(NVPC_LIGHT_TRANS)
                     if (__write_previous(prev_ent_info, inode, pos, newent, log_pg))
                     {
                         fail = true;
