@@ -6,3 +6,4 @@ page-types
 synctest
 test
 stresstest.c
+test01_mixrws
