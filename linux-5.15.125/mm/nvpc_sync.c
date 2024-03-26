@@ -1145,7 +1145,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
     fsize = i_size_read(inode);
     if (end > fsize)    // truncate end to fsize
     {
-        pr_info("[NVPC DEBUG]: nvpc_fsync_range cut the end here from %lld to %lld\n", 
+        pr_debug("[NVPC DEBUG]: nvpc_fsync_range cut the end here from %lld to %lld\n", 
             end, fsize);
         end = fsize;
     }
