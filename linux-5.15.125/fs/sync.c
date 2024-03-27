@@ -225,9 +225,14 @@ int vfs_fsync(struct file *file, int datasync)
 		}
 		else if (file->f_flags & O_SYNC) // (nvm_time >= disk_time)
 		{
-			// pr_info("[NVPC DEBUG]: s: active fsync quit. \n");
-			file->nvpc_fsync_tracker.small_sync_time = 0;
-			file->f_flags &= ~O_SYNC;
+			file->nvpc_fsync_tracker.big_sync_time++;
+			if (file->nvpc_fsync_tracker.big_sync_time > file->nvpc_fsync_tracker.sensitivity)
+			{
+				// pr_info("[NVPC DEBUG]: s: active fsync quit. \n");
+				file->nvpc_fsync_tracker.small_sync_time = 0;
+				file->nvpc_fsync_tracker.big_sync_time = 0;
+				file->f_flags &= ~O_SYNC;
+			}
 		}
 
 		if (!(file->f_flags & O_SYNC) && 
@@ -236,6 +241,7 @@ int vfs_fsync(struct file *file, int datasync)
 			// pr_info("[NVPC DEBUG]: s: active fsync start. \n");
 			file->f_flags |= O_SYNC;
 			just_marked = true;
+			file->nvpc_fsync_tracker.big_sync_time = 0;
 		}
 
 		file->nvpc_fsync_tracker.write_since_last_sync = 0;

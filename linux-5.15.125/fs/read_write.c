@@ -612,9 +612,14 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
 			if (file->nvpc_fsync_tracker.write_since_last_sync * NVPC_ACTIVE_SYNC_LAT_NVM >= 
 				nr_all*NVPC_ACTIVE_SYNC_LAT_NVM1)
 			{
-				// pr_info("[NVPC DEBUG]: w: active fsync quit. \n");
-				file->nvpc_fsync_tracker.small_sync_time = 0;
-				file->f_flags &= ~O_SYNC;
+				file->nvpc_fsync_tracker.big_sync_time++;
+				if (file->nvpc_fsync_tracker.big_sync_time > file->nvpc_fsync_tracker.sensitivity)
+				{
+					// pr_info("[NVPC DEBUG]: w: active fsync quit. \n");
+					file->nvpc_fsync_tracker.small_sync_time = 0;
+					file->nvpc_fsync_tracker.big_sync_time = 0;
+					file->f_flags &= ~O_SYNC;
+				}
 			}
 		}
 #endif
@@ -961,9 +966,14 @@ static ssize_t vfs_writev(struct file *file, const struct iovec __user *vec,
 			if (file->nvpc_fsync_tracker.write_since_last_sync * NVPC_ACTIVE_SYNC_LAT_NVM >= 
 				nr_all*NVPC_ACTIVE_SYNC_LAT_NVM1)
 			{
-				// pr_info("[NVPC DEBUG]: wv: active fsync quit. \n");
-				file->nvpc_fsync_tracker.small_sync_time = 0;
-				file->f_flags &= ~O_SYNC;
+				file->nvpc_fsync_tracker.big_sync_time++;
+				if (file->nvpc_fsync_tracker.big_sync_time > file->nvpc_fsync_tracker.sensitivity)
+				{
+					// pr_info("[NVPC DEBUG]: w: active fsync quit. \n");
+					file->nvpc_fsync_tracker.small_sync_time = 0;
+					file->nvpc_fsync_tracker.big_sync_time = 0;
+					file->f_flags &= ~O_SYNC;
+				}
 			}
 		}
 #endif

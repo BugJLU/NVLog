@@ -863,6 +863,7 @@ static int do_dentry_open(struct file *f,
 			f->nvpc_fsync_tracker.should_track = true;
 			f->nvpc_fsync_tracker.write_since_last_sync = 0;
 			f->nvpc_fsync_tracker.small_sync_time = 0;
+			f->nvpc_fsync_tracker.big_sync_time = 0;
 			f->nvpc_fsync_tracker.sensitivity = NVPC_ACTIVE_SYNC_SENSITVT;
 			f->f_inode->nvpc_sync_active.nr_dirtied = 0;
 			f->f_inode->nvpc_sync_active.nr_written = 0;

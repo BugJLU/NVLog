@@ -1071,6 +1071,7 @@ struct file {
 	struct nvpc_fsync_tracker {
 		size_t write_since_last_sync;	// how many bytes written since last sync
 		int small_sync_time;
+		int big_sync_time;
 		int sensitivity;	// how many time of detect before we change sync mode
 		bool should_track;	// false if the file is already O_SYNC
 		/* no lock for this struct, should not be accessed concurrently */
