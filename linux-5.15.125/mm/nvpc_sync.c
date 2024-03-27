@@ -1184,7 +1184,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
     index_off = start >> PAGE_SHIFT;
     end_off = end >> PAGE_SHIFT;
 
-    while (index_off <= end_off)
+    while (index_off <= end_off && index_off != (pgoff_t)-1)
     {
         unsigned pv_i;
         int fallback = 0;
@@ -1201,6 +1201,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             struct page *page = pvec.pages[pv_i];
             pgoff_t index = page->index;
             loff_t offset;
+            loff_t offtail;
             size_t bytes;
             
             /* page should be in the page cache. but maybe it's just evicted? */
@@ -1221,8 +1222,13 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             {
                 pos = (unsigned long long)index<<PAGE_SHIFT;
             }
+            if ((end >> PAGE_SHIFT) == index)
+            {
+                offtail = (end+1) % PAGE_SIZE;  // exclusive tail
+            }
+            
             offset = (pos & (PAGE_SIZE - 1));
-            bytes = min_t(unsigned long, PAGE_SIZE - offset, bytes_left);
+            bytes = offtail - offset; // min_t(unsigned long, PAGE_SIZE - offset, bytes_left);
             
 
 #if defined (NVPC_TRANS_ON) && !defined(NVPC_LIGHT_TRANS)
