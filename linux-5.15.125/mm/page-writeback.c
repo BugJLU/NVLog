@@ -2508,6 +2508,7 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 	{
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
+		xa_set_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty\n");
 		if (page->mapping)
 			page->mapping->host->nvpc_sync_active.nr_dirtied++;
@@ -2535,6 +2536,7 @@ int __set_page_dirty_nobuffers(struct page *page)
 	{
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
+		xa_set_mark(&page->mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty_nobuffers\n");
 		page->mapping->host->nvpc_sync_active.nr_dirtied++;
 	}
@@ -2637,6 +2639,7 @@ int set_page_dirty(struct page *page)
 	{
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
+		xa_set_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ set_page_dirty\n");
 		page->mapping->host->nvpc_sync_active.nr_dirtied++;
 	}

@@ -643,6 +643,7 @@ int __set_page_dirty_buffers(struct page *page)
 	{
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
+		xa_set_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty_buffers\n");
 	}
 #endif
@@ -1100,6 +1101,7 @@ void mark_buffer_dirty(struct buffer_head *bh)
 	{
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
+		xa_set_mark(&page->mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ mark_buffer_dirty\n");
 	}
 #endif

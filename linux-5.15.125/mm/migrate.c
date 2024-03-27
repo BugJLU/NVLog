@@ -613,7 +613,12 @@ void migrate_page_states(struct page *newpage, struct page *page)
 	if (PageNVPCPendingCopy(page))	// NVXXX: should this ever happen?
 		SetPageNVPCPendingCopy(newpage);
 	if (PageNVPCNpDirty(page))
+	{
 		SetPageNVPCNpDirty(newpage);
+		/* the tag should already be set */
+		// if (newpage->mapping)
+		// 	xa_set_mark(&newpage->mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+	}
 	if (PageNVPCPin(page))
 		SetPageNVPCPin(newpage);
 	if (PageNVPCPDirty(page))

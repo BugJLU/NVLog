@@ -1189,7 +1189,10 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
         unsigned pv_i;
         int fallback = 0;
         nr_pages = pagevec_lookup_range_tag(&pvec, mapping, &index_off,
-				end_off, PAGECACHE_TAG_DIRTY);
+				end_off, PAGECACHE_TAG_TOWRITE);    
+                // we should use actually PAGECACHE_TAG_DIRTY, but it is toooo slow... 
+                // it is ok if we have more TOWRITE for writeback work, and it is also
+                // ok if TOWRITE is cleared by some writeback work. 
         if (!nr_pages)
 			break;
         
@@ -1235,6 +1238,14 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
                 /* -ENOMEM */
                 // fail = true;
                 // drained = true;
+                goto out1;
+            }
+
+            /* only persist dirty non-persisted pages in npvc; pre-check to avoid lock */
+            if (!PageNVPCNpDirty(page))
+            {
+                pr_debug("[NVPC DEBUG]: nvpc_fsync_range (!PageNVPCNpDirty(page))\n");
+                pr_debug("[NVPC DEBUG]: nvpc_fsync_range dirty? %d\n", PageDirty(page));
                 goto out1;
             }
 
@@ -1442,6 +1453,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             * be newer than nvpc and thus cause inconsistency on recovery.
             */
             ClearPageNVPCNpDirty(page);
+            xa_clear_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
             // PageNVPCPDirty is cleared on writeback finish
             SetPageNVPCPin(page);
             SetPageNVPCPDirty(page);
