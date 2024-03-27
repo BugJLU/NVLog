@@ -1206,6 +1206,12 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             /* page should be in the page cache. but maybe it's just evicted? */
             // int fgp_flags = FGP_LOCK;
 
+            if ((start >> PAGE_SHIFT) > index || (end >> PAGE_SHIFT) < index)
+            {
+                /* maybe we are fetching a page that writeback is using, which is out of our expected range */
+                continue;
+            }
+            
             if (((unsigned long long)index<<PAGE_SHIFT) <= start)
             {
                 WARN_ON(index != (start >> PAGE_SHIFT));
