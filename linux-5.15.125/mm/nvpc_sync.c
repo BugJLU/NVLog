@@ -1203,6 +1203,7 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             loff_t offset;
             loff_t offtail;
             size_t bytes;
+            unsigned long irqflags;
             
             /* page should be in the page cache. but maybe it's just evicted? */
             // int fgp_flags = FGP_LOCK;
@@ -1465,7 +1466,10 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
             * be newer than nvpc and thus cause inconsistency on recovery.
             */
             ClearPageNVPCNpDirty(page);
-            xa_clear_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+            xa_lock_irqsave(&mapping->i_pages, irqflags);
+            __xa_clear_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+            xa_unlock_irqrestore(&page->mapping->i_pages, irqflags);
+            
             // PageNVPCPDirty is cleared on writeback finish
             SetPageNVPCPin(page);
             SetPageNVPCPDirty(page);

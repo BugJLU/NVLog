@@ -641,9 +641,12 @@ int __set_page_dirty_buffers(struct page *page)
 #ifdef CONFIG_NVPC
 	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
 	{
+		unsigned long flags;
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
-		xa_set_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+		xa_lock_irqsave(&mapping->i_pages, flags);
+		__xa_set_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+		xa_unlock_irqrestore(&mapping->i_pages, flags);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty_buffers\n");
 	}
 #endif
@@ -1099,9 +1102,12 @@ void mark_buffer_dirty(struct buffer_head *bh)
 #ifdef CONFIG_NVPC
 	if (page_mapping(page) && PageSBNVPC(page) && get_nvpc()->absorb_syn)
 	{
+		unsigned long flags;
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
-		xa_set_mark(&page->mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+		xa_lock_irqsave(&page->mapping->i_pages, flags);
+		__xa_set_mark(&page->mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+		xa_unlock_irqrestore(&page->mapping->i_pages, flags);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ mark_buffer_dirty\n");
 	}
 #endif

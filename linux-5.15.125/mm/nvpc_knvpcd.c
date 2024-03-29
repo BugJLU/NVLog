@@ -795,8 +795,8 @@ static int __remove_mapping(struct address_space *mapping, struct page *page,
 	if (PageSwapCache(page)) {
 		swp_entry_t swap = { .val = page_private(page) };
 		mem_cgroup_swapout(page, swap);
-		if (reclaimed && !mapping_exiting(mapping))
-			shadow = workingset_eviction(page, target_memcg);
+		// if (reclaimed && !mapping_exiting(mapping))
+		// 	shadow = workingset_eviction(page, target_memcg);
 		__delete_from_swap_cache(page, swap, shadow);
 		xa_unlock_irq(&mapping->i_pages);
 		put_swap_page(page, swap);
@@ -820,9 +820,9 @@ static int __remove_mapping(struct address_space *mapping, struct page *page,
 		 * exceptional entries and shadow exceptional entries in the
 		 * same address_space.
 		 */
-		if (reclaimed && page_is_file_lru(page) &&
-		    !mapping_exiting(mapping) && !dax_mapping(mapping))
-			shadow = workingset_eviction(page, target_memcg);
+		// if (reclaimed && page_is_file_lru(page) &&
+		//     !mapping_exiting(mapping) && !dax_mapping(mapping))
+		// 	shadow = workingset_eviction(page, target_memcg);
 		__delete_from_page_cache(page, shadow);
 		xa_unlock_irq(&mapping->i_pages);
 

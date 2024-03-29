@@ -266,6 +266,13 @@ void *workingset_eviction(struct page *page, struct mem_cgroup *target_memcg)
 	VM_BUG_ON_PAGE(page_count(page), page);
 	VM_BUG_ON_PAGE(!PageLocked(page), page);
 
+#if defined(CONFIG_NVPC) && defined(NVPC_DEMOTE_REFAULT)
+	if (PageSBNVPC(page))
+	{
+		pr_debug("[NVPC DEBUG]: shadow added\n");
+	}
+#endif
+
 	lruvec = mem_cgroup_lruvec(target_memcg, pgdat);
 	/* XXX: target_memcg can be NULL, go through lruvec */
 	memcgid = mem_cgroup_id(lruvec_memcg(lruvec));
@@ -391,7 +398,11 @@ void workingset_refault(struct page *page, void *shadow)
 	}
 out:
 #if defined(CONFIG_NVPC) && defined(NVPC_DEMOTE_REFAULT)
-	if (refault_distance < get_nvpc()->nvpc_sz)
+	if (PageSBNVPC(page))
+	{
+		pr_debug("[NVPC DEBUG]: refault=%lu\n", refault_distance);
+	}
+	if (PageSBNVPC(page) && refault_distance < get_nvpc()->nvpc_sz)
 		SetPageNVPCDemote(page);
 #endif
 	rcu_read_unlock();
@@ -551,6 +562,12 @@ static enum lru_status shadow_lru_isolate(struct list_head *item,
 
 	mapping = container_of(node->array, struct address_space, i_pages);
 
+#if defined(CONFIG_NVPC) && defined(NVPC_DEMOTE_REFAULT)
+	if (IS_NVPC_ON(mapping->host))
+	{
+		pr_debug("[NVPC DEBUG]: reclaiming shadow entry node for NVPC.\n");
+	}
+#endif
 	/* Coming from the list, invert the lock order */
 	if (!xa_trylock(&mapping->i_pages)) {
 		spin_unlock_irq(lru_lock);
