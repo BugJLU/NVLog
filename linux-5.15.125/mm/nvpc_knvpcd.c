@@ -318,26 +318,31 @@ static void nvpc_check_page(struct page * page)
 	// VM_BUG_ON_PAGE(PageLocked(page), page);
 }
 
-/**
- * @brief Update LRU sizes after isolating pages. The LRU size updates must
- * be complete before mem_cgroup_update_lru_size due to a sanity check.
- * 
- * @param lruvec 
- * @param lru 
- * @param nr_zone_taken 
- */
+// /**
+//  * @brief Update LRU sizes after isolating pages. The LRU size updates must
+//  * be complete before mem_cgroup_update_lru_size due to a sanity check.
+//  * 
+//  * @param lruvec 
+//  * @param lru 
+//  * @param nr_zone_taken 
+//  */
+// static __always_inline void update_lru_sizes(struct lruvec *lruvec,
+// 			enum lru_list lru, unsigned long *nr_zone_taken)
+// {
+// 	int zid;
+
+// 	for (zid = 0; zid < MAX_NR_ZONES; zid++) {
+// 		if (!nr_zone_taken[zid])
+// 			continue;
+
+// 		update_lru_size(lruvec, lru, zid, -nr_zone_taken[zid]);
+// 	}
+
+// }
 static __always_inline void update_lru_sizes(struct lruvec *lruvec,
 			enum lru_list lru, unsigned long *nr_zone_taken)
 {
-	int zid;
-
-	for (zid = 0; zid < MAX_NR_ZONES; zid++) {
-		if (!nr_zone_taken[zid])
-			continue;
-
-		update_lru_size(lruvec, lru, zid, -nr_zone_taken[zid]);
-	}
-
+	return;
 }
 
 /**
