@@ -164,12 +164,12 @@ walk_page:
     else
     {
         next_sl_page_entry* ne = NVPC_SL_ENTRY_NEXT(current_superlog);
-        ne->flags = NVPC_LOG_HEAD_FLAG_NEXT;
         ne->next_sl_page = current_superlog = create_new_log_page();
         if (!current_superlog)
         {
             return NULL;
         }
+        ne->flags = NVPC_LOG_HEAD_FLAG_NEXT;
         
         arch_wb_cache_pmem((void*)ne, sizeof(next_sl_page_entry));
         // nvpc_write_commit();
