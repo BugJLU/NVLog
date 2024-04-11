@@ -31,14 +31,14 @@ Since our code implementation is based on a specific linux kernel (5.15.125), pl
 If you just want to test that the functionality we have implemented in VM, the hardware required is as follows:
 
 - CPU: x86_64 CPU with multiple cores
-- Memory: 8GB and more
-- Disk: 80GB and bigger disk(s)
+- Memory: 16GB and more
+- Disk: 100GB and bigger disk(s)
 - Virtualization: KVM enabled
 
 But if you need to reproduce the evaluation part of our article, the hardware required is as follows:
 
 - CPU: 2nd Generation Intel Xeon Processor Scalable Processors and newer CPUs which support Intel Optane DCPMM
-- Memory: 64GB DDR4 3200 Registered ECC Memory
+- Memory: 128GB DDR4 ECC Memory
 - NVM: 1st Gen Intel Optane DCPMM 256GB (128GB*2)
 - Disk: NVMe PCI-e 3.0 SSD 1.92TB
 
