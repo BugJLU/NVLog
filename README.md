@@ -91,7 +91,7 @@ This will open NVPC on the mount point file system of the given file.
 ### Figure 2
 
 
-### Cite
+<!-- ### Cite
 
 ```bibtex
 @inproceedings{guoyuNVPC2024,
@@ -105,7 +105,7 @@ This will open NVPC on the mount point file system of the given file.
     keywords = {},
     pages = {xxxxxxxxx-xxxxxxxxxx},
 }
-```
+``` -->
 
 ## References
 
