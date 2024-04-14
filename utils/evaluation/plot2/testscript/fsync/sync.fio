@@ -1,0 +1,22 @@
+[global]
+rw=${OP}
+bs=${IOSZ}
+size=2g
+disk_util=0
+disable_lat=1
+disable_slat=1
+disable_clat=1
+lat_percentiles=0
+slat_percentiles=0
+clat_percentiles=0
+;group_reporting
+numjobs=1
+
+; 0 for none 1 for sync
+fsync=1
+directory=/mnt/nvpcssd/
+filename=file2g
+exitall_on_error
+file_append=${APPEND}
+
+[job1]

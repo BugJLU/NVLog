@@ -1,0 +1,732 @@
+OP=write IOSIZE=16k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=1 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 4096MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2374: Tue Mar 19 12:15:47 2024
+  write: IOPS=55.2k, BW=862MiB/s (904MB/s)(2048MiB/2375msec); 0 zone resets
+   bw (  KiB/s): min=876384, max=886528, per=100.00%, avg=883240.00, stdev=4627.98, samples=4
+   iops        : min=54774, max=55408, avg=55202.50, stdev=289.25, samples=4
+  cpu          : usr=3.83%, sys=96.04%, ctx=257, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=862MiB/s (904MB/s), 862MiB/s-862MiB/s (904MB/s-904MB/s), io=2048MiB (2147MB), run=2375-2375msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2436: Tue Mar 19 12:15:58 2024
+  write: IOPS=55.3k, BW=863MiB/s (905MB/s)(2048MiB/2372msec); 0 zone resets
+   bw (  KiB/s): min=876736, max=891616, per=100.00%, avg=885040.00, stdev=7114.59, samples=4
+   iops        : min=54796, max=55726, avg=55315.00, stdev=444.66, samples=4
+  cpu          : usr=4.85%, sys=95.02%, ctx=251, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=863MiB/s (905MB/s), 863MiB/s-863MiB/s (905MB/s-905MB/s), io=2048MiB (2147MB), run=2372-2372msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2498: Tue Mar 19 12:16:09 2024
+  write: IOPS=55.3k, BW=864MiB/s (906MB/s)(2048MiB/2369msec); 0 zone resets
+   bw (  KiB/s): min=877216, max=894688, per=100.00%, avg=885824.00, stdev=7419.81, samples=4
+   iops        : min=54826, max=55918, avg=55364.00, stdev=463.74, samples=4
+  cpu          : usr=3.51%, sys=96.28%, ctx=254, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=864MiB/s (906MB/s), 864MiB/s-864MiB/s (906MB/s-906MB/s), io=2048MiB (2147MB), run=2369-2369msec
+OP=write IOSIZE=16k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2560: Tue Mar 19 12:16:23 2024
+  write: IOPS=55.0k, BW=860MiB/s (902MB/s)(2048MiB/2382msec); 0 zone resets
+   bw (  KiB/s): min=873536, max=887104, per=100.00%, avg=881120.00, stdev=6496.29, samples=4
+   iops        : min=54596, max=55444, avg=55070.00, stdev=406.02, samples=4
+  cpu          : usr=5.17%, sys=94.75%, ctx=249, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=860MiB/s (902MB/s), 860MiB/s-860MiB/s (902MB/s-902MB/s), io=2048MiB (2147MB), run=2382-2382msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2621: Tue Mar 19 12:16:34 2024
+  write: IOPS=55.0k, BW=860MiB/s (902MB/s)(2048MiB/2382msec); 0 zone resets
+   bw (  KiB/s): min=879168, max=886688, per=100.00%, avg=882472.00, stdev=3463.93, samples=4
+   iops        : min=54948, max=55418, avg=55154.50, stdev=216.50, samples=4
+  cpu          : usr=2.65%, sys=97.14%, ctx=248, majf=0, minf=9
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=860MiB/s (902MB/s), 860MiB/s-860MiB/s (902MB/s-902MB/s), io=2048MiB (2147MB), run=2382-2382msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2682: Tue Mar 19 12:16:45 2024
+  write: IOPS=55.5k, BW=867MiB/s (909MB/s)(2048MiB/2363msec); 0 zone resets
+   bw (  KiB/s): min=879232, max=896064, per=100.00%, avg=887896.00, stdev=7169.49, samples=4
+   iops        : min=54952, max=56004, avg=55493.50, stdev=448.09, samples=4
+  cpu          : usr=6.56%, sys=93.23%, ctx=247, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=867MiB/s (909MB/s), 867MiB/s-867MiB/s (909MB/s-909MB/s), io=2048MiB (2147MB), run=2363-2363msec
+OP=randwrite IOSIZE=16k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2826: Tue Mar 19 12:16:58 2024
+  write: IOPS=54.0k, BW=843MiB/s (884MB/s)(2048MiB/2428msec); 0 zone resets
+   bw (  KiB/s): min=859360, max=867680, per=99.97%, avg=863456.00, stdev=4416.46, samples=4
+   iops        : min=53710, max=54230, avg=53966.00, stdev=276.03, samples=4
+  cpu          : usr=4.74%, sys=95.14%, ctx=253, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=843MiB/s (884MB/s), 843MiB/s-843MiB/s (884MB/s-884MB/s), io=2048MiB (2147MB), run=2428-2428msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2890: Tue Mar 19 12:17:10 2024
+  write: IOPS=54.3k, BW=848MiB/s (889MB/s)(2048MiB/2415msec); 0 zone resets
+   bw (  KiB/s): min=862336, max=871488, per=100.00%, avg=868568.00, stdev=4197.69, samples=4
+   iops        : min=53896, max=54468, avg=54285.50, stdev=262.36, samples=4
+  cpu          : usr=4.43%, sys=95.40%, ctx=252, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=848MiB/s (889MB/s), 848MiB/s-848MiB/s (889MB/s-889MB/s), io=2048MiB (2147MB), run=2415-2415msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2954: Tue Mar 19 12:17:21 2024
+  write: IOPS=53.9k, BW=842MiB/s (883MB/s)(2048MiB/2432msec); 0 zone resets
+   bw (  KiB/s): min=855360, max=868096, per=99.96%, avg=861936.00, stdev=6287.57, samples=4
+   iops        : min=53460, max=54256, avg=53871.00, stdev=392.97, samples=4
+  cpu          : usr=4.24%, sys=95.68%, ctx=254, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=842MiB/s (883MB/s), 842MiB/s-842MiB/s (883MB/s-883MB/s), io=2048MiB (2147MB), run=2432-2432msec
+OP=write IOSIZE=4k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=1 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3017: Tue Mar 19 12:17:34 2024
+  write: IOPS=202k, BW=790MiB/s (828MB/s)(2048MiB/2593msec); 0 zone resets
+   bw (  KiB/s): min=802936, max=815600, per=100.00%, avg=808893.00, stdev=5557.20, samples=5
+   iops        : min=200734, max=203900, avg=202223.20, stdev=1389.36, samples=5
+  cpu          : usr=10.19%, sys=89.70%, ctx=270, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=790MiB/s (828MB/s), 790MiB/s-790MiB/s (828MB/s-828MB/s), io=2048MiB (2147MB), run=2593-2593msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3079: Tue Mar 19 12:17:46 2024
+  write: IOPS=204k, BW=799MiB/s (838MB/s)(2048MiB/2564msec); 0 zone resets
+   bw (  KiB/s): min=811336, max=822960, per=100.00%, avg=818457.60, stdev=4623.76, samples=5
+   iops        : min=202834, max=205740, avg=204614.40, stdev=1155.94, samples=5
+  cpu          : usr=10.57%, sys=89.27%, ctx=270, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=799MiB/s (838MB/s), 799MiB/s-799MiB/s (838MB/s-838MB/s), io=2048MiB (2147MB), run=2564-2564msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3140: Tue Mar 19 12:17:57 2024
+  write: IOPS=205k, BW=803MiB/s (841MB/s)(2048MiB/2552msec); 0 zone resets
+   bw (  KiB/s): min=813528, max=826088, per=100.00%, avg=822075.20, stdev=5241.05, samples=5
+   iops        : min=203382, max=206522, avg=205518.80, stdev=1310.26, samples=5
+  cpu          : usr=9.53%, sys=90.24%, ctx=269, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=803MiB/s (841MB/s), 803MiB/s-803MiB/s (841MB/s-841MB/s), io=2048MiB (2147MB), run=2552-2552msec
+OP=write IOSIZE=4k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3201: Tue Mar 19 12:18:11 2024
+  write: IOPS=205k, BW=802MiB/s (841MB/s)(2048MiB/2553msec); 0 zone resets
+   bw (  KiB/s): min=816176, max=826944, per=100.00%, avg=822158.40, stdev=4517.78, samples=5
+   iops        : min=204044, max=206736, avg=205539.60, stdev=1129.45, samples=5
+  cpu          : usr=11.87%, sys=87.93%, ctx=272, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=802MiB/s (841MB/s), 802MiB/s-802MiB/s (841MB/s-841MB/s), io=2048MiB (2147MB), run=2553-2553msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3262: Tue Mar 19 12:18:22 2024
+  write: IOPS=203k, BW=794MiB/s (833MB/s)(2048MiB/2579msec); 0 zone resets
+   bw (  KiB/s): min=809736, max=817224, per=100.00%, avg=813801.60, stdev=2828.81, samples=5
+   iops        : min=202434, max=204306, avg=203450.00, stdev=707.36, samples=5
+  cpu          : usr=10.67%, sys=89.26%, ctx=271, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=794MiB/s (833MB/s), 794MiB/s-794MiB/s (833MB/s-833MB/s), io=2048MiB (2147MB), run=2579-2579msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3323: Tue Mar 19 12:18:34 2024
+  write: IOPS=202k, BW=790MiB/s (828MB/s)(2048MiB/2593msec); 0 zone resets
+   bw (  KiB/s): min=802720, max=813264, per=100.00%, avg=809171.20, stdev=4422.79, samples=5
+   iops        : min=200680, max=203316, avg=202292.80, stdev=1105.70, samples=5
+  cpu          : usr=9.99%, sys=89.81%, ctx=271, majf=0, minf=9
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=790MiB/s (828MB/s), 790MiB/s-790MiB/s (828MB/s-828MB/s), io=2048MiB (2147MB), run=2593-2593msec
+OP=randwrite IOSIZE=4k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3384: Tue Mar 19 12:18:47 2024
+  write: IOPS=188k, BW=733MiB/s (769MB/s)(2048MiB/2794msec); 0 zone resets
+   bw (  KiB/s): min=743664, max=754616, per=99.88%, avg=749667.20, stdev=5381.70, samples=5
+   iops        : min=185916, max=188654, avg=187416.80, stdev=1345.42, samples=5
+  cpu          : usr=14.46%, sys=85.36%, ctx=294, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=733MiB/s (769MB/s), 733MiB/s-733MiB/s (769MB/s-769MB/s), io=2048MiB (2147MB), run=2794-2794msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3445: Tue Mar 19 12:18:59 2024
+  write: IOPS=190k, BW=744MiB/s (780MB/s)(2048MiB/2753msec); 0 zone resets
+   bw (  KiB/s): min=756952, max=767264, per=99.98%, avg=761643.20, stdev=4236.71, samples=5
+   iops        : min=189238, max=191816, avg=190410.80, stdev=1059.18, samples=5
+  cpu          : usr=11.30%, sys=88.55%, ctx=288, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=744MiB/s (780MB/s), 744MiB/s-744MiB/s (780MB/s-780MB/s), io=2048MiB (2147MB), run=2753-2753msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3507: Tue Mar 19 12:19:11 2024
+  write: IOPS=183k, BW=716MiB/s (751MB/s)(2048MiB/2860msec); 0 zone resets
+   bw (  KiB/s): min=714208, max=751200, per=99.89%, avg=732427.20, stdev=13583.18, samples=5
+   iops        : min=178552, max=187800, avg=183106.80, stdev=3395.79, samples=5
+  cpu          : usr=10.32%, sys=89.47%, ctx=304, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=716MiB/s (751MB/s), 716MiB/s-716MiB/s (751MB/s-751MB/s), io=2048MiB (2147MB), run=2860-2860msec
+OP=write IOSIZE=1k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=1 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3569: Tue Mar 19 12:19:29 2024
+  write: IOPS=276k, BW=269MiB/s (283MB/s)(2048MiB/7600msec); 0 zone resets
+   bw (  KiB/s): min=272970, max=278082, per=100.00%, avg=276004.80, stdev=1274.12, samples=15
+   iops        : min=272972, max=278082, avg=276004.93, stdev=1273.78, samples=15
+  cpu          : usr=14.13%, sys=85.76%, ctx=822, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=269MiB/s (283MB/s), 269MiB/s-269MiB/s (283MB/s-283MB/s), io=2048MiB (2147MB), run=7600-7600msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3630: Tue Mar 19 12:19:46 2024
+  write: IOPS=281k, BW=275MiB/s (288MB/s)(2048MiB/7452msec); 0 zone resets
+   bw (  KiB/s): min=277554, max=283222, per=99.99%, avg=281384.71, stdev=1714.78, samples=14
+   iops        : min=277554, max=283222, avg=281384.57, stdev=1714.96, samples=14
+  cpu          : usr=11.74%, sys=88.18%, ctx=780, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=275MiB/s (288MB/s), 275MiB/s-275MiB/s (288MB/s-288MB/s), io=2048MiB (2147MB), run=7452-7452msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3692: Tue Mar 19 12:20:02 2024
+  write: IOPS=280k, BW=273MiB/s (286MB/s)(2048MiB/7496msec); 0 zone resets
+   bw (  KiB/s): min=245228, max=284226, per=99.95%, avg=279620.27, stdev=9765.34, samples=15
+   iops        : min=245228, max=284226, avg=279620.00, stdev=9765.24, samples=15
+  cpu          : usr=11.99%, sys=87.93%, ctx=782, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=273MiB/s (286MB/s), 273MiB/s-273MiB/s (286MB/s-286MB/s), io=2048MiB (2147MB), run=7496-7496msec
+OP=write IOSIZE=1k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3753: Tue Mar 19 12:20:20 2024
+  write: IOPS=283k, BW=276MiB/s (289MB/s)(2048MiB/7423msec); 0 zone resets
+   bw (  KiB/s): min=279840, max=284014, per=100.00%, avg=282546.14, stdev=1377.18, samples=14
+   iops        : min=279840, max=284014, avg=282546.00, stdev=1377.02, samples=14
+  cpu          : usr=12.60%, sys=87.33%, ctx=775, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=276MiB/s (289MB/s), 276MiB/s-276MiB/s (289MB/s-289MB/s), io=2048MiB (2147MB), run=7423-7423msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3815: Tue Mar 19 12:20:37 2024
+  write: IOPS=276k, BW=270MiB/s (283MB/s)(2048MiB/7587msec); 0 zone resets
+   bw (  KiB/s): min=272504, max=278072, per=100.00%, avg=276485.33, stdev=1762.40, samples=15
+   iops        : min=272504, max=278072, avg=276485.20, stdev=1762.41, samples=15
+  cpu          : usr=12.43%, sys=87.49%, ctx=809, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=270MiB/s (283MB/s), 270MiB/s-270MiB/s (283MB/s-283MB/s), io=2048MiB (2147MB), run=7587-7587msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3878: Tue Mar 19 12:20:53 2024
+  write: IOPS=282k, BW=276MiB/s (289MB/s)(2048MiB/7429msec); 0 zone resets
+   bw (  KiB/s): min=279330, max=284200, per=100.00%, avg=282372.00, stdev=1337.64, samples=14
+   iops        : min=279330, max=284200, avg=282371.86, stdev=1337.76, samples=14
+  cpu          : usr=11.94%, sys=88.00%, ctx=798, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=276MiB/s (289MB/s), 276MiB/s-276MiB/s (289MB/s-289MB/s), io=2048MiB (2147MB), run=7429-7429msec
+OP=randwrite IOSIZE=1k FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3939: Tue Mar 19 12:21:12 2024
+  write: IOPS=251k, BW=246MiB/s (257MB/s)(2048MiB/8340msec); 0 zone resets
+   bw (  KiB/s): min=193816, max=285698, per=99.35%, avg=249832.12, stdev=28815.45, samples=16
+   iops        : min=193816, max=285698, avg=249832.12, stdev=28815.45, samples=16
+  cpu          : usr=13.08%, sys=86.84%, ctx=872, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=246MiB/s (257MB/s), 246MiB/s-246MiB/s (257MB/s-257MB/s), io=2048MiB (2147MB), run=8340-8340msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4001: Tue Mar 19 12:21:30 2024
+  write: IOPS=245k, BW=239MiB/s (251MB/s)(2048MiB/8555msec); 0 zone resets
+   bw (  KiB/s): min=185260, max=278580, per=99.91%, avg=244915.41, stdev=30267.78, samples=17
+   iops        : min=185262, max=278580, avg=244915.65, stdev=30267.61, samples=17
+  cpu          : usr=16.82%, sys=83.13%, ctx=906, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=239MiB/s (251MB/s), 239MiB/s-239MiB/s (251MB/s-251MB/s), io=2048MiB (2147MB), run=8555-8555msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4066: Tue Mar 19 12:21:47 2024
+  write: IOPS=253k, BW=247MiB/s (259MB/s)(2048MiB/8282msec); 0 zone resets
+   bw (  KiB/s): min=191898, max=288728, per=99.47%, avg=251875.25, stdev=30835.03, samples=16
+   iops        : min=191898, max=288728, avg=251875.38, stdev=30834.87, samples=16
+  cpu          : usr=14.62%, sys=85.32%, ctx=880, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=247MiB/s (259MB/s), 247MiB/s-247MiB/s (259MB/s-259MB/s), io=2048MiB (2147MB), run=8282-8282msec
+OP=write IOSIZE=100b FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=1 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4134: Tue Mar 19 12:22:48 2024
+  write: IOPS=427k, BW=40.7MiB/s (42.7MB/s)(2048MiB/50299msec); 0 zone resets
+   bw (  KiB/s): min=38447, max=42157, per=100.00%, avg=41701.18, stdev=376.84, samples=100
+   iops        : min=393702, max=431686, avg=427025.06, stdev=3859.03, samples=100
+  cpu          : usr=17.74%, sys=82.23%, ctx=5186, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=40.7MiB/s (42.7MB/s), 40.7MiB/s-40.7MiB/s (42.7MB/s-42.7MB/s), io=2048MiB (2147MB), run=50299-50299msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4197: Tue Mar 19 12:23:47 2024
+  write: IOPS=428k, BW=40.8MiB/s (42.8MB/s)(2048MiB/50158msec); 0 zone resets
+   bw (  KiB/s): min=40096, max=42315, per=100.00%, avg=41814.53, stdev=294.32, samples=100
+   iops        : min=410586, max=433308, avg=428185.52, stdev=3013.82, samples=100
+  cpu          : usr=18.09%, sys=81.88%, ctx=5100, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=40.8MiB/s (42.8MB/s), 40.8MiB/s-40.8MiB/s (42.8MB/s-42.8MB/s), io=2048MiB (2147MB), run=50158-50158msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4258: Tue Mar 19 12:24:47 2024
+  write: IOPS=428k, BW=40.8MiB/s (42.8MB/s)(2048MiB/50135msec); 0 zone resets
+   bw (  KiB/s): min=39629, max=42355, per=100.00%, avg=41833.20, stdev=276.83, samples=100
+   iops        : min=405802, max=433718, avg=428377.54, stdev=2835.03, samples=100
+  cpu          : usr=17.33%, sys=82.63%, ctx=5184, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=40.8MiB/s (42.8MB/s), 40.8MiB/s-40.8MiB/s (42.8MB/s-42.8MB/s), io=2048MiB (2147MB), run=50135-50135msec
+OP=write IOSIZE=100b FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4320: Tue Mar 19 12:25:49 2024
+  write: IOPS=416k, BW=39.6MiB/s (41.6MB/s)(2048MiB/51666msec); 0 zone resets
+   bw (  KiB/s): min=33872, max=41094, per=100.00%, avg=40593.41, stdev=711.00, samples=103
+   iops        : min=346850, max=420804, avg=415681.61, stdev=7281.00, samples=103
+  cpu          : usr=18.43%, sys=81.48%, ctx=5279, majf=0, minf=9
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=39.6MiB/s (41.6MB/s), 39.6MiB/s-39.6MiB/s (41.6MB/s-41.6MB/s), io=2048MiB (2147MB), run=51666-51666msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4387: Tue Mar 19 12:26:49 2024
+  write: IOPS=422k, BW=40.3MiB/s (42.2MB/s)(2048MiB/50833msec); 0 zone resets
+   bw (  KiB/s): min=37384, max=41891, per=100.00%, avg=41258.74, stdev=451.27, samples=101
+   iops        : min=382820, max=428974, avg=422494.57, stdev=4620.80, samples=101
+  cpu          : usr=17.67%, sys=82.29%, ctx=5083, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=40.3MiB/s (42.2MB/s), 40.3MiB/s-40.3MiB/s (42.2MB/s-42.2MB/s), io=2048MiB (2147MB), run=50833-50833msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4449: Tue Mar 19 12:27:48 2024
+  write: IOPS=423k, BW=40.4MiB/s (42.3MB/s)(2048MiB/50720msec); 0 zone resets
+   bw (  KiB/s): min=38853, max=41772, per=100.00%, avg=41351.42, stdev=372.06, samples=101
+   iops        : min=397856, max=427752, avg=423443.88, stdev=3809.99, samples=101
+  cpu          : usr=18.65%, sys=81.31%, ctx=5034, majf=0, minf=10
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=40.4MiB/s (42.3MB/s), 40.4MiB/s-40.4MiB/s (42.3MB/s-42.3MB/s), io=2048MiB (2147MB), run=50720-50720msec
+OP=randwrite IOSIZE=100b FILESIZE=2g SYNC=sync DIRPATH=/mnt/nvpcssd/ FILENAME=file2g THREADS=1 APPEND=0 
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4511: Tue Mar 19 12:28:55 2024
+  write: IOPS=386k, BW=36.9MiB/s (38.6MB/s)(2048MiB/55571msec); 0 zone resets
+   bw (  KiB/s): min=18772, max=41368, per=100.00%, avg=37741.85, stdev=4451.31, samples=111
+   iops        : min=192234, max=423610, avg=386481.60, stdev=45581.36, samples=111
+  cpu          : usr=20.57%, sys=78.93%, ctx=5698, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=36.9MiB/s (38.6MB/s), 36.9MiB/s-36.9MiB/s (38.6MB/s-38.6MB/s), io=2048MiB (2147MB), run=55571-55571msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4573: Tue Mar 19 12:29:59 2024
+  write: IOPS=392k, BW=37.4MiB/s (39.2MB/s)(2048MiB/54801msec); 0 zone resets
+   bw (  KiB/s): min=18672, max=41359, per=99.96%, avg=38255.81, stdev=4582.51, samples=109
+   iops        : min=191208, max=423524, avg=391745.12, stdev=46924.56, samples=109
+  cpu          : usr=22.37%, sys=77.15%, ctx=5714, majf=0, minf=5
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=37.4MiB/s (39.2MB/s), 37.4MiB/s-37.4MiB/s (39.2MB/s-39.2MB/s), io=2048MiB (2147MB), run=54801-54801msec
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job1: (g=0): rw=randwrite, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4635: Tue Mar 19 12:31:01 2024
+  write: IOPS=398k, BW=38.0MiB/s (39.8MB/s)(2048MiB/53951msec); 0 zone resets
+   bw (  KiB/s): min=18754, max=42401, per=99.93%, avg=38845.83, stdev=4753.10, samples=107
+   iops        : min=192044, max=434196, avg=397786.84, stdev=48671.67, samples=107
+  cpu          : usr=20.42%, sys=79.10%, ctx=5693, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=38.0MiB/s (39.8MB/s), 38.0MiB/s-38.0MiB/s (39.8MB/s-39.8MB/s), io=2048MiB (2147MB), run=53951-53951msec

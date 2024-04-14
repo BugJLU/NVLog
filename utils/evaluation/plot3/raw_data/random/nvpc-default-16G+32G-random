@@ -1,0 +1,114 @@
+fio ./random.fio
+extend_lru=1
+absorb_syn=1
+promote_level=0
+demote_before_promote=1
+nvpc_lru_evict=1
+nvpc_sz=-1
+rebuild=0
+force_start=1
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/
+nvpcctl: total	8093696 pages
+nvpcctl: used	0 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093696 pages
+              total        used        free      shared  buff/cache   available
+Mem:             13           4           8           0           0           8
+Swap:             0           0           0
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job1: (groupid=0, jobs=1): err= 0: pid=2200: Wed Apr  3 06:03:58 2024
+  read: IOPS=65.1k, BW=254MiB/s (267MB/s)(160GiB/643960msec)
+   bw (  KiB/s): min=54416, max=1512232, per=99.72%, avg=259814.95, stdev=311483.17, samples=1287
+   iops        : min=13604, max=378058, avg=64953.75, stdev=77870.80, samples=1287
+  cpu          : usr=4.04%, sys=16.92%, ctx=8332780, majf=4, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=41943040,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=254MiB/s (267MB/s), 254MiB/s-254MiB/s (267MB/s-267MB/s), io=160GiB (172GB), run=643960-643960msec
+nvpcctl: total	8093696 pages
+nvpcctl: used	6193818 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	1899878 pages
+              total        used        free      shared  buff/cache   available
+Mem:             13           4           0           0           8           8
+Swap:             0           0           0
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/
+nvpcctl: total	8093696 pages
+nvpcctl: used	168 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093528 pages
+              total        used        free      shared  buff/cache   available
+Mem:             13           4           8           0           0           8
+Swap:             0           0           0
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job1: (groupid=0, jobs=1): err= 0: pid=2276: Wed Apr  3 06:15:04 2024
+  read: IOPS=65.0k, BW=254MiB/s (266MB/s)(160GiB/645076msec)
+   bw (  KiB/s): min=54024, max=1525328, per=100.00%, avg=260111.84, stdev=313005.06, samples=1290
+   iops        : min=13506, max=381330, avg=65027.95, stdev=78251.26, samples=1290
+  cpu          : usr=4.13%, sys=16.93%, ctx=8332797, majf=3, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=41943040,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=254MiB/s (266MB/s), 254MiB/s-254MiB/s (266MB/s-266MB/s), io=160GiB (172GB), run=645076-645076msec
+nvpcctl: total	8093696 pages
+nvpcctl: used	6177718 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	1915978 pages
+              total        used        free      shared  buff/cache   available
+Mem:             13          12           0           0           0           8
+Swap:             0           0           0
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/
+nvpcctl: total	8093696 pages
+nvpcctl: used	186 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093510 pages
+              total        used        free      shared  buff/cache   available
+Mem:             13           4           8           0           0           8
+Swap:             0           0           0
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job1: (groupid=0, jobs=1): err= 0: pid=2353: Wed Apr  3 06:26:09 2024
+  read: IOPS=65.1k, BW=254MiB/s (267MB/s)(160GiB/644436msec)
+   bw (  KiB/s): min=54160, max=1514328, per=99.75%, avg=259687.52, stdev=311531.07, samples=1288
+   iops        : min=13540, max=378582, avg=64921.88, stdev=77882.77, samples=1288
+  cpu          : usr=4.07%, sys=16.94%, ctx=8332810, majf=3, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=41943040,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=254MiB/s (267MB/s), 254MiB/s-254MiB/s (267MB/s-267MB/s), io=160GiB (172GB), run=644436-644436msec
+nvpcctl: total	8093696 pages
+nvpcctl: used	6183809 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	1909887 pages
+              total        used        free      shared  buff/cache   available
+Mem:             13          12           0           0           0           8
+Swap:             0           0           0
+sudo umount /mnt/nvpcssd/

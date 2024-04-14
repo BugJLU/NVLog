@@ -1,0 +1,477 @@
+filebench -f fileserver.fext40
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f fileserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.094: File-server Version 3.0 personality successfully loaded
+0.094: Populating and pre-allocating filesets
+0.103: bigfileset populated: 10000 files, avg. dir. width = 20, avg. dir. depth = 3.1, 0 leafdirs, 1240.757MB total size
+0.103: Removing bigfileset tree (if exists)
+0.104: Pre-allocating directories in bigfileset tree
+0.115: Pre-allocating files in bigfileset tree
+0.887: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.888: Population and pre-allocation of filesets completed
+0.888: Starting 1 filereader instances
+1.890: Running...
+121.900: Run took 120 seconds...
+121.900: Per-Operation Breakdown
+statfile1            5452727ops    45436ops/s   0.0mb/s    0.003ms/op [0.001ms - 0.365ms]
+deletefile1          5452730ops    45436ops/s   0.0mb/s    0.073ms/op [0.017ms - 1.855ms]
+closefile3           5452732ops    45436ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.387ms]
+readfile1            5452734ops    45436ops/s 6021.2mb/s    0.050ms/op [0.002ms - 1.237ms]
+openfile2            5452734ops    45436ops/s   0.0mb/s    0.006ms/op [0.002ms - 0.518ms]
+closefile2           5452734ops    45436ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.405ms]
+appendfilerand1      5452734ops    45436ops/s 354.9mb/s    0.017ms/op [0.001ms - 1.114ms]
+openfile1            5452735ops    45436ops/s   0.0mb/s    0.007ms/op [0.002ms - 1.546ms]
+closefile1           5452735ops    45436ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.381ms]
+wrtfile1             5452741ops    45436ops/s 5647.1mb/s    0.141ms/op [0.005ms - 1.413ms]
+createfile1          5452743ops    45436ops/s   0.0mb/s    0.024ms/op [0.012ms - 0.873ms]
+121.900: IO Summary: 59980079 ops 499793.525 ops/s 45436/90872 rd/wr 12023.2mb/s 0.029ms/op
+121.900: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f fileserver.fext41
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f fileserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: File-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.011: bigfileset populated: 10000 files, avg. dir. width = 20, avg. dir. depth = 3.1, 0 leafdirs, 1240.757MB total size
+0.011: Removing bigfileset tree (if exists)
+0.206: Pre-allocating directories in bigfileset tree
+0.217: Pre-allocating files in bigfileset tree
+0.996: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.996: Population and pre-allocation of filesets completed
+0.996: Starting 1 filereader instances
+1.998: Running...
+122.008: Run took 120 seconds...
+122.009: Per-Operation Breakdown
+statfile1            5454857ops    45453ops/s   0.0mb/s    0.003ms/op [0.001ms - 0.405ms]
+deletefile1          5454861ops    45453ops/s   0.0mb/s    0.073ms/op [0.017ms - 2.225ms]
+closefile3           5454861ops    45453ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.422ms]
+readfile1            5454862ops    45454ops/s 6028.6mb/s    0.050ms/op [0.002ms - 1.062ms]
+openfile2            5454862ops    45454ops/s   0.0mb/s    0.006ms/op [0.002ms - 43.560ms]
+closefile2           5454863ops    45454ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.417ms]
+appendfilerand1      5454864ops    45454ops/s 355.1mb/s    0.017ms/op [0.004ms - 1.145ms]
+openfile1            5454864ops    45454ops/s   0.0mb/s    0.007ms/op [0.002ms - 43.313ms]
+closefile1           5454864ops    45454ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.359ms]
+wrtfile1             5454869ops    45454ops/s 5647.0mb/s    0.141ms/op [0.005ms - 1.622ms]
+createfile1          5454872ops    45454ops/s   0.0mb/s    0.024ms/op [0.012ms - 0.973ms]
+122.009: IO Summary: 60003499 ops 499988.705 ops/s 45454/90907 rd/wr 12030.8mb/s 0.029ms/op
+122.009: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f fileserver.fext42
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f fileserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: File-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.011: bigfileset populated: 10000 files, avg. dir. width = 20, avg. dir. depth = 3.1, 0 leafdirs, 1240.757MB total size
+0.011: Removing bigfileset tree (if exists)
+0.342: Pre-allocating directories in bigfileset tree
+0.353: Pre-allocating files in bigfileset tree
+1.128: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+1.128: Population and pre-allocation of filesets completed
+1.128: Starting 1 filereader instances
+2.131: Running...
+122.140: Run took 120 seconds...
+122.141: Per-Operation Breakdown
+statfile1            5455074ops    45455ops/s   0.0mb/s    0.003ms/op [0.001ms - 0.412ms]
+deletefile1          5455078ops    45455ops/s   0.0mb/s    0.073ms/op [0.017ms - 2.333ms]
+closefile3           5455079ops    45455ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.372ms]
+readfile1            5455082ops    45455ops/s 6023.2mb/s    0.050ms/op [0.002ms - 1.175ms]
+openfile2            5455082ops    45455ops/s   0.0mb/s    0.006ms/op [0.002ms - 0.458ms]
+closefile2           5455082ops    45455ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.288ms]
+appendfilerand1      5455083ops    45455ops/s 355.1mb/s    0.017ms/op [0.001ms - 1.069ms]
+openfile1            5455083ops    45455ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.629ms]
+closefile1           5455083ops    45455ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.349ms]
+wrtfile1             5455087ops    45455ops/s 5649.8mb/s    0.141ms/op [0.005ms - 1.743ms]
+createfile1          5455089ops    45455ops/s   0.0mb/s    0.024ms/op [0.013ms - 1.313ms]
+122.141: IO Summary: 60005901 ops 500008.153 ops/s 45455/90911 rd/wr 12028.1mb/s 0.029ms/op
+122.141: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webproxy.fext40
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f webproxy.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web proxy-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.007: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 156.250MB total size
+0.007: Removing bigfileset tree (if exists)
+0.158: Pre-allocating directories in bigfileset tree
+0.159: Pre-allocating files in bigfileset tree
+0.442: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.442: Population and pre-allocation of filesets completed
+0.442: Starting 1 proxycache instances
+1.444: Running...
+121.453: Run took 120 seconds...
+121.454: Per-Operation Breakdown
+limit                0ops        0ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.000ms]
+closefile6           5390781ops    44920ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.371ms]
+readfile6            5390781ops    44920ops/s 351.6mb/s    0.003ms/op [0.001ms - 0.737ms]
+openfile6            5390781ops    44920ops/s   0.0mb/s    0.005ms/op [0.002ms - 5.159ms]
+closefile5           5390781ops    44920ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.307ms]
+readfile5            5390781ops    44920ops/s 351.3mb/s    0.003ms/op [0.001ms - 0.536ms]
+openfile5            5390782ops    44920ops/s   0.0mb/s    0.005ms/op [0.002ms - 5.144ms]
+closefile4           5390782ops    44920ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.378ms]
+readfile4            5390782ops    44920ops/s 351.6mb/s    0.003ms/op [0.001ms - 0.557ms]
+openfile4            5390782ops    44920ops/s   0.0mb/s    0.005ms/op [0.002ms - 47.085ms]
+closefile3           5390782ops    44920ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.335ms]
+readfile3            5390783ops    44920ops/s 351.4mb/s    0.003ms/op [0.001ms - 0.514ms]
+openfile3            5390783ops    44920ops/s   0.0mb/s    0.005ms/op [0.002ms - 47.126ms]
+closefile2           5390784ops    44920ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.338ms]
+readfile2            5390784ops    44920ops/s 351.5mb/s    0.004ms/op [0.001ms - 0.517ms]
+openfile2            5390784ops    44920ops/s   0.0mb/s    0.005ms/op [0.002ms - 46.371ms]
+closefile1           5390784ops    44920ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.327ms]
+appendfilerand1      5390784ops    44920ops/s 351.1mb/s    0.012ms/op [0.005ms - 0.926ms]
+createfile1          5390792ops    44920ops/s   0.0mb/s    0.114ms/op [0.012ms - 47.365ms]
+deletefile1          5390399ops    44917ops/s   0.0mb/s    0.142ms/op [0.014ms - 9.275ms]
+121.454: IO Summary: 102424492 ops 853479.546 ops/s 224601/44920 rd/wr 2108.5mb/s 0.017ms/op
+121.454: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webproxy.fext41
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f webproxy.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web proxy-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.007: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 156.250MB total size
+0.008: Removing bigfileset tree (if exists)
+0.157: Pre-allocating directories in bigfileset tree
+0.157: Pre-allocating files in bigfileset tree
+0.440: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.440: Population and pre-allocation of filesets completed
+0.440: Starting 1 proxycache instances
+1.442: Running...
+121.451: Run took 120 seconds...
+121.452: Per-Operation Breakdown
+limit                0ops        0ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.000ms]
+closefile6           5387184ops    44890ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.402ms]
+readfile6            5387184ops    44890ops/s 351.2mb/s    0.003ms/op [0.001ms - 0.461ms]
+openfile6            5387184ops    44890ops/s   0.0mb/s    0.005ms/op [0.002ms - 40.149ms]
+closefile5           5387184ops    44890ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.342ms]
+readfile5            5387184ops    44890ops/s 351.3mb/s    0.003ms/op [0.001ms - 0.746ms]
+openfile5            5387184ops    44890ops/s   0.0mb/s    0.005ms/op [0.002ms - 8.502ms]
+closefile4           5387184ops    44890ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.388ms]
+readfile4            5387185ops    44890ops/s 351.2mb/s    0.003ms/op [0.001ms - 0.575ms]
+openfile4            5387186ops    44890ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.422ms]
+closefile3           5387187ops    44890ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.319ms]
+readfile3            5387187ops    44890ops/s 351.4mb/s    0.003ms/op [0.001ms - 0.488ms]
+openfile3            5387187ops    44890ops/s   0.0mb/s    0.005ms/op [0.002ms - 40.150ms]
+closefile2           5387187ops    44890ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.346ms]
+readfile2            5387187ops    44890ops/s 351.2mb/s    0.004ms/op [0.001ms - 0.598ms]
+openfile2            5387188ops    44890ops/s   0.0mb/s    0.005ms/op [0.002ms - 8.515ms]
+closefile1           5387188ops    44890ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.358ms]
+appendfilerand1      5387189ops    44890ops/s 350.7mb/s    0.012ms/op [0.001ms - 0.962ms]
+createfile1          5387195ops    44890ops/s   0.0mb/s    0.114ms/op [0.011ms - 48.163ms]
+deletefile1          5386808ops    44887ops/s   0.0mb/s    0.142ms/op [0.013ms - 9.310ms]
+121.452: IO Summary: 102356162 ops 852909.265 ops/s 224451/44890 rd/wr 2107.0mb/s 0.017ms/op
+121.452: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webproxy.fext42
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f webproxy.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web proxy-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.007: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 156.250MB total size
+0.007: Removing bigfileset tree (if exists)
+0.156: Pre-allocating directories in bigfileset tree
+0.156: Pre-allocating files in bigfileset tree
+0.440: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.440: Population and pre-allocation of filesets completed
+0.440: Starting 1 proxycache instances
+1.442: Running...
+121.450: Run took 120 seconds...
+121.452: Per-Operation Breakdown
+limit                0ops        0ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.000ms]
+closefile6           5353948ops    44613ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.327ms]
+readfile6            5353948ops    44613ops/s 348.9mb/s    0.003ms/op [0.001ms - 0.582ms]
+openfile6            5353948ops    44613ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.419ms]
+closefile5           5353948ops    44613ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.389ms]
+readfile5            5353948ops    44613ops/s 349.0mb/s    0.003ms/op [0.001ms - 0.514ms]
+openfile5            5353949ops    44613ops/s   0.0mb/s    0.005ms/op [0.002ms - 1.611ms]
+closefile4           5353949ops    44613ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.383ms]
+readfile4            5353949ops    44613ops/s 349.1mb/s    0.003ms/op [0.001ms - 0.473ms]
+openfile4            5353950ops    44613ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.481ms]
+closefile3           5353950ops    44613ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.364ms]
+readfile3            5353950ops    44613ops/s 348.9mb/s    0.003ms/op [0.001ms - 0.541ms]
+openfile3            5353950ops    44613ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.378ms]
+closefile2           5353950ops    44613ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.401ms]
+readfile2            5353950ops    44613ops/s 349.0mb/s    0.004ms/op [0.001ms - 0.504ms]
+openfile2            5353951ops    44613ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.477ms]
+closefile1           5353952ops    44613ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.381ms]
+appendfilerand1      5353952ops    44613ops/s 348.4mb/s    0.012ms/op [0.005ms - 1.007ms]
+createfile1          5353957ops    44613ops/s   0.0mb/s    0.116ms/op [0.012ms - 9.229ms]
+deletefile1          5353578ops    44610ops/s   0.0mb/s    0.144ms/op [0.013ms - 9.398ms]
+121.452: IO Summary: 101724677 ops 847648.440 ops/s 223066/44613 rd/wr 2093.3mb/s 0.017ms/op
+121.452: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webserver.fext40
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f webserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web-server Version 3.1 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.002: logfiles populated: 1 files, avg. dir. width = 20, avg. dir. depth = 0.0, 0 leafdirs, 0.008MB total size
+0.002: Removing logfiles tree (if exists)
+0.003: Pre-allocating directories in logfiles tree
+0.003: Pre-allocating files in logfiles tree
+0.004: bigfileset populated: 1000 files, avg. dir. width = 20, avg. dir. depth = 2.3, 0 leafdirs, 59.041MB total size
+0.004: Removing bigfileset tree (if exists)
+0.005: Pre-allocating directories in bigfileset tree
+0.006: Pre-allocating files in bigfileset tree
+0.061: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.061: Population and pre-allocation of filesets completed
+0.061: Starting 1 filereader instances
+1.063: Running...
+121.074: Run took 120 seconds...
+121.077: Per-Operation Breakdown
+appendlog            4539889ops    37829ops/s 295.4mb/s    0.018ms/op [0.003ms - 73.745ms]
+closefile10          4539873ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.420ms]
+readfile10           4539874ops    37829ops/s 2234.8mb/s    0.021ms/op [0.001ms - 0.773ms]
+openfile10           4539874ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.691ms]
+closefile9           4539874ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.554ms]
+readfile9            4539874ops    37829ops/s 2234.6mb/s    0.021ms/op [0.001ms - 0.874ms]
+openfile9            4539874ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.642ms]
+closefile8           4539874ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.501ms]
+readfile8            4539875ops    37829ops/s 2234.8mb/s    0.021ms/op [0.001ms - 0.827ms]
+openfile8            4539876ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.645ms]
+closefile7           4539876ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.562ms]
+readfile7            4539876ops    37829ops/s 2236.5mb/s    0.021ms/op [0.001ms - 0.640ms]
+openfile7            4539876ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.916ms]
+closefile6           4539876ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.737ms]
+readfile6            4539879ops    37829ops/s 2237.8mb/s    0.021ms/op [0.001ms - 0.816ms]
+openfile6            4539879ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.686ms]
+closefile5           4539879ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.496ms]
+readfile5            4539880ops    37829ops/s 2238.1mb/s    0.021ms/op [0.001ms - 0.744ms]
+openfile5            4539882ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.629ms]
+closefile4           4539882ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.442ms]
+readfile4            4539883ops    37829ops/s 2232.4mb/s    0.021ms/op [0.001ms - 0.687ms]
+openfile4            4539883ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.590ms]
+closefile3           4539884ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.474ms]
+readfile3            4539885ops    37829ops/s 2229.7mb/s    0.021ms/op [0.001ms - 0.669ms]
+openfile3            4539885ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.576ms]
+closefile2           4539886ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.493ms]
+readfile2            4539887ops    37829ops/s 2238.1mb/s    0.021ms/op [0.001ms - 0.757ms]
+openfile2            4539887ops    37829ops/s   0.0mb/s    0.007ms/op [0.002ms - 1.049ms]
+closefile1           4539887ops    37829ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.477ms]
+readfile1            4539889ops    37829ops/s 2218.0mb/s    0.021ms/op [0.001ms - 0.714ms]
+openfile1            4539889ops    37829ops/s   0.0mb/s    0.008ms/op [0.003ms - 1.038ms]
+121.077: IO Summary: 140736287 ops 1172701.012 ops/s 378291/37829 rd/wr 22630.2mb/s 0.010ms/op
+121.077: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webserver.fext41
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f webserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web-server Version 3.1 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.002: logfiles populated: 1 files, avg. dir. width = 20, avg. dir. depth = 0.0, 0 leafdirs, 0.008MB total size
+0.002: Removing logfiles tree (if exists)
+0.023: Pre-allocating directories in logfiles tree
+0.023: Pre-allocating files in logfiles tree
+0.024: bigfileset populated: 1000 files, avg. dir. width = 20, avg. dir. depth = 2.3, 0 leafdirs, 59.041MB total size
+0.024: Removing bigfileset tree (if exists)
+0.047: Pre-allocating directories in bigfileset tree
+0.048: Pre-allocating files in bigfileset tree
+0.102: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.102: Population and pre-allocation of filesets completed
+0.102: Starting 1 filereader instances
+1.104: Running...
+121.115: Run took 120 seconds...
+121.118: Per-Operation Breakdown
+appendlog            4572884ops    38104ops/s 297.5mb/s    0.018ms/op [0.002ms - 3.609ms]
+closefile10          4572868ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.420ms]
+readfile10           4572869ops    38104ops/s 2251.2mb/s    0.021ms/op [0.001ms - 0.765ms]
+openfile10           4572869ops    38104ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.577ms]
+closefile9           4572869ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.529ms]
+readfile9            4572870ops    38104ops/s 2249.2mb/s    0.021ms/op [0.001ms - 0.863ms]
+openfile9            4572870ops    38104ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.671ms]
+closefile8           4572870ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.556ms]
+readfile8            4572872ops    38104ops/s 2249.8mb/s    0.021ms/op [0.001ms - 0.681ms]
+openfile8            4572872ops    38104ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.634ms]
+closefile7           4572874ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.658ms]
+readfile7            4572875ops    38104ops/s 2253.0mb/s    0.021ms/op [0.001ms - 0.735ms]
+openfile7            4572875ops    38104ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.624ms]
+closefile6           4572875ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.419ms]
+readfile6            4572877ops    38104ops/s 2254.8mb/s    0.021ms/op [0.001ms - 0.776ms]
+openfile6            4572877ops    38104ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.581ms]
+closefile5           4572877ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.493ms]
+readfile5            4572880ops    38104ops/s 2254.3mb/s    0.021ms/op [0.001ms - 0.830ms]
+openfile5            4572880ops    38104ops/s   0.0mb/s    0.007ms/op [0.003ms - 0.758ms]
+closefile4           4572880ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.646ms]
+readfile4            4572880ops    38104ops/s 2248.9mb/s    0.021ms/op [0.001ms - 0.834ms]
+openfile4            4572880ops    38104ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.634ms]
+closefile3           4572880ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.450ms]
+readfile3            4572881ops    38104ops/s 2246.1mb/s    0.021ms/op [0.001ms - 0.697ms]
+openfile3            4572881ops    38104ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.771ms]
+closefile2           4572881ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.518ms]
+readfile2            4572881ops    38104ops/s 2255.0mb/s    0.021ms/op [0.001ms - 0.769ms]
+openfile2            4572884ops    38104ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.608ms]
+closefile1           4572884ops    38104ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.473ms]
+readfile1            4572884ops    38104ops/s 2234.8mb/s    0.021ms/op [0.001ms - 0.628ms]
+openfile1            4572884ops    38104ops/s   0.0mb/s    0.008ms/op [0.003ms - 0.633ms]
+121.118: IO Summary: 141759183 ops 1181219.644 ops/s 381039/38104 rd/wr 22794.6mb/s 0.010ms/op
+121.118: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webserver.fext42
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f webserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web-server Version 3.1 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.002: logfiles populated: 1 files, avg. dir. width = 20, avg. dir. depth = 0.0, 0 leafdirs, 0.008MB total size
+0.002: Removing logfiles tree (if exists)
+0.006: Pre-allocating directories in logfiles tree
+0.006: Pre-allocating files in logfiles tree
+0.007: bigfileset populated: 1000 files, avg. dir. width = 20, avg. dir. depth = 2.3, 0 leafdirs, 59.041MB total size
+0.007: Removing bigfileset tree (if exists)
+0.031: Pre-allocating directories in bigfileset tree
+0.032: Pre-allocating files in bigfileset tree
+0.085: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.085: Population and pre-allocation of filesets completed
+0.085: Starting 1 filereader instances
+1.088: Running...
+121.099: Run took 120 seconds...
+121.101: Per-Operation Breakdown
+appendlog            4514127ops    37614ops/s 293.9mb/s    0.018ms/op [0.003ms - 6.244ms]
+closefile10          4514113ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.715ms]
+readfile10           4514113ops    37614ops/s 2221.3mb/s    0.020ms/op [0.001ms - 0.666ms]
+openfile10           4514113ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.602ms]
+closefile9           4514113ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.515ms]
+readfile9            4514113ops    37614ops/s 2222.1mb/s    0.020ms/op [0.001ms - 0.714ms]
+openfile9            4514113ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.567ms]
+closefile8           4514113ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.529ms]
+readfile8            4514113ops    37614ops/s 2222.0mb/s    0.020ms/op [0.001ms - 0.779ms]
+openfile8            4514114ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.628ms]
+closefile7           4514114ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.415ms]
+readfile7            4514114ops    37614ops/s 2224.0mb/s    0.020ms/op [0.001ms - 0.751ms]
+openfile7            4514114ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.692ms]
+closefile6           4514114ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 1.285ms]
+readfile6            4514115ops    37614ops/s 2226.3mb/s    0.020ms/op [0.001ms - 0.712ms]
+openfile6            4514116ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.599ms]
+closefile5           4514116ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.416ms]
+readfile5            4514117ops    37614ops/s 2222.1mb/s    0.020ms/op [0.001ms - 0.749ms]
+openfile5            4514120ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.733ms]
+closefile4           4514121ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.447ms]
+readfile4            4514121ops    37614ops/s 2221.6mb/s    0.020ms/op [0.001ms - 0.676ms]
+openfile4            4514121ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.622ms]
+closefile3           4514121ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.512ms]
+readfile3            4514121ops    37614ops/s 2217.0mb/s    0.020ms/op [0.001ms - 0.725ms]
+openfile3            4514121ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.628ms]
+closefile2           4514121ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.426ms]
+readfile2            4514121ops    37614ops/s 2224.9mb/s    0.020ms/op [0.001ms - 0.687ms]
+openfile2            4514121ops    37614ops/s   0.0mb/s    0.008ms/op [0.002ms - 0.781ms]
+closefile1           4514122ops    37614ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.538ms]
+readfile1            4514124ops    37614ops/s 2206.7mb/s    0.021ms/op [0.001ms - 0.727ms]
+openfile1            4514126ops    37614ops/s   0.0mb/s    0.008ms/op [0.003ms - 0.713ms]
+121.101: IO Summary: 139937646 ops 1166045.390 ops/s 376144/37614 rd/wr 22501.9mb/s 0.010ms/op
+121.101: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f varmail.fext40
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f varmail.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Varmail Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.010: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 154.084MB total size
+0.010: Removing bigfileset tree (if exists)
+0.030: Pre-allocating directories in bigfileset tree
+0.030: Pre-allocating files in bigfileset tree
+0.323: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.323: Population and pre-allocation of filesets completed
+0.323: Starting 1 filereader instances
+1.325: Running...
+121.333: Run took 120 seconds...
+121.334: Per-Operation Breakdown
+closefile4           1814065ops    15116ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.082ms]
+readfile4            1814065ops    15116ops/s 236.5mb/s    0.009ms/op [0.001ms - 0.396ms]
+openfile4            1814065ops    15116ops/s   0.0mb/s    0.006ms/op [0.002ms - 0.345ms]
+closefile3           1814065ops    15116ops/s   0.0mb/s    0.001ms/op [0.001ms - 0.292ms]
+fsyncfile3           1814070ops    15116ops/s   0.0mb/s    0.351ms/op [0.001ms - 10.548ms]
+appendfilerand3      1814071ops    15116ops/s 118.0mb/s    0.016ms/op [0.003ms - 0.447ms]
+readfile3            1814071ops    15116ops/s 234.0mb/s    0.009ms/op [0.001ms - 0.438ms]
+openfile3            1814071ops    15116ops/s   0.0mb/s    0.006ms/op [0.003ms - 0.288ms]
+closefile2           1814071ops    15116ops/s   0.0mb/s    0.001ms/op [0.001ms - 0.105ms]
+fsyncfile2           1814076ops    15116ops/s   0.0mb/s    0.369ms/op [0.119ms - 10.598ms]
+appendfilerand2      1814079ops    15116ops/s 118.1mb/s    0.018ms/op [0.006ms - 0.445ms]
+createfile2          1814079ops    15116ops/s   0.0mb/s    0.071ms/op [0.013ms - 0.879ms]
+deletefile1          1814081ops    15116ops/s   0.0mb/s    0.167ms/op [0.020ms - 10.235ms]
+121.334: IO Summary: 23582929 ops 196511.394 ops/s 30232/30233 rd/wr 706.7mb/s 0.079ms/op
+121.334: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f varmail.fext41
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f varmail.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Varmail Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.010: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 154.084MB total size
+0.010: Removing bigfileset tree (if exists)
+0.260: Pre-allocating directories in bigfileset tree
+0.260: Pre-allocating files in bigfileset tree
+0.553: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.553: Population and pre-allocation of filesets completed
+0.553: Starting 1 filereader instances
+1.555: Running...
+121.563: Run took 120 seconds...
+121.564: Per-Operation Breakdown
+closefile4           1840463ops    15336ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.089ms]
+readfile4            1840463ops    15336ops/s 239.9mb/s    0.009ms/op [0.001ms - 9.033ms]
+openfile4            1840463ops    15336ops/s   0.0mb/s    0.006ms/op [0.002ms - 0.125ms]
+closefile3           1840463ops    15336ops/s   0.0mb/s    0.001ms/op [0.001ms - 0.090ms]
+fsyncfile3           1840466ops    15336ops/s   0.0mb/s    0.345ms/op [0.001ms - 11.222ms]
+appendfilerand3      1840466ops    15336ops/s 119.8mb/s    0.016ms/op [0.001ms - 1.339ms]
+readfile3            1840466ops    15336ops/s 238.2mb/s    0.009ms/op [0.001ms - 9.042ms]
+openfile3            1840466ops    15336ops/s   0.0mb/s    0.006ms/op [0.003ms - 0.120ms]
+closefile2           1840466ops    15336ops/s   0.0mb/s    0.001ms/op [0.001ms - 0.078ms]
+fsyncfile2           1840469ops    15336ops/s   0.0mb/s    0.363ms/op [0.121ms - 11.238ms]
+appendfilerand2      1840470ops    15336ops/s 119.9mb/s    0.018ms/op [0.001ms - 5.261ms]
+createfile2          1840472ops    15336ops/s   0.0mb/s    0.070ms/op [0.013ms - 41.052ms]
+deletefile1          1840478ops    15336ops/s   0.0mb/s    0.166ms/op [0.019ms - 11.196ms]
+121.564: IO Summary: 23926071 ops 199370.818 ops/s 30672/30672 rd/wr 717.9mb/s 0.078ms/op
+121.564: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f varmail.fext42
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+filebench -f varmail.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Varmail Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.010: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 154.084MB total size
+0.010: Removing bigfileset tree (if exists)
+0.219: Pre-allocating directories in bigfileset tree
+0.219: Pre-allocating files in bigfileset tree
+0.511: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.511: Population and pre-allocation of filesets completed
+0.511: Starting 1 filereader instances
+1.513: Running...
+121.521: Run took 120 seconds...
+121.522: Per-Operation Breakdown
+closefile4           1842270ops    15351ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.102ms]
+readfile4            1842270ops    15351ops/s 239.8mb/s    0.009ms/op [0.001ms - 0.297ms]
+openfile4            1842270ops    15351ops/s   0.0mb/s    0.006ms/op [0.002ms - 0.202ms]
+closefile3           1842270ops    15351ops/s   0.0mb/s    0.001ms/op [0.001ms - 0.107ms]
+fsyncfile3           1842274ops    15351ops/s   0.0mb/s    0.344ms/op [0.001ms - 11.434ms]
+appendfilerand3      1842276ops    15351ops/s 119.8mb/s    0.015ms/op [0.001ms - 0.350ms]
+readfile3            1842276ops    15351ops/s 238.0mb/s    0.009ms/op [0.001ms - 0.383ms]
+openfile3            1842276ops    15351ops/s   0.0mb/s    0.006ms/op [0.002ms - 0.126ms]
+closefile2           1842276ops    15351ops/s   0.0mb/s    0.001ms/op [0.001ms - 0.097ms]
+fsyncfile2           1842280ops    15351ops/s   0.0mb/s    0.362ms/op [0.115ms - 11.461ms]
+appendfilerand2      1842282ops    15351ops/s 119.9mb/s    0.018ms/op [0.001ms - 4.436ms]
+createfile2          1842282ops    15351ops/s   0.0mb/s    0.070ms/op [0.013ms - 44.225ms]
+deletefile1          1842286ops    15351ops/s   0.0mb/s    0.167ms/op [0.018ms - 11.222ms]
+121.522: IO Summary: 23949588 ops 199566.587 ops/s 30703/30703 rd/wr 717.6mb/s 0.078ms/op
+121.522: Shutting down processes
+sudo umount /mnt/nvpcssd/

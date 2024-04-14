@@ -1,0 +1,477 @@
+filebench -f fileserver.fnova0
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f fileserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: File-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.010: bigfileset populated: 10000 files, avg. dir. width = 20, avg. dir. depth = 3.1, 0 leafdirs, 1240.757MB total size
+0.010: Removing bigfileset tree (if exists)
+0.011: Pre-allocating directories in bigfileset tree
+0.019: Pre-allocating files in bigfileset tree
+0.455: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.455: Population and pre-allocation of filesets completed
+0.455: Starting 1 filereader instances
+1.457: Running...
+121.470: Run took 120 seconds...
+121.470: Per-Operation Breakdown
+statfile1            1528106ops    12733ops/s   0.0mb/s    0.002ms/op [0.001ms - 0.151ms]
+deletefile1          1528105ops    12733ops/s   0.0mb/s    0.072ms/op [0.010ms - 0.539ms]
+closefile3           1528106ops    12733ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.098ms]
+readfile1            1528107ops    12733ops/s 1685.3mb/s    0.123ms/op [0.002ms - 1.194ms]
+openfile2            1528107ops    12733ops/s   0.0mb/s    0.004ms/op [0.002ms - 43.051ms]
+closefile2           1528107ops    12733ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.120ms]
+appendfilerand1      1528108ops    12733ops/s  99.5mb/s    0.104ms/op [0.001ms - 0.901ms]
+openfile1            1528108ops    12733ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.133ms]
+closefile1           1528108ops    12733ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.096ms]
+wrtfile1             1528114ops    12733ops/s 1577.6mb/s    0.885ms/op [0.005ms - 7.545ms]
+createfile1          1528122ops    12733ops/s   0.0mb/s    0.046ms/op [0.009ms - 43.116ms]
+121.470: IO Summary: 16809198 ops 140061.803 ops/s 12733/25466 rd/wr 3362.4mb/s 0.113ms/op
+121.470: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f fileserver.fnova1
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f fileserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: File-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.010: bigfileset populated: 10000 files, avg. dir. width = 20, avg. dir. depth = 3.1, 0 leafdirs, 1240.757MB total size
+0.010: Removing bigfileset tree (if exists)
+0.011: Pre-allocating directories in bigfileset tree
+0.019: Pre-allocating files in bigfileset tree
+0.453: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.453: Population and pre-allocation of filesets completed
+0.453: Starting 1 filereader instances
+1.455: Running...
+121.467: Run took 120 seconds...
+121.468: Per-Operation Breakdown
+statfile1            1525902ops    12715ops/s   0.0mb/s    0.002ms/op [0.001ms - 0.088ms]
+deletefile1          1525902ops    12715ops/s   0.0mb/s    0.073ms/op [0.010ms - 0.469ms]
+closefile3           1525902ops    12715ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.102ms]
+readfile1            1525902ops    12715ops/s 1680.9mb/s    0.122ms/op [0.002ms - 1.187ms]
+openfile2            1525902ops    12715ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.320ms]
+closefile2           1525902ops    12715ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.125ms]
+appendfilerand1      1525904ops    12715ops/s  99.4mb/s    0.104ms/op [0.007ms - 1.131ms]
+openfile1            1525905ops    12715ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.118ms]
+closefile1           1525905ops    12715ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.071ms]
+wrtfile1             1525908ops    12715ops/s 1574.3mb/s    0.887ms/op [0.005ms - 7.351ms]
+createfile1          1525918ops    12715ops/s   0.0mb/s    0.046ms/op [0.009ms - 0.678ms]
+121.468: IO Summary: 16784952 ops 139860.690 ops/s 12715/25429 rd/wr 3354.6mb/s 0.113ms/op
+121.468: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f fileserver.fnova2
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f fileserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: File-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.010: bigfileset populated: 10000 files, avg. dir. width = 20, avg. dir. depth = 3.1, 0 leafdirs, 1240.757MB total size
+0.010: Removing bigfileset tree (if exists)
+0.011: Pre-allocating directories in bigfileset tree
+0.019: Pre-allocating files in bigfileset tree
+0.452: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.452: Population and pre-allocation of filesets completed
+0.452: Starting 1 filereader instances
+1.454: Running...
+121.465: Run took 120 seconds...
+121.466: Per-Operation Breakdown
+statfile1            1522219ops    12684ops/s   0.0mb/s    0.002ms/op [0.001ms - 0.313ms]
+deletefile1          1522219ops    12684ops/s   0.0mb/s    0.072ms/op [0.009ms - 0.414ms]
+closefile3           1522222ops    12684ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.093ms]
+readfile1            1522222ops    12684ops/s 1678.2mb/s    0.122ms/op [0.002ms - 1.389ms]
+openfile2            1522222ops    12684ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.314ms]
+closefile2           1522222ops    12684ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.115ms]
+appendfilerand1      1522222ops    12684ops/s  99.0mb/s    0.104ms/op [0.001ms - 0.860ms]
+openfile1            1522222ops    12684ops/s   0.0mb/s    0.005ms/op [0.002ms - 0.116ms]
+closefile1           1522222ops    12684ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.094ms]
+wrtfile1             1522229ops    12684ops/s 1573.1mb/s    0.890ms/op [0.006ms - 7.711ms]
+createfile1          1522235ops    12684ops/s   0.0mb/s    0.046ms/op [0.009ms - 0.702ms]
+121.466: IO Summary: 16744456 ops 139523.374 ops/s 12684/25368 rd/wr 3350.3mb/s 0.113ms/op
+121.466: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webproxy.fnova0
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f webproxy.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.046: Web proxy-server Version 3.0 personality successfully loaded
+0.046: Populating and pre-allocating filesets
+0.052: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 156.250MB total size
+0.052: Removing bigfileset tree (if exists)
+0.053: Pre-allocating directories in bigfileset tree
+0.053: Pre-allocating files in bigfileset tree
+0.210: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.210: Population and pre-allocation of filesets completed
+0.210: Starting 1 proxycache instances
+1.212: Running...
+121.222: Run took 120 seconds...
+121.223: Per-Operation Breakdown
+limit                0ops        0ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.000ms]
+closefile6           6197220ops    51639ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.416ms]
+readfile6            6197220ops    51639ops/s 403.9mb/s    0.006ms/op [0.001ms - 0.339ms]
+openfile6            6197221ops    51639ops/s   0.0mb/s    0.010ms/op [0.001ms - 0.326ms]
+closefile5           6197221ops    51639ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.286ms]
+readfile5            6197221ops    51639ops/s 403.9mb/s    0.006ms/op [0.001ms - 0.354ms]
+openfile5            6197221ops    51639ops/s   0.0mb/s    0.010ms/op [0.001ms - 0.575ms]
+closefile4           6197223ops    51639ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.284ms]
+readfile4            6197223ops    51639ops/s 403.8mb/s    0.006ms/op [0.001ms - 0.421ms]
+openfile4            6197224ops    51639ops/s   0.0mb/s    0.010ms/op [0.001ms - 0.350ms]
+closefile3           6197226ops    51639ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.258ms]
+readfile3            6197226ops    51639ops/s 403.9mb/s    0.006ms/op [0.001ms - 0.340ms]
+openfile3            6197227ops    51639ops/s   0.0mb/s    0.010ms/op [0.001ms - 0.365ms]
+closefile2           6197228ops    51639ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.295ms]
+readfile2            6197228ops    51639ops/s 404.0mb/s    0.006ms/op [0.001ms - 0.330ms]
+openfile2            6197230ops    51640ops/s   0.0mb/s    0.010ms/op [0.002ms - 0.382ms]
+closefile1           6197230ops    51640ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.265ms]
+appendfilerand1      6197230ops    51640ops/s 403.4mb/s    0.013ms/op [0.005ms - 0.389ms]
+createfile1          6197233ops    51640ops/s   0.0mb/s    0.029ms/op [0.009ms - 8.195ms]
+deletefile1          6196853ops    51636ops/s   0.0mb/s    0.027ms/op [0.008ms - 8.380ms]
+121.223: IO Summary: 117746905 ops 981146.845 ops/s 258197/51640 rd/wr 2422.9mb/s 0.008ms/op
+121.223: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webproxy.fnova1
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f webproxy.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web proxy-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.006: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 156.250MB total size
+0.006: Removing bigfileset tree (if exists)
+0.008: Pre-allocating directories in bigfileset tree
+0.008: Pre-allocating files in bigfileset tree
+0.161: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.161: Population and pre-allocation of filesets completed
+0.161: Starting 1 proxycache instances
+1.163: Running...
+121.173: Run took 120 seconds...
+121.174: Per-Operation Breakdown
+limit                0ops        0ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.000ms]
+closefile6           6261324ops    52173ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.263ms]
+readfile6            6261324ops    52173ops/s 408.1mb/s    0.006ms/op [0.001ms - 0.318ms]
+openfile6            6261325ops    52173ops/s   0.0mb/s    0.009ms/op [0.001ms - 0.336ms]
+closefile5           6261326ops    52173ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.269ms]
+readfile5            6261326ops    52173ops/s 408.2mb/s    0.006ms/op [0.001ms - 0.312ms]
+openfile5            6261327ops    52173ops/s   0.0mb/s    0.009ms/op [0.002ms - 0.362ms]
+closefile4           6261329ops    52173ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.270ms]
+readfile4            6261330ops    52173ops/s 408.0mb/s    0.006ms/op [0.001ms - 0.342ms]
+openfile4            6261331ops    52173ops/s   0.0mb/s    0.009ms/op [0.001ms - 0.350ms]
+closefile3           6261331ops    52173ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.298ms]
+readfile3            6261331ops    52173ops/s 408.3mb/s    0.006ms/op [0.001ms - 0.327ms]
+openfile3            6261333ops    52173ops/s   0.0mb/s    0.009ms/op [0.002ms - 0.349ms]
+closefile2           6261333ops    52173ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.296ms]
+readfile2            6261333ops    52173ops/s 408.2mb/s    0.006ms/op [0.001ms - 0.327ms]
+openfile2            6261334ops    52173ops/s   0.0mb/s    0.010ms/op [0.002ms - 0.350ms]
+closefile1           6261335ops    52173ops/s   0.0mb/s    0.001ms/op [0.001ms - 0.278ms]
+appendfilerand1      6261336ops    52173ops/s 407.5mb/s    0.014ms/op [0.005ms - 0.385ms]
+createfile1          6261339ops    52174ops/s   0.0mb/s    0.030ms/op [0.009ms - 8.157ms]
+deletefile1          6260955ops    52170ops/s   0.0mb/s    0.028ms/op [0.008ms - 8.423ms]
+121.174: IO Summary: 118964902 ops 991292.170 ops/s 260867/52173 rd/wr 2448.3mb/s 0.008ms/op
+121.174: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webproxy.fnova2
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f webproxy.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web proxy-server Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.006: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 156.250MB total size
+0.006: Removing bigfileset tree (if exists)
+0.008: Pre-allocating directories in bigfileset tree
+0.008: Pre-allocating files in bigfileset tree
+0.161: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.161: Population and pre-allocation of filesets completed
+0.161: Starting 1 proxycache instances
+1.163: Running...
+121.173: Run took 120 seconds...
+121.175: Per-Operation Breakdown
+limit                0ops        0ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.000ms]
+closefile6           6242825ops    52019ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.273ms]
+readfile6            6242826ops    52019ops/s 406.6mb/s    0.006ms/op [0.001ms - 0.425ms]
+openfile6            6242828ops    52019ops/s   0.0mb/s    0.009ms/op [0.001ms - 0.332ms]
+closefile5           6242829ops    52019ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.310ms]
+readfile5            6242829ops    52019ops/s 406.7mb/s    0.006ms/op [0.001ms - 0.368ms]
+openfile5            6242829ops    52019ops/s   0.0mb/s    0.009ms/op [0.002ms - 0.347ms]
+closefile4           6242829ops    52019ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.312ms]
+readfile4            6242829ops    52019ops/s 406.9mb/s    0.006ms/op [0.001ms - 0.425ms]
+openfile4            6242830ops    52019ops/s   0.0mb/s    0.009ms/op [0.002ms - 0.384ms]
+closefile3           6242831ops    52019ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.313ms]
+readfile3            6242831ops    52019ops/s 406.8mb/s    0.006ms/op [0.001ms - 0.371ms]
+openfile3            6242832ops    52019ops/s   0.0mb/s    0.009ms/op [0.002ms - 0.327ms]
+closefile2           6242832ops    52019ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.302ms]
+readfile2            6242832ops    52019ops/s 406.9mb/s    0.006ms/op [0.001ms - 0.353ms]
+openfile2            6242833ops    52019ops/s   0.0mb/s    0.010ms/op [0.002ms - 0.336ms]
+closefile1           6242835ops    52019ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.286ms]
+appendfilerand1      6242837ops    52019ops/s 406.3mb/s    0.014ms/op [0.005ms - 0.394ms]
+createfile1          6242839ops    52019ops/s   0.0mb/s    0.029ms/op [0.009ms - 8.378ms]
+deletefile1          6242457ops    52016ops/s   0.0mb/s    0.027ms/op [0.008ms - 8.345ms]
+121.175: IO Summary: 118613413 ops 988364.013 ops/s 260097/52019 rd/wr 2440.2mb/s 0.008ms/op
+121.175: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webserver.fnova0
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f webserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web-server Version 3.1 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.001: logfiles populated: 1 files, avg. dir. width = 20, avg. dir. depth = 0.0, 0 leafdirs, 0.008MB total size
+0.001: Removing logfiles tree (if exists)
+0.003: Pre-allocating directories in logfiles tree
+0.003: Pre-allocating files in logfiles tree
+0.004: bigfileset populated: 1000 files, avg. dir. width = 20, avg. dir. depth = 2.3, 0 leafdirs, 59.041MB total size
+0.004: Removing bigfileset tree (if exists)
+0.005: Pre-allocating directories in bigfileset tree
+0.006: Pre-allocating files in bigfileset tree
+0.040: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.040: Population and pre-allocation of filesets completed
+0.040: Starting 1 filereader instances
+1.042: Running...
+121.061: Run took 120 seconds...
+121.064: Per-Operation Breakdown
+appendlog            2217509ops    18476ops/s 144.3mb/s    0.064ms/op [0.007ms - 17.227ms]
+closefile10          2217493ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.587ms]
+readfile10           2217493ops    18476ops/s 1092.0mb/s    0.068ms/op [0.001ms - 1.424ms]
+openfile10           2217493ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.270ms]
+closefile9           2217493ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.579ms]
+readfile9            2217497ops    18476ops/s 1090.5mb/s    0.068ms/op [0.001ms - 0.895ms]
+openfile9            2217497ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.304ms]
+closefile8           2217497ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.549ms]
+readfile8            2217499ops    18476ops/s 1090.7mb/s    0.068ms/op [0.002ms - 0.708ms]
+openfile8            2217499ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.294ms]
+closefile7           2217499ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.599ms]
+readfile7            2217500ops    18476ops/s 1093.2mb/s    0.069ms/op [0.002ms - 1.056ms]
+openfile7            2217500ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.636ms]
+closefile6           2217500ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.547ms]
+readfile6            2217501ops    18476ops/s 1094.5mb/s    0.069ms/op [0.001ms - 0.762ms]
+openfile6            2217501ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.311ms]
+closefile5           2217501ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.587ms]
+readfile5            2217502ops    18476ops/s 1093.1mb/s    0.069ms/op [0.002ms - 0.722ms]
+openfile5            2217503ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.582ms]
+closefile4           2217503ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.567ms]
+readfile4            2217503ops    18476ops/s 1091.9mb/s    0.068ms/op [0.001ms - 0.918ms]
+openfile4            2217503ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.334ms]
+closefile3           2217503ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.573ms]
+readfile3            2217505ops    18476ops/s 1089.2mb/s    0.068ms/op [0.001ms - 0.675ms]
+openfile3            2217505ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.263ms]
+closefile2           2217505ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.222ms]
+readfile2            2217507ops    18476ops/s 1091.0mb/s    0.069ms/op [0.001ms - 1.396ms]
+openfile2            2217507ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.351ms]
+closefile1           2217507ops    18476ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.602ms]
+readfile1            2217507ops    18476ops/s 1082.5mb/s    0.070ms/op [0.002ms - 1.389ms]
+openfile1            2217507ops    18476ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.583ms]
+121.064: IO Summary: 68742539 ops 572767.756 ops/s 184764/18476 rd/wr 11053.0mb/s 0.027ms/op
+121.064: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webserver.fnova1
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f webserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web-server Version 3.1 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.001: logfiles populated: 1 files, avg. dir. width = 20, avg. dir. depth = 0.0, 0 leafdirs, 0.008MB total size
+0.001: Removing logfiles tree (if exists)
+0.003: Pre-allocating directories in logfiles tree
+0.003: Pre-allocating files in logfiles tree
+0.004: bigfileset populated: 1000 files, avg. dir. width = 20, avg. dir. depth = 2.3, 0 leafdirs, 59.041MB total size
+0.004: Removing bigfileset tree (if exists)
+0.005: Pre-allocating directories in bigfileset tree
+0.006: Pre-allocating files in bigfileset tree
+0.040: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.040: Population and pre-allocation of filesets completed
+0.040: Starting 1 filereader instances
+1.042: Running...
+121.061: Run took 120 seconds...
+121.064: Per-Operation Breakdown
+appendlog            2216246ops    18466ops/s 144.1mb/s    0.064ms/op [0.007ms - 17.244ms]
+closefile10          2216230ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.179ms]
+readfile10           2216231ops    18466ops/s 1091.0mb/s    0.069ms/op [0.001ms - 0.644ms]
+openfile10           2216231ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.600ms]
+closefile9           2216231ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.189ms]
+readfile9            2216232ops    18466ops/s 1090.5mb/s    0.068ms/op [0.001ms - 0.910ms]
+openfile9            2216233ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.320ms]
+closefile8           2216233ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.568ms]
+readfile8            2216235ops    18466ops/s 1091.4mb/s    0.069ms/op [0.001ms - 0.754ms]
+openfile8            2216235ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.321ms]
+closefile7           2216235ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.593ms]
+readfile7            2216236ops    18466ops/s 1092.8mb/s    0.069ms/op [0.001ms - 0.655ms]
+openfile7            2216236ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.386ms]
+closefile6           2216236ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.193ms]
+readfile6            2216237ops    18466ops/s 1095.1mb/s    0.069ms/op [0.001ms - 0.824ms]
+openfile6            2216237ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.397ms]
+closefile5           2216237ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.193ms]
+readfile5            2216238ops    18466ops/s 1093.1mb/s    0.069ms/op [0.001ms - 0.682ms]
+openfile5            2216238ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.605ms]
+closefile4           2216238ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.186ms]
+readfile4            2216238ops    18466ops/s 1091.7mb/s    0.069ms/op [0.001ms - 0.741ms]
+openfile4            2216238ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.322ms]
+closefile3           2216238ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.287ms]
+readfile3            2216241ops    18466ops/s 1089.2mb/s    0.068ms/op [0.001ms - 0.740ms]
+openfile3            2216241ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 2.594ms]
+closefile2           2216241ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.250ms]
+readfile2            2216243ops    18466ops/s 1087.7mb/s    0.068ms/op [0.001ms - 0.873ms]
+openfile2            2216243ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.612ms]
+closefile1           2216243ops    18466ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.245ms]
+readfile1            2216245ops    18466ops/s 1080.1mb/s    0.070ms/op [0.002ms - 0.772ms]
+openfile1            2216245ops    18466ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.302ms]
+121.064: IO Summary: 68703361 ops 572441.021 ops/s 184658/18466 rd/wr 11046.6mb/s 0.027ms/op
+121.064: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f webserver.fnova2
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f webserver.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Web-server Version 3.1 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.001: logfiles populated: 1 files, avg. dir. width = 20, avg. dir. depth = 0.0, 0 leafdirs, 0.008MB total size
+0.001: Removing logfiles tree (if exists)
+0.003: Pre-allocating directories in logfiles tree
+0.003: Pre-allocating files in logfiles tree
+0.004: bigfileset populated: 1000 files, avg. dir. width = 20, avg. dir. depth = 2.3, 0 leafdirs, 59.041MB total size
+0.004: Removing bigfileset tree (if exists)
+0.005: Pre-allocating directories in bigfileset tree
+0.006: Pre-allocating files in bigfileset tree
+0.040: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.040: Population and pre-allocation of filesets completed
+0.041: Starting 1 filereader instances
+1.043: Running...
+121.061: Run took 120 seconds...
+121.064: Per-Operation Breakdown
+appendlog            2217974ops    18480ops/s 144.4mb/s    0.063ms/op [0.007ms - 17.137ms]
+closefile10          2217958ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.229ms]
+readfile10           2217959ops    18480ops/s 1091.1mb/s    0.068ms/op [0.002ms - 0.781ms]
+openfile10           2217960ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.655ms]
+closefile9           2217962ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.205ms]
+readfile9            2217962ops    18480ops/s 1091.3mb/s    0.068ms/op [0.002ms - 0.667ms]
+openfile9            2217962ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.583ms]
+closefile8           2217962ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.193ms]
+readfile8            2217962ops    18480ops/s 1091.2mb/s    0.068ms/op [0.002ms - 0.725ms]
+openfile8            2217962ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.337ms]
+closefile7           2217962ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.200ms]
+readfile7            2217963ops    18480ops/s 1092.6mb/s    0.069ms/op [0.001ms - 0.864ms]
+openfile7            2217963ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.634ms]
+closefile6           2217963ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.315ms]
+readfile6            2217964ops    18480ops/s 1093.6mb/s    0.069ms/op [0.002ms - 0.717ms]
+openfile6            2217965ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.280ms]
+closefile5           2217965ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.185ms]
+readfile5            2217966ops    18480ops/s 1092.6mb/s    0.069ms/op [0.001ms - 0.754ms]
+openfile5            2217966ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.266ms]
+closefile4           2217966ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.175ms]
+readfile4            2217966ops    18480ops/s 1092.2mb/s    0.068ms/op [0.001ms - 0.766ms]
+openfile4            2217966ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.581ms]
+closefile3           2217967ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.278ms]
+readfile3            2217969ops    18480ops/s 1089.7mb/s    0.068ms/op [0.001ms - 0.816ms]
+openfile3            2217970ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.352ms]
+closefile2           2217970ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.182ms]
+readfile2            2217972ops    18480ops/s 1091.9mb/s    0.069ms/op [0.001ms - 0.818ms]
+openfile2            2217972ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.385ms]
+closefile1           2217972ops    18480ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.286ms]
+readfile1            2217973ops    18480ops/s 1084.7mb/s    0.070ms/op [0.002ms - 0.818ms]
+openfile1            2217973ops    18480ops/s   0.0mb/s    0.007ms/op [0.002ms - 0.602ms]
+121.064: IO Summary: 68756936 ops 572888.352 ops/s 184803/18480 rd/wr 11055.3mb/s 0.027ms/op
+121.064: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f varmail.fnova0
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f varmail.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Varmail Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.009: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 154.084MB total size
+0.009: Removing bigfileset tree (if exists)
+0.011: Pre-allocating directories in bigfileset tree
+0.011: Pre-allocating files in bigfileset tree
+0.181: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.181: Population and pre-allocation of filesets completed
+0.181: Starting 1 filereader instances
+1.183: Running...
+121.194: Run took 120 seconds...
+121.194: Per-Operation Breakdown
+closefile4           6963401ops    58023ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.210ms]
+readfile4            6963402ops    58023ops/s 916.9mb/s    0.014ms/op [0.001ms - 0.269ms]
+openfile4            6963402ops    58023ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.228ms]
+closefile3           6963402ops    58023ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.249ms]
+fsyncfile3           6963402ops    58023ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.187ms]
+appendfilerand3      6963403ops    58023ops/s 453.2mb/s    0.019ms/op [0.001ms - 0.404ms]
+readfile3            6963403ops    58023ops/s 915.2mb/s    0.014ms/op [0.001ms - 0.314ms]
+openfile3            6963403ops    58023ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.308ms]
+closefile2           6963403ops    58023ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.190ms]
+fsyncfile2           6963403ops    58023ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.160ms]
+appendfilerand2      6963405ops    58023ops/s 453.2mb/s    0.017ms/op [0.005ms - 0.347ms]
+createfile2          6963410ops    58023ops/s   0.0mb/s    0.074ms/op [0.009ms - 49.967ms]
+deletefile1          6963417ops    58023ops/s   0.0mb/s    0.106ms/op [0.010ms - 53.356ms]
+121.194: IO Summary: 90524256 ops 754303.264 ops/s 116047/116047 rd/wr 2738.5mb/s 0.020ms/op
+121.194: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f varmail.fnova1
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f varmail.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Varmail Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.009: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 154.084MB total size
+0.009: Removing bigfileset tree (if exists)
+0.011: Pre-allocating directories in bigfileset tree
+0.011: Pre-allocating files in bigfileset tree
+0.181: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.181: Population and pre-allocation of filesets completed
+0.181: Starting 1 filereader instances
+1.183: Running...
+121.194: Run took 120 seconds...
+121.194: Per-Operation Breakdown
+closefile4           6976172ops    58130ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.193ms]
+readfile4            6976173ops    58130ops/s 918.1mb/s    0.014ms/op [0.001ms - 0.344ms]
+openfile4            6976175ops    58130ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.255ms]
+closefile3           6976175ops    58130ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.185ms]
+fsyncfile3           6976175ops    58130ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.150ms]
+appendfilerand3      6976175ops    58130ops/s 454.1mb/s    0.019ms/op [0.001ms - 0.323ms]
+readfile3            6976177ops    58130ops/s 916.7mb/s    0.014ms/op [0.001ms - 0.474ms]
+openfile3            6976177ops    58130ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.756ms]
+closefile2           6976177ops    58130ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.173ms]
+fsyncfile2           6976177ops    58130ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.168ms]
+appendfilerand2      6976179ops    58130ops/s 454.0mb/s    0.017ms/op [0.005ms - 0.673ms]
+createfile2          6976182ops    58130ops/s   0.0mb/s    0.073ms/op [0.009ms - 108.948ms]
+deletefile1          6976188ops    58130ops/s   0.0mb/s    0.106ms/op [0.010ms - 50.542ms]
+121.194: IO Summary: 90690302 ops 755687.729 ops/s 116260/116260 rd/wr 2742.9mb/s 0.019ms/op
+121.194: Shutting down processes
+sudo umount /mnt/nvpcssd/
+filebench -f varmail.fnova2
+sudo mount -t NOVA -o init,data_cow /dev/pmem0 /mnt/nvpcssd/
+filebench -f varmail.f
+Filebench Version 1.5-alpha3
+0.000: Allocated 173MB of shared memory
+0.001: Varmail Version 3.0 personality successfully loaded
+0.001: Populating and pre-allocating filesets
+0.009: bigfileset populated: 10000 files, avg. dir. width = 1000000, avg. dir. depth = 0.7, 0 leafdirs, 154.084MB total size
+0.009: Removing bigfileset tree (if exists)
+0.011: Pre-allocating directories in bigfileset tree
+0.011: Pre-allocating files in bigfileset tree
+0.181: Waiting for pre-allocation to finish (in case of a parallel pre-allocation)
+0.181: Population and pre-allocation of filesets completed
+0.181: Starting 1 filereader instances
+1.183: Running...
+121.194: Run took 120 seconds...
+121.195: Per-Operation Breakdown
+closefile4           6956660ops    57967ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.194ms]
+readfile4            6956661ops    57967ops/s 915.6mb/s    0.014ms/op [0.001ms - 0.295ms]
+openfile4            6956661ops    57967ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.319ms]
+closefile3           6956661ops    57967ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.203ms]
+fsyncfile3           6956661ops    57967ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.185ms]
+appendfilerand3      6956662ops    57967ops/s 453.0mb/s    0.019ms/op [0.001ms - 0.357ms]
+readfile3            6956663ops    57967ops/s 914.7mb/s    0.014ms/op [0.001ms - 0.260ms]
+openfile3            6956663ops    57967ops/s   0.0mb/s    0.004ms/op [0.002ms - 0.216ms]
+closefile2           6956663ops    57967ops/s   0.0mb/s    0.001ms/op [0.000ms - 0.202ms]
+fsyncfile2           6956663ops    57967ops/s   0.0mb/s    0.000ms/op [0.000ms - 0.171ms]
+appendfilerand2      6956664ops    57967ops/s 452.8mb/s    0.017ms/op [0.005ms - 0.531ms]
+createfile2          6956668ops    57967ops/s   0.0mb/s    0.074ms/op [0.009ms - 59.155ms]
+deletefile1          6956675ops    57967ops/s   0.0mb/s    0.107ms/op [0.010ms - 58.367ms]
+121.195: IO Summary: 90436625 ops 753573.163 ops/s 115934/115934 rd/wr 2736.0mb/s 0.020ms/op
+121.195: Shutting down processes
+sudo umount /mnt/nvpcssd/

@@ -1,0 +1,488 @@
+OP=read IOSIZE=16K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=1 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=read, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2225: Sun Apr  7 08:54:00 2024
+  read: IOPS=276k, BW=4305MiB/s (4514MB/s)(8192MiB/1903msec)
+   bw (  MiB/s): min= 4302, max= 4308, per=100.00%, avg=4305.83, stdev= 2.70, samples=3
+   iops        : min=275386, max=275726, avg=275573.33, stdev=172.63, samples=3
+  cpu          : usr=12.35%, sys=87.39%, ctx=195, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524288,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=4305MiB/s (4514MB/s), 4305MiB/s-4305MiB/s (4514MB/s-4514MB/s), io=8192MiB (8590MB), run=1903-1903msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=read, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2285: Sun Apr  7 08:54:28 2024
+  read: IOPS=276k, BW=4309MiB/s (4519MB/s)(8192MiB/1901msec)
+   bw (  MiB/s): min= 4310, max= 4312, per=100.00%, avg=4311.52, stdev= 1.18, samples=3
+   iops        : min=275852, max=275996, avg=275937.33, stdev=75.61, samples=3
+  cpu          : usr=13.00%, sys=86.89%, ctx=196, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524288,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=4309MiB/s (4519MB/s), 4309MiB/s-4309MiB/s (4519MB/s-4519MB/s), io=8192MiB (8590MB), run=1901-1901msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=read, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2345: Sun Apr  7 08:54:56 2024
+  read: IOPS=270k, BW=4218MiB/s (4423MB/s)(8192MiB/1942msec)
+   bw (  MiB/s): min= 4210, max= 4225, per=99.94%, avg=4215.98, stdev= 7.96, samples=3
+   iops        : min=269480, max=270408, avg=269822.67, stdev=509.37, samples=3
+  cpu          : usr=11.08%, sys=88.77%, ctx=206, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524288,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=4218MiB/s (4423MB/s), 4218MiB/s-4218MiB/s (4423MB/s-4423MB/s), io=8192MiB (8590MB), run=1942-1942msec
+sudo umount /mnt/nvpcssd/
+OP=read IOSIZE=16K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=0 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=read, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2407: Sun Apr  7 08:55:24 2024
+  read: IOPS=86.9k, BW=1357MiB/s (1423MB/s)(8192MiB/6036msec)
+   bw (  MiB/s): min= 1355, max= 1368, per=100.00%, avg=1357.45, stdev= 3.91, samples=12
+   iops        : min=86720, max=87552, avg=86877.00, stdev=250.26, samples=12
+  cpu          : usr=3.76%, sys=95.94%, ctx=608, majf=0, minf=11
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524288,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1357MiB/s (1423MB/s), 1357MiB/s-1357MiB/s (1423MB/s-1423MB/s), io=8192MiB (8590MB), run=6036-6036msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=read, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2466: Sun Apr  7 08:55:50 2024
+  read: IOPS=86.7k, BW=1355MiB/s (1421MB/s)(8192MiB/6046msec)
+   bw (  MiB/s): min= 1352, max= 1370, per=100.00%, avg=1355.45, stdev= 5.17, samples=12
+   iops        : min=86574, max=87708, avg=86749.00, stdev=330.93, samples=12
+  cpu          : usr=2.96%, sys=96.71%, ctx=608, majf=0, minf=11
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524288,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1355MiB/s (1421MB/s), 1355MiB/s-1355MiB/s (1421MB/s-1421MB/s), io=8192MiB (8590MB), run=6046-6046msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=read, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2526: Sun Apr  7 08:56:17 2024
+  read: IOPS=86.7k, BW=1355MiB/s (1421MB/s)(8192MiB/6046msec)
+   bw (  MiB/s): min= 1352, max= 1366, per=100.00%, avg=1355.24, stdev= 4.12, samples=12
+   iops        : min=86528, max=87452, avg=86735.67, stdev=263.56, samples=12
+  cpu          : usr=4.15%, sys=95.55%, ctx=595, majf=0, minf=11
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524288,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1355MiB/s (1421MB/s), 1355MiB/s-1355MiB/s (1421MB/s-1421MB/s), io=8192MiB (8590MB), run=6046-6046msec
+sudo umount /mnt/nvpcssd/
+OP=write IOSIZE=16K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=1 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2587: Sun Apr  7 08:56:35 2024
+  write: IOPS=169k, BW=2646MiB/s (2775MB/s)(8192MiB/3096msec); 0 zone resets
+   bw (  MiB/s): min= 2642, max= 2650, per=100.00%, avg=2646.61, stdev= 3.45, samples=6
+   iops        : min=169096, max=169656, avg=169382.67, stdev=220.88, samples=6
+  cpu          : usr=9.14%, sys=90.82%, ctx=327, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=2646MiB/s (2775MB/s), 2646MiB/s-2646MiB/s (2775MB/s-2775MB/s), io=8192MiB (8590MB), run=3096-3096msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2646: Sun Apr  7 08:56:51 2024
+  write: IOPS=169k, BW=2636MiB/s (2764MB/s)(8192MiB/3108msec); 0 zone resets
+   bw (  MiB/s): min= 2493, max= 2679, per=100.00%, avg=2643.99, stdev=73.77, samples=6
+   iops        : min=159600, max=171518, avg=169215.33, stdev=4721.42, samples=6
+  cpu          : usr=10.26%, sys=89.67%, ctx=323, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=2636MiB/s (2764MB/s), 2636MiB/s-2636MiB/s (2764MB/s-2764MB/s), io=8192MiB (8590MB), run=3108-3108msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2705: Sun Apr  7 08:57:08 2024
+  write: IOPS=172k, BW=2687MiB/s (2817MB/s)(8192MiB/3049msec); 0 zone resets
+   bw (  MiB/s): min= 2685, max= 2691, per=100.00%, avg=2687.83, stdev= 2.24, samples=6
+   iops        : min=171892, max=172242, avg=172021.00, stdev=143.93, samples=6
+  cpu          : usr=9.02%, sys=90.88%, ctx=321, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=2687MiB/s (2817MB/s), 2687MiB/s-2687MiB/s (2817MB/s-2817MB/s), io=8192MiB (8590MB), run=3049-3049msec
+sudo umount /mnt/nvpcssd/
+OP=write IOSIZE=16K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=0 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2764: Sun Apr  7 08:57:24 2024
+  write: IOPS=122k, BW=1904MiB/s (1997MB/s)(8192MiB/4302msec); 0 zone resets
+   bw (  MiB/s): min= 1896, max= 1937, per=100.00%, avg=1905.52, stdev=13.33, samples=8
+   iops        : min=121390, max=124018, avg=121953.50, stdev=853.16, samples=8
+  cpu          : usr=7.60%, sys=92.33%, ctx=436, majf=0, minf=10
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1904MiB/s (1997MB/s), 1904MiB/s-1904MiB/s (1997MB/s-1997MB/s), io=8192MiB (8590MB), run=4302-4302msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2823: Sun Apr  7 08:57:38 2024
+  write: IOPS=121k, BW=1883MiB/s (1975MB/s)(8192MiB/4350msec); 0 zone resets
+   bw (  MiB/s): min= 1806, max= 1930, per=99.99%, avg=1883.04, stdev=42.53, samples=8
+   iops        : min=115634, max=123532, avg=120514.50, stdev=2721.96, samples=8
+  cpu          : usr=5.86%, sys=94.02%, ctx=460, majf=0, minf=9
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1883MiB/s (1975MB/s), 1883MiB/s-1883MiB/s (1975MB/s-1975MB/s), io=8192MiB (8590MB), run=4350-4350msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2883: Sun Apr  7 08:57:53 2024
+  write: IOPS=123k, BW=1918MiB/s (2011MB/s)(8192MiB/4272msec); 0 zone resets
+   bw (  MiB/s): min= 1908, max= 1945, per=100.00%, avg=1918.25, stdev=11.79, samples=8
+   iops        : min=122134, max=124510, avg=122767.75, stdev=754.66, samples=8
+  cpu          : usr=7.84%, sys=92.09%, ctx=440, majf=0, minf=9
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1918MiB/s (2011MB/s), 1918MiB/s-1918MiB/s (2011MB/s-2011MB/s), io=8192MiB (8590MB), run=4272-4272msec
+sudo umount /mnt/nvpcssd/
+OP=randread IOSIZE=4K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=1 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2942: Sun Apr  7 08:58:26 2024
+  read: IOPS=661k, BW=2580MiB/s (2705MB/s)(8192MiB/3175msec)
+   bw (  MiB/s): min= 2535, max= 2602, per=99.93%, avg=2578.30, stdev=25.54, samples=6
+   iops        : min=648976, max=666204, avg=660046.33, stdev=6537.56, samples=6
+  cpu          : usr=31.32%, sys=68.56%, ctx=333, majf=0, minf=5
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=2097152,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2580MiB/s (2705MB/s), 2580MiB/s-2580MiB/s (2705MB/s-2705MB/s), io=8192MiB (8590MB), run=3175-3175msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3002: Sun Apr  7 08:58:56 2024
+  read: IOPS=657k, BW=2566MiB/s (2691MB/s)(8192MiB/3192msec)
+   bw (  MiB/s): min= 2529, max= 2583, per=99.93%, avg=2564.74, stdev=19.52, samples=6
+   iops        : min=647488, max=661376, avg=656573.33, stdev=4998.24, samples=6
+  cpu          : usr=30.90%, sys=69.07%, ctx=338, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=2097152,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2566MiB/s (2691MB/s), 2566MiB/s-2566MiB/s (2691MB/s-2691MB/s), io=8192MiB (8590MB), run=3192-3192msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3061: Sun Apr  7 08:59:27 2024
+  read: IOPS=658k, BW=2570MiB/s (2694MB/s)(8192MiB/3188msec)
+   bw (  MiB/s): min= 2527, max= 2589, per=99.94%, avg=2568.15, stdev=22.39, samples=6
+   iops        : min=647086, max=662836, avg=657447.33, stdev=5732.55, samples=6
+  cpu          : usr=33.20%, sys=66.77%, ctx=336, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=2097152,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2570MiB/s (2694MB/s), 2570MiB/s-2570MiB/s (2694MB/s-2694MB/s), io=8192MiB (8590MB), run=3188-3188msec
+sudo umount /mnt/nvpcssd/
+OP=randread IOSIZE=4K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=0 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3120: Sun Apr  7 08:59:59 2024
+  read: IOPS=215k, BW=841MiB/s (882MB/s)(8192MiB/9739msec)
+   bw (  KiB/s): min=857552, max=864800, per=99.95%, avg=860932.63, stdev=2093.18, samples=19
+   iops        : min=214388, max=216202, avg=215233.16, stdev=523.39, samples=19
+  cpu          : usr=11.82%, sys=88.13%, ctx=1012, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=2097152,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=841MiB/s (882MB/s), 841MiB/s-841MiB/s (882MB/s-882MB/s), io=8192MiB (8590MB), run=9739-9739msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3179: Sun Apr  7 09:00:30 2024
+  read: IOPS=216k, BW=845MiB/s (886MB/s)(8192MiB/9692msec)
+   bw (  KiB/s): min=860736, max=869144, per=99.95%, avg=865046.74, stdev=1755.84, samples=19
+   iops        : min=215184, max=217288, avg=216261.79, stdev=439.22, samples=19
+  cpu          : usr=12.99%, sys=86.96%, ctx=1008, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=2097152,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=845MiB/s (886MB/s), 845MiB/s-845MiB/s (886MB/s-886MB/s), io=8192MiB (8590MB), run=9692-9692msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3240: Sun Apr  7 09:01:01 2024
+  read: IOPS=217k, BW=846MiB/s (887MB/s)(8192MiB/9686msec)
+   bw (  KiB/s): min=861664, max=870760, per=99.96%, avg=865685.47, stdev=3190.45, samples=19
+   iops        : min=215416, max=217690, avg=216421.37, stdev=797.61, samples=19
+  cpu          : usr=11.80%, sys=88.15%, ctx=996, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=2097152,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=846MiB/s (887MB/s), 846MiB/s-846MiB/s (887MB/s-887MB/s), io=8192MiB (8590MB), run=9686-9686msec
+sudo umount /mnt/nvpcssd/
+OP=randwrite IOSIZE=4K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=1 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3300: Sun Apr  7 09:01:21 2024
+  write: IOPS=401k, BW=1568MiB/s (1644MB/s)(8192MiB/5226msec); 0 zone resets
+   bw (  MiB/s): min= 1556, max= 1576, per=99.84%, avg=1565.10, stdev= 7.76, samples=10
+   iops        : min=398364, max=403568, avg=400664.60, stdev=1987.30, samples=10
+  cpu          : usr=24.33%, sys=75.60%, ctx=545, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1568MiB/s (1644MB/s), 1568MiB/s-1568MiB/s (1644MB/s-1644MB/s), io=8192MiB (8590MB), run=5226-5226msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3362: Sun Apr  7 09:01:41 2024
+  write: IOPS=382k, BW=1491MiB/s (1563MB/s)(8192MiB/5496msec); 0 zone resets
+   bw (  MiB/s): min= 1293, max= 1606, per=99.83%, avg=1487.94, stdev=112.03, samples=10
+   iops        : min=331118, max=411178, avg=380911.20, stdev=28679.05, samples=10
+  cpu          : usr=23.57%, sys=76.40%, ctx=590, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1491MiB/s (1563MB/s), 1491MiB/s-1491MiB/s (1563MB/s-1563MB/s), io=8192MiB (8590MB), run=5496-5496msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3421: Sun Apr  7 09:02:01 2024
+  write: IOPS=408k, BW=1593MiB/s (1671MB/s)(8192MiB/5141msec); 0 zone resets
+   bw (  MiB/s): min= 1576, max= 1607, per=99.89%, avg=1591.64, stdev=10.02, samples=10
+   iops        : min=403668, max=411514, avg=407458.80, stdev=2564.09, samples=10
+  cpu          : usr=23.56%, sys=76.40%, ctx=527, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1593MiB/s (1671MB/s), 1593MiB/s-1593MiB/s (1671MB/s-1671MB/s), io=8192MiB (8590MB), run=5141-5141msec
+sudo umount /mnt/nvpcssd/
+OP=randwrite IOSIZE=4K FILESIZE=8g DIRPATH=/mnt/nvpcssd/ FILENAME=file8g PREREAD=0 
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3481: Sun Apr  7 09:02:20 2024
+  write: IOPS=324k, BW=1266MiB/s (1327MB/s)(8192MiB/6471msec); 0 zone resets
+   bw (  MiB/s): min= 1087, max= 1314, per=99.95%, avg=1265.28, stdev=64.72, samples=12
+   iops        : min=278404, max=336414, avg=323911.67, stdev=16567.69, samples=12
+  cpu          : usr=20.06%, sys=79.88%, ctx=669, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1266MiB/s (1327MB/s), 1266MiB/s-1266MiB/s (1327MB/s-1327MB/s), io=8192MiB (8590MB), run=6471-6471msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3540: Sun Apr  7 09:02:37 2024
+  write: IOPS=326k, BW=1274MiB/s (1335MB/s)(8192MiB/6432msec); 0 zone resets
+   bw (  MiB/s): min= 1268, max= 1277, per=99.87%, avg=1271.96, stdev= 3.06, samples=12
+   iops        : min=324820, max=327008, avg=325622.33, stdev=784.52, samples=12
+  cpu          : usr=21.82%, sys=78.14%, ctx=655, majf=0, minf=7
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1274MiB/s (1335MB/s), 1274MiB/s-1274MiB/s (1335MB/s-1335MB/s), io=8192MiB (8590MB), run=6432-6432msec
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/pmem0 /mnt/nvpcssd/
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 8192MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3599: Sun Apr  7 09:02:55 2024
+  write: IOPS=305k, BW=1192MiB/s (1250MB/s)(8192MiB/6872msec); 0 zone resets
+   bw (  MiB/s): min= 1065, max= 1323, per=99.78%, avg=1189.47, stdev=61.71, samples=13
+   iops        : min=272710, max=338824, avg=304505.08, stdev=15797.34, samples=13
+  cpu          : usr=19.47%, sys=80.45%, ctx=715, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1192MiB/s (1250MB/s), 1192MiB/s-1192MiB/s (1250MB/s-1250MB/s), io=8192MiB (8590MB), run=6872-6872msec
+sudo umount /mnt/nvpcssd/

@@ -1,0 +1,781 @@
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=4154: Thu Mar 28 04:56:36 2024
+  write: IOPS=230k, BW=22.0MiB/s (23.0MB/s)(2048MiB/93258msec); 0 zone resets
+   bw (  KiB/s): min=21407, max=22933, per=100.00%, avg=22488.77, stdev=247.29, samples=186
+   iops        : min=219216, max=234840, avg=230290.20, stdev=2532.16, samples=186
+  cpu          : usr=18.97%, sys=80.98%, ctx=9076, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,21474836 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=22.0MiB/s (23.0MB/s), 22.0MiB/s-22.0MiB/s (23.0MB/s-23.0MB/s), io=2048MiB (2147MB), run=93258-93258msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2226: Thu Mar 28 05:22:27 2024
+  write: IOPS=233k, BW=22.2MiB/s (23.3MB/s)(2048MiB/92175msec); 0 zone resets
+   bw (  KiB/s): min=21528, max=23046, per=100.00%, avg=22753.22, stdev=214.39, samples=184
+   iops        : min=220452, max=235992, avg=232997.89, stdev=2195.63, samples=184
+  cpu          : usr=18.66%, sys=81.31%, ctx=8822, majf=0, minf=7
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,21474836 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=22.2MiB/s (23.3MB/s), 22.2MiB/s-22.2MiB/s (23.3MB/s-23.3MB/s), io=2048MiB (2147MB), run=92175-92175msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 100B-100B, (W) 100B-100B, (T) 100B-100B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2295: Thu Mar 28 05:24:36 2024
+  write: IOPS=181k, BW=17.3MiB/s (18.1MB/s)(2048MiB/118650msec); 0 zone resets
+   bw (  KiB/s): min=13678, max=19284, per=99.98%, avg=17672.66, stdev=828.10, samples=237
+   iops        : min=140070, max=197470, avg=180973.05, stdev=8479.68, samples=237
+  cpu          : usr=16.59%, sys=83.33%, ctx=11409, majf=0, minf=6
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,21474836,0,21474836 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=17.3MiB/s (18.1MB/s), 17.3MiB/s-17.3MiB/s (18.1MB/s-18.1MB/s), io=2048MiB (2147MB), run=118650-118650msec
+sudo umount /mnt/nvpcssd/
+
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2141: Thu Mar 28 04:43:55 2024
+  write: IOPS=211k, BW=206MiB/s (216MB/s)(2048MiB/9933msec); 0 zone resets
+   bw (  KiB/s): min=184882, max=215934, per=99.97%, avg=211061.47, stdev=7610.30, samples=19
+   iops        : min=184882, max=215934, avg=211061.47, stdev=7610.31, samples=19
+  cpu          : usr=16.98%, sys=82.93%, ctx=1219, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=206MiB/s (216MB/s), 206MiB/s-206MiB/s (216MB/s-216MB/s), io=2048MiB (2147MB), run=9933-9933msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2209: Thu Mar 28 04:44:15 2024
+  write: IOPS=213k, BW=208MiB/s (218MB/s)(2048MiB/9865msec); 0 zone resets
+   bw (  KiB/s): min=209358, max=216908, per=100.00%, avg=212586.21, stdev=2189.25, samples=19
+   iops        : min=209358, max=216908, avg=212586.21, stdev=2189.25, samples=19
+  cpu          : usr=16.09%, sys=83.84%, ctx=1163, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=208MiB/s (218MB/s), 208MiB/s-208MiB/s (218MB/s-218MB/s), io=2048MiB (2147MB), run=9865-9865msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2277: Thu Mar 28 04:44:34 2024
+  write: IOPS=211k, BW=206MiB/s (216MB/s)(2048MiB/9923msec); 0 zone resets
+   bw (  KiB/s): min=208070, max=213920, per=99.95%, avg=211241.26, stdev=1781.38, samples=19
+   iops        : min=208070, max=213920, avg=211241.26, stdev=1781.38, samples=19
+  cpu          : usr=18.33%, sys=81.59%, ctx=1103, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=206MiB/s (216MB/s), 206MiB/s-206MiB/s (216MB/s-216MB/s), io=2048MiB (2147MB), run=9923-9923msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2344: Thu Mar 28 04:44:54 2024
+  write: IOPS=210k, BW=205MiB/s (215MB/s)(2048MiB/10009msec); 0 zone resets
+   bw (  KiB/s): min=187876, max=216146, per=100.00%, avg=209561.70, stdev=7055.01, samples=20
+   iops        : min=187876, max=216146, avg=209561.90, stdev=7055.18, samples=20
+  cpu          : usr=17.18%, sys=82.75%, ctx=1057, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=205MiB/s (215MB/s), 205MiB/s-205MiB/s (215MB/s-215MB/s), io=2048MiB (2147MB), run=10009-10009msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2415: Thu Mar 28 04:45:14 2024
+  write: IOPS=215k, BW=210MiB/s (220MB/s)(2048MiB/9757msec); 0 zone resets
+   bw (  KiB/s): min=212326, max=217490, per=100.00%, avg=215013.79, stdev=1628.39, samples=19
+   iops        : min=212326, max=217490, avg=215013.79, stdev=1628.39, samples=19
+  cpu          : usr=18.23%, sys=81.68%, ctx=982, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=210MiB/s (220MB/s), 210MiB/s-210MiB/s (220MB/s-220MB/s), io=2048MiB (2147MB), run=9757-9757msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2483: Thu Mar 28 04:45:34 2024
+  write: IOPS=213k, BW=208MiB/s (218MB/s)(2048MiB/9862msec); 0 zone resets
+   bw (  KiB/s): min=208208, max=214976, per=100.00%, avg=212687.58, stdev=1830.79, samples=19
+   iops        : min=208208, max=214976, avg=212687.68, stdev=1830.76, samples=19
+  cpu          : usr=18.13%, sys=81.83%, ctx=967, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=208MiB/s (218MB/s), 208MiB/s-208MiB/s (218MB/s-218MB/s), io=2048MiB (2147MB), run=9862-9862msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2550: Thu Mar 28 04:45:55 2024
+  write: IOPS=179k, BW=174MiB/s (183MB/s)(2048MiB/11748msec); 0 zone resets
+   bw (  KiB/s): min=157676, max=189428, per=99.82%, avg=178194.70, stdev=8999.80, samples=23
+   iops        : min=157678, max=189428, avg=178194.87, stdev=8999.43, samples=23
+  cpu          : usr=16.81%, sys=83.14%, ctx=1154, majf=0, minf=6
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=174MiB/s (183MB/s), 174MiB/s-174MiB/s (183MB/s-183MB/s), io=2048MiB (2147MB), run=11748-11748msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2617: Thu Mar 28 04:46:17 2024
+  write: IOPS=173k, BW=169MiB/s (178MB/s)(2048MiB/12090msec); 0 zone resets
+   bw (  KiB/s): min=145712, max=185028, per=99.94%, avg=173355.58, stdev=9501.40, samples=24
+   iops        : min=145712, max=185028, avg=173355.58, stdev=9501.40, samples=24
+  cpu          : usr=15.73%, sys=84.09%, ctx=1164, majf=0, minf=6
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=169MiB/s (178MB/s), 169MiB/s-169MiB/s (178MB/s-178MB/s), io=2048MiB (2147MB), run=12090-12090msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2684: Thu Mar 28 04:46:39 2024
+  write: IOPS=179k, BW=175MiB/s (184MB/s)(2048MiB/11702msec); 0 zone resets
+   bw (  KiB/s): min=158830, max=189614, per=99.86%, avg=178969.91, stdev=8560.31, samples=23
+   iops        : min=158830, max=189614, avg=178969.91, stdev=8560.31, samples=23
+  cpu          : usr=16.27%, sys=83.67%, ctx=1109, majf=0, minf=7
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2097152,0,2097151 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=175MiB/s (184MB/s), 175MiB/s-175MiB/s (184MB/s-184MB/s), io=2048MiB (2147MB), run=11702-11702msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2754: Thu Mar 28 04:46:52 2024
+  write: IOPS=169k, BW=659MiB/s (691MB/s)(2048MiB/3110msec); 0 zone resets
+   bw (  KiB/s): min=666504, max=681672, per=100.00%, avg=674465.33, stdev=6094.52, samples=6
+   iops        : min=166626, max=170418, avg=168616.33, stdev=1523.63, samples=6
+  cpu          : usr=14.28%, sys=85.59%, ctx=290, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=659MiB/s (691MB/s), 659MiB/s-659MiB/s (691MB/s-691MB/s), io=2048MiB (2147MB), run=3110-3110msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2821: Thu Mar 28 04:47:05 2024
+  write: IOPS=173k, BW=674MiB/s (707MB/s)(2048MiB/3037msec); 0 zone resets
+   bw (  KiB/s): min=679920, max=696984, per=100.00%, avg=690789.33, stdev=6707.32, samples=6
+   iops        : min=169980, max=174246, avg=172697.67, stdev=1677.11, samples=6
+  cpu          : usr=16.30%, sys=83.63%, ctx=278, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=674MiB/s (707MB/s), 674MiB/s-674MiB/s (707MB/s-707MB/s), io=2048MiB (2147MB), run=3037-3037msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2888: Thu Mar 28 04:47:18 2024
+  write: IOPS=171k, BW=668MiB/s (701MB/s)(2048MiB/3065msec); 0 zone resets
+   bw (  KiB/s): min=674176, max=693712, per=100.00%, avg=684536.00, stdev=7716.02, samples=6
+   iops        : min=168544, max=173428, avg=171134.00, stdev=1929.00, samples=6
+  cpu          : usr=13.94%, sys=86.00%, ctx=290, majf=0, minf=10
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=668MiB/s (701MB/s), 668MiB/s-668MiB/s (701MB/s-701MB/s), io=2048MiB (2147MB), run=3065-3065msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=2955: Thu Mar 28 04:47:31 2024
+  write: IOPS=169k, BW=660MiB/s (692MB/s)(2048MiB/3103msec); 0 zone resets
+   bw (  KiB/s): min=658472, max=689384, per=100.00%, avg=676437.33, stdev=14029.44, samples=6
+   iops        : min=164618, max=172344, avg=169109.33, stdev=3507.16, samples=6
+  cpu          : usr=15.05%, sys=84.91%, ctx=297, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=660MiB/s (692MB/s), 660MiB/s-660MiB/s (692MB/s-692MB/s), io=2048MiB (2147MB), run=3103-3103msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3022: Thu Mar 28 04:47:44 2024
+  write: IOPS=171k, BW=669MiB/s (701MB/s)(2048MiB/3062msec); 0 zone resets
+   bw (  KiB/s): min=663432, max=695928, per=100.00%, avg=685857.33, stdev=11849.01, samples=6
+   iops        : min=165858, max=173982, avg=171464.33, stdev=2962.25, samples=6
+  cpu          : usr=15.39%, sys=84.48%, ctx=283, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=669MiB/s (701MB/s), 669MiB/s-669MiB/s (701MB/s-701MB/s), io=2048MiB (2147MB), run=3062-3062msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3089: Thu Mar 28 04:47:57 2024
+  write: IOPS=169k, BW=659MiB/s (691MB/s)(2048MiB/3107msec); 0 zone resets
+   bw (  KiB/s): min=665944, max=682336, per=100.00%, avg=675221.33, stdev=6021.23, samples=6
+   iops        : min=166486, max=170584, avg=168806.00, stdev=1505.12, samples=6
+  cpu          : usr=17.13%, sys=82.84%, ctx=291, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=659MiB/s (691MB/s), 659MiB/s-659MiB/s (691MB/s-691MB/s), io=2048MiB (2147MB), run=3107-3107msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3156: Thu Mar 28 04:48:10 2024
+  write: IOPS=157k, BW=612MiB/s (642MB/s)(2048MiB/3346msec); 0 zone resets
+   bw (  KiB/s): min=615376, max=632336, per=99.86%, avg=625913.33, stdev=7347.78, samples=6
+   iops        : min=153844, max=158084, avg=156478.67, stdev=1836.91, samples=6
+  cpu          : usr=13.72%, sys=86.16%, ctx=399, majf=0, minf=6
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=612MiB/s (642MB/s), 612MiB/s-612MiB/s (642MB/s-642MB/s), io=2048MiB (2147MB), run=3346-3346msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3223: Thu Mar 28 04:48:23 2024
+  write: IOPS=159k, BW=622MiB/s (652MB/s)(2048MiB/3292msec); 0 zone resets
+   bw (  KiB/s): min=629536, max=639776, per=99.91%, avg=636456.00, stdev=4163.16, samples=6
+   iops        : min=157384, max=159944, avg=159114.00, stdev=1040.79, samples=6
+  cpu          : usr=15.80%, sys=84.11%, ctx=387, majf=0, minf=7
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=622MiB/s (652MB/s), 622MiB/s-622MiB/s (652MB/s-652MB/s), io=2048MiB (2147MB), run=3292-3292msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3290: Thu Mar 28 04:48:37 2024
+  write: IOPS=160k, BW=625MiB/s (656MB/s)(2048MiB/3276msec); 0 zone resets
+   bw (  KiB/s): min=634288, max=642528, per=99.95%, avg=639841.33, stdev=3615.67, samples=6
+   iops        : min=158572, max=160632, avg=159960.33, stdev=903.92, samples=6
+  cpu          : usr=15.11%, sys=84.82%, ctx=374, majf=0, minf=6
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,524288,0,524287 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=625MiB/s (656MB/s), 625MiB/s-625MiB/s (656MB/s-656MB/s), io=2048MiB (2147MB), run=3276-3276msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3357: Thu Mar 28 04:48:49 2024
+  write: IOPS=51.4k, BW=803MiB/s (841MB/s)(2048MiB/2552msec); 0 zone resets
+   bw (  KiB/s): min=814432, max=830016, per=100.00%, avg=822214.40, stdev=6253.70, samples=5
+   iops        : min=50902, max=51874, avg=51388.00, stdev=390.23, samples=5
+  cpu          : usr=4.35%, sys=95.57%, ctx=286, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=803MiB/s (841MB/s), 803MiB/s-803MiB/s (841MB/s-841MB/s), io=2048MiB (2147MB), run=2552-2552msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3424: Thu Mar 28 04:49:02 2024
+  write: IOPS=51.7k, BW=809MiB/s (848MB/s)(2048MiB/2533msec); 0 zone resets
+   bw (  KiB/s): min=824384, max=833984, per=100.00%, avg=828300.80, stdev=4086.59, samples=5
+   iops        : min=51524, max=52124, avg=51768.80, stdev=255.41, samples=5
+  cpu          : usr=3.75%, sys=96.09%, ctx=287, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=809MiB/s (848MB/s), 809MiB/s-809MiB/s (848MB/s-848MB/s), io=2048MiB (2147MB), run=2533-2533msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3491: Thu Mar 28 04:49:14 2024
+  write: IOPS=51.7k, BW=808MiB/s (847MB/s)(2048MiB/2534msec); 0 zone resets
+   bw (  KiB/s): min=825184, max=832576, per=100.00%, avg=827878.40, stdev=3284.13, samples=5
+   iops        : min=51574, max=52036, avg=51742.40, stdev=205.26, samples=5
+  cpu          : usr=6.59%, sys=93.25%, ctx=277, majf=0, minf=7
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=808MiB/s (847MB/s), 808MiB/s-808MiB/s (847MB/s-847MB/s), io=2048MiB (2147MB), run=2534-2534msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3558: Thu Mar 28 04:49:26 2024
+  write: IOPS=51.5k, BW=804MiB/s (843MB/s)(2048MiB/2547msec); 0 zone resets
+   bw (  KiB/s): min=815328, max=830784, per=100.00%, avg=823795.20, stdev=5731.60, samples=5
+   iops        : min=50958, max=51924, avg=51487.20, stdev=358.23, samples=5
+  cpu          : usr=5.15%, sys=94.78%, ctx=275, majf=0, minf=8
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=804MiB/s (843MB/s), 804MiB/s-804MiB/s (843MB/s-843MB/s), io=2048MiB (2147MB), run=2547-2547msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3626: Thu Mar 28 04:49:39 2024
+  write: IOPS=51.5k, BW=804MiB/s (843MB/s)(2048MiB/2547msec); 0 zone resets
+   bw (  KiB/s): min=816064, max=829248, per=100.00%, avg=823552.00, stdev=5522.62, samples=5
+   iops        : min=51004, max=51828, avg=51472.00, stdev=345.16, samples=5
+  cpu          : usr=5.15%, sys=94.78%, ctx=271, majf=0, minf=7
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=804MiB/s (843MB/s), 804MiB/s-804MiB/s (843MB/s-843MB/s), io=2048MiB (2147MB), run=2547-2547msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=write, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3693: Thu Mar 28 04:49:51 2024
+  write: IOPS=51.7k, BW=807MiB/s (846MB/s)(2048MiB/2537msec); 0 zone resets
+   bw (  KiB/s): min=824064, max=833600, per=100.00%, avg=827180.80, stdev=4052.62, samples=5
+   iops        : min=51504, max=52100, avg=51698.80, stdev=253.29, samples=5
+  cpu          : usr=4.38%, sys=95.43%, ctx=270, majf=0, minf=9
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=807MiB/s (846MB/s), 807MiB/s-807MiB/s (846MB/s-846MB/s), io=2048MiB (2147MB), run=2537-2537msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3760: Thu Mar 28 04:50:04 2024
+  write: IOPS=49.8k, BW=778MiB/s (816MB/s)(2048MiB/2632msec); 0 zone resets
+   bw (  KiB/s): min=788672, max=801440, per=99.97%, avg=796588.80, stdev=5147.46, samples=5
+   iops        : min=49292, max=50090, avg=49786.80, stdev=321.72, samples=5
+  cpu          : usr=5.13%, sys=94.72%, ctx=278, majf=0, minf=5
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=778MiB/s (816MB/s), 778MiB/s-778MiB/s (816MB/s-816MB/s), io=2048MiB (2147MB), run=2632-2632msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3827: Thu Mar 28 04:50:16 2024
+  write: IOPS=50.5k, BW=789MiB/s (827MB/s)(2048MiB/2597msec); 0 zone resets
+   bw (  KiB/s): min=801856, max=811520, per=100.00%, avg=807526.40, stdev=4205.44, samples=5
+   iops        : min=50116, max=50720, avg=50470.40, stdev=262.84, samples=5
+  cpu          : usr=4.74%, sys=95.11%, ctx=275, majf=0, minf=6
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=789MiB/s (827MB/s), 789MiB/s-789MiB/s (827MB/s-827MB/s), io=2048MiB (2147MB), run=2597-2597msec
+sudo umount /mnt/nvpcssd/
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+nvpcctl: running cmd: echo 0 > /sys/module/libnvpc/parameters/nvpc_active_sync
+nvpcctl: nvpc activesync set state to: 0
+N
+nvpcctl: nvpc activesync state: 
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync set 0 ; sudo /home/shh/git_clone/nvpc/utils/nvpcctl activesync show
+job1: (g=0): rw=randwrite, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+job1: Laying out IO file (1 file / 2048MiB)
+
+job1: (groupid=0, jobs=1): err= 0: pid=3895: Thu Mar 28 04:50:29 2024
+  write: IOPS=50.5k, BW=789MiB/s (827MB/s)(2048MiB/2597msec); 0 zone resets
+   bw (  KiB/s): min=798560, max=812192, per=100.00%, avg=807532.80, stdev=5944.28, samples=5
+   iops        : min=49910, max=50762, avg=50470.80, stdev=371.52, samples=5
+  cpu          : usr=5.82%, sys=94.11%, ctx=263, majf=0, minf=7
+  IO depths    : 1=200.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,131072,0,131071 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=789MiB/s (827MB/s), 789MiB/s-789MiB/s (827MB/s-827MB/s), io=2048MiB (2147MB), run=2597-2597msec
+sudo umount /mnt/nvpcssd/
