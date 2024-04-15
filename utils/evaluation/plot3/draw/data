@@ -1,0 +1,5 @@
+#iosize 1000G
+#                   random          zipf
+#ext416             76.16           257.66
+#ext448             261.66          844.33
+#nvpcdef1632        254             692.66

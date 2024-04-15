@@ -1,0 +1,577 @@
+Executing ./mix_rws with parameters: 01 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 2.00 s; total: 2048.00 MB; IOs: 524288; thp: 262406.41 iops; bw: 1025.03 MB/s
+done.
+Executing ./mix_rws with parameters: 01 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 265327.94 iops; bw: 1036.44 MB/s
+done.
+Executing ./mix_rws with parameters: 01 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 264258.06 iops; bw: 1032.26 MB/s
+done.
+Executing ./mix_rws with parameters: 01 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.97 s; total: 2048.00 MB; IOs: 524288; thp: 265596.76 iops; bw: 1037.49 MB/s
+done.
+Executing ./mix_rws with parameters: 01 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 265462.28 iops; bw: 1036.96 MB/s
+done.
+Executing ./mix_rws with parameters: 01 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 264925.72 iops; bw: 1034.87 MB/s
+done.
+Executing ./mix_rws with parameters: 01 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 264925.72 iops; bw: 1034.87 MB/s
+done.
+Executing ./mix_rws with parameters: 01 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 2.00 s; total: 2048.00 MB; IOs: 524288; thp: 262406.41 iops; bw: 1025.03 MB/s
+done.
+Executing ./mix_rws with parameters: 01 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.99 s; total: 2048.00 MB; IOs: 524288; thp: 264124.94 iops; bw: 1031.74 MB/s
+done.
+Executing ./mix_rws with parameters: 01 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.99 s; total: 2048.00 MB; IOs: 524288; thp: 263991.94 iops; bw: 1031.22 MB/s
+done.
+Executing ./mix_rws with parameters: 01 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 265327.94 iops; bw: 1036.44 MB/s
+done.
+Executing ./mix_rws with parameters: 01 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.99 s; total: 2048.00 MB; IOs: 524288; thp: 263196.79 iops; bw: 1028.11 MB/s
+done.
+Executing ./mix_rws with parameters: 01 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.99 s; total: 2048.00 MB; IOs: 524288; thp: 263593.77 iops; bw: 1029.66 MB/s
+done.
+Executing ./mix_rws with parameters: 01 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 264258.06 iops; bw: 1032.26 MB/s
+done.
+Executing ./mix_rws with parameters: 01 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.99 s; total: 2048.00 MB; IOs: 524288; thp: 262932.80 iops; bw: 1027.08 MB/s
+done.
+Executing ./mix_rws with parameters: 01 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.97 s; total: 2048.00 MB; IOs: 524288; thp: 266406.50 iops; bw: 1040.65 MB/s
+done.
+Executing ./mix_rws with parameters: 01 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.99 s; total: 2048.00 MB; IOs: 524288; thp: 263859.08 iops; bw: 1030.70 MB/s
+done.
+Executing ./mix_rws with parameters: 01 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=01, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.98 s; total: 2048.00 MB; IOs: 524288; thp: 264925.72 iops; bw: 1034.87 MB/s
+done.
+Executing ./mix_rws with parameters: 37 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.60 s; total: 2048.00 MB; IOs: 524288; thp: 326659.19 iops; bw: 1276.01 MB/s
+done.
+Executing ./mix_rws with parameters: 37 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.61 s; total: 2048.00 MB; IOs: 524288; thp: 326049.75 iops; bw: 1273.63 MB/s
+done.
+Executing ./mix_rws with parameters: 37 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.61 s; total: 2048.00 MB; IOs: 524288; thp: 325644.72 iops; bw: 1272.05 MB/s
+done.
+Executing ./mix_rws with parameters: 37 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.59 s; total: 2048.00 MB; IOs: 524288; thp: 329119.90 iops; bw: 1285.62 MB/s
+done.
+Executing ./mix_rws with parameters: 37 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.60 s; total: 2048.00 MB; IOs: 524288; thp: 327066.75 iops; bw: 1277.60 MB/s
+done.
+Executing ./mix_rws with parameters: 37 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.60 s; total: 2048.00 MB; IOs: 524288; thp: 327270.91 iops; bw: 1278.40 MB/s
+done.
+Executing ./mix_rws with parameters: 37 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.61 s; total: 2048.00 MB; IOs: 524288; thp: 326049.75 iops; bw: 1273.63 MB/s
+done.
+Executing ./mix_rws with parameters: 37 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.59 s; total: 2048.00 MB; IOs: 524288; thp: 328707.21 iops; bw: 1284.01 MB/s
+done.
+Executing ./mix_rws with parameters: 37 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.60 s; total: 2048.00 MB; IOs: 524288; thp: 328295.55 iops; bw: 1282.40 MB/s
+done.
+Executing ./mix_rws with parameters: 37 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.59 s; total: 2048.00 MB; IOs: 524288; thp: 329948.40 iops; bw: 1288.86 MB/s
+done.
+Executing ./mix_rws with parameters: 37 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.59 s; total: 2048.00 MB; IOs: 524288; thp: 329948.40 iops; bw: 1288.86 MB/s
+done.
+Executing ./mix_rws with parameters: 37 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.61 s; total: 2048.00 MB; IOs: 524288; thp: 325240.69 iops; bw: 1270.47 MB/s
+done.
+Executing ./mix_rws with parameters: 37 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.60 s; total: 2048.00 MB; IOs: 524288; thp: 327066.75 iops; bw: 1277.60 MB/s
+done.
+Executing ./mix_rws with parameters: 37 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.61 s; total: 2048.00 MB; IOs: 524288; thp: 325240.69 iops; bw: 1270.47 MB/s
+done.
+Executing ./mix_rws with parameters: 37 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.62 s; total: 2048.00 MB; IOs: 524288; thp: 323634.57 iops; bw: 1264.20 MB/s
+done.
+Executing ./mix_rws with parameters: 37 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.59 s; total: 2048.00 MB; IOs: 524288; thp: 329119.90 iops; bw: 1285.62 MB/s
+done.
+Executing ./mix_rws with parameters: 37 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.61 s; total: 2048.00 MB; IOs: 524288; thp: 324636.53 iops; bw: 1268.11 MB/s
+done.
+Executing ./mix_rws with parameters: 37 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=37, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.61 s; total: 2048.00 MB; IOs: 524288; thp: 326252.64 iops; bw: 1274.42 MB/s
+done.
+
+Executing ./mix_rws with parameters: 55 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 393314.33 iops; bw: 1536.38 MB/s
+done.
+Executing ./mix_rws with parameters: 55 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.32 s; total: 2048.00 MB; IOs: 524288; thp: 395689.06 iops; bw: 1545.66 MB/s
+done.
+Executing ./mix_rws with parameters: 55 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.32 s; total: 2048.00 MB; IOs: 524288; thp: 395689.06 iops; bw: 1545.66 MB/s
+done.
+Executing ./mix_rws with parameters: 55 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 395092.69 iops; bw: 1543.33 MB/s
+done.
+Executing ./mix_rws with parameters: 55 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 393019.49 iops; bw: 1535.23 MB/s
+done.
+Executing ./mix_rws with parameters: 55 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 393609.61 iops; bw: 1537.54 MB/s
+done.
+Executing ./mix_rws with parameters: 55 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.34 s; total: 2048.00 MB; IOs: 524288; thp: 391551.90 iops; bw: 1529.50 MB/s
+done.
+Executing ./mix_rws with parameters: 55 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 393609.61 iops; bw: 1537.54 MB/s
+done.
+Executing ./mix_rws with parameters: 55 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 393314.33 iops; bw: 1536.38 MB/s
+done.
+Executing ./mix_rws with parameters: 55 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 393019.49 iops; bw: 1535.23 MB/s
+done.
+Executing ./mix_rws with parameters: 55 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.34 s; total: 2048.00 MB; IOs: 524288; thp: 392431.14 iops; bw: 1532.93 MB/s
+done.
+Executing ./mix_rws with parameters: 55 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 393905.33 iops; bw: 1538.69 MB/s
+done.
+Executing ./mix_rws with parameters: 55 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 394498.12 iops; bw: 1541.01 MB/s
+done.
+Executing ./mix_rws with parameters: 55 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 395092.69 iops; bw: 1543.33 MB/s
+done.
+Executing ./mix_rws with parameters: 55 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 395092.69 iops; bw: 1543.33 MB/s
+done.
+Executing ./mix_rws with parameters: 55 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.32 s; total: 2048.00 MB; IOs: 524288; thp: 395689.06 iops; bw: 1545.66 MB/s
+done.
+Executing ./mix_rws with parameters: 55 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.32 s; total: 2048.00 MB; IOs: 524288; thp: 395689.06 iops; bw: 1545.66 MB/s
+done.
+Executing ./mix_rws with parameters: 55 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=55, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.33 s; total: 2048.00 MB; IOs: 524288; thp: 394795.18 iops; bw: 1542.17 MB/s
+done.
+Executing ./mix_rws with parameters: 73 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 496015.14 iops; bw: 1937.56 MB/s
+done.
+Executing ./mix_rws with parameters: 73 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 499321.90 iops; bw: 1950.48 MB/s
+done.
+Executing ./mix_rws with parameters: 73 0
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=0, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 494611.32 iops; bw: 1932.08 MB/s
+done.
+Executing ./mix_rws with parameters: 73 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 493215.43 iops; bw: 1926.62 MB/s
+done.
+Executing ./mix_rws with parameters: 73 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 498846.81 iops; bw: 1948.62 MB/s
+done.
+Executing ./mix_rws with parameters: 73 2
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=2, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 495546.31 iops; bw: 1935.73 MB/s
+done.
+Executing ./mix_rws with parameters: 73 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 494145.15 iops; bw: 1930.25 MB/s
+done.
+Executing ./mix_rws with parameters: 73 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 496484.85 iops; bw: 1939.39 MB/s
+done.
+Executing ./mix_rws with parameters: 73 4
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=4, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 498372.62 iops; bw: 1946.77 MB/s
+done.
+Executing ./mix_rws with parameters: 73 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 493215.43 iops; bw: 1926.62 MB/s
+done.
+Executing ./mix_rws with parameters: 73 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 493679.85 iops; bw: 1928.44 MB/s
+done.
+Executing ./mix_rws with parameters: 73 6
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=6, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 500274.81 iops; bw: 1954.20 MB/s
+done.
+Executing ./mix_rws with parameters: 73 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 495546.31 iops; bw: 1935.73 MB/s
+done.
+Executing ./mix_rws with parameters: 73 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 497899.34 iops; bw: 1944.92 MB/s
+done.
+Executing ./mix_rws with parameters: 73 8
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=8, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 498372.62 iops; bw: 1946.77 MB/s
+done.
+Executing ./mix_rws with parameters: 73 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.06 s; total: 2048.00 MB; IOs: 524288; thp: 495546.31 iops; bw: 1935.73 MB/s
+done.
+Executing ./mix_rws with parameters: 73 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 497426.94 iops; bw: 1943.07 MB/s
+done.
+Executing ./mix_rws with parameters: 73 10
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd
+nvpcctl: done
+mixrws test (rw_ratio=73, sync_in_10=10, fname=/mnt/nvpcssd/test01_workfile)
+creating file with 4294967296 bytes...
+running test...
+time: 1.05 s; total: 2048.00 MB; IOs: 524288; thp: 497899.34 iops; bw: 1944.92 MB/s
+done.

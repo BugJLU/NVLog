@@ -1,0 +1,108 @@
+fio ./zipf.fio
+extend_lru=1
+absorb_syn=1
+promote_level=0
+demote_before_promote=1
+nvpc_lru_evict=1
+nvpc_sz=-1
+rebuild=0
+force_start=1
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+nvpcctl: total	8093696 pages
+nvpcctl: used	0 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093696 pages
+              total        used        free      shared  buff/cache   available
+Mem:             44           4          39           0           0          39
+Swap:             0           0           0
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job1: (groupid=0, jobs=1): err= 0: pid=2114: Wed Apr  3 23:29:54 2024
+  read: IOPS=216k, BW=843MiB/s (884MB/s)(1000GiB/1214488msec)
+   bw (  KiB/s): min=83232, max=1608400, per=99.98%, avg=863199.78, stdev=510464.18, samples=2428
+   iops        : min=20808, max=402100, avg=215799.94, stdev=127616.02, samples=2428
+  cpu          : usr=12.53%, sys=26.40%, ctx=12132682, majf=1, minf=5
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=262144000,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=843MiB/s (884MB/s), 843MiB/s-843MiB/s (884MB/s-884MB/s), io=1000GiB (1074GB), run=1214488-1214488msec
+nvpcctl: total	8093696 pages
+nvpcctl: used	0 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093696 pages
+              total        used        free      shared  buff/cache   available
+Mem:             44           4           0           0          39          39
+Swap:             0           0           0
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+nvpcctl: total	8093696 pages
+nvpcctl: used	0 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093696 pages
+              total        used        free      shared  buff/cache   available
+Mem:             44           4          39           0           0          39
+Swap:             0           0           0
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job1: (groupid=0, jobs=1): err= 0: pid=2206: Wed Apr  3 23:50:31 2024
+  read: IOPS=216k, BW=843MiB/s (884MB/s)(1000GiB/1214130msec)
+   bw (  KiB/s): min=82576, max=1630200, per=100.00%, avg=863658.81, stdev=513247.10, samples=2428
+   iops        : min=20644, max=407550, avg=215914.71, stdev=128311.79, samples=2428
+  cpu          : usr=12.68%, sys=26.50%, ctx=12086671, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=262144000,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=843MiB/s (884MB/s), 843MiB/s-843MiB/s (884MB/s-884MB/s), io=1000GiB (1074GB), run=1214130-1214130msec
+nvpcctl: total	8093696 pages
+nvpcctl: used	0 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093696 pages
+              total        used        free      shared  buff/cache   available
+Mem:             44           4           0           0          39          39
+Swap:             0           0           0
+sudo umount /mnt/nvpcssd/
+sudo mount -t ext4 /dev/nvme0n1 /mnt/nvpcssd/
+nvpcctl: total	8093696 pages
+nvpcctl: used	0 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093696 pages
+              total        used        free      shared  buff/cache   available
+Mem:             44           4          39           0           0          39
+Swap:             0           0           0
+job1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job1: (groupid=0, jobs=1): err= 0: pid=2291: Thu Apr  4 00:11:04 2024
+  read: IOPS=217k, BW=847MiB/s (888MB/s)(1000GiB/1209469msec)
+   bw (  KiB/s): min=82872, max=1616360, per=99.98%, avg=866780.11, stdev=516419.07, samples=2418
+   iops        : min=20718, max=404090, avg=216695.01, stdev=129104.75, samples=2418
+  cpu          : usr=12.66%, sys=26.42%, ctx=12067020, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=262144000,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=847MiB/s (888MB/s), 847MiB/s-847MiB/s (888MB/s-888MB/s), io=1000GiB (1074GB), run=1209469-1209469msec
+nvpcctl: total	8093696 pages
+nvpcctl: used	0 pages
+nvpcctl: syn used	0 pages
+nvpcctl: free	8093696 pages
+              total        used        free      shared  buff/cache   available
+Mem:             44           4           0           0          39          39
+Swap:             0           0           0
+sudo umount /mnt/nvpcssd/

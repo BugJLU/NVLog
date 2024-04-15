@@ -1,0 +1,1467 @@
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job0: (groupid=0, jobs=1): err= 0: pid=10322: Mon Mar 25 08:41:00 2024
+  read: IOPS=152k, BW=592MiB/s (621MB/s)(2049MiB/3462msec)
+   bw (  KiB/s): min=570240, max=617000, per=99.75%, avg=604645.33, stdev=17748.11, samples=6
+   iops        : min=142560, max=154250, avg=151161.67, stdev=4437.23, samples=6
+  write: IOPS=151k, BW=591MiB/s (620MB/s)(2047MiB/3462msec); 0 zone resets
+   bw (  KiB/s): min=569384, max=616616, per=99.74%, avg=603789.33, stdev=17870.65, samples=6
+   iops        : min=142346, max=154154, avg=150947.33, stdev=4467.66, samples=6
+  cpu          : usr=16.35%, sys=83.53%, ctx=352, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=592MiB/s (621MB/s), 592MiB/s-592MiB/s (621MB/s-621MB/s), io=2049MiB (2149MB), run=3462-3462msec
+  WRITE: bw=591MiB/s (620MB/s), 591MiB/s-591MiB/s (620MB/s-620MB/s), io=2047MiB (2146MB), run=3462-3462msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job0: (groupid=0, jobs=1): err= 0: pid=10380: Mon Mar 25 08:41:16 2024
+  read: IOPS=153k, BW=598MiB/s (627MB/s)(2049MiB/3426msec)
+   bw (  KiB/s): min=606312, max=616008, per=100.00%, avg=612945.33, stdev=3503.55, samples=6
+   iops        : min=151578, max=154002, avg=153236.33, stdev=875.89, samples=6
+  write: IOPS=153k, BW=597MiB/s (626MB/s)(2047MiB/3426msec); 0 zone resets
+   bw (  KiB/s): min=610416, max=614240, per=100.00%, avg=612113.33, stdev=1499.98, samples=6
+   iops        : min=152604, max=153560, avg=153028.00, stdev=374.65, samples=6
+  cpu          : usr=18.60%, sys=81.23%, ctx=353, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=598MiB/s (627MB/s), 598MiB/s-598MiB/s (627MB/s-627MB/s), io=2049MiB (2149MB), run=3426-3426msec
+  WRITE: bw=597MiB/s (626MB/s), 597MiB/s-597MiB/s (626MB/s-626MB/s), io=2047MiB (2146MB), run=3426-3426msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 1 process
+
+job0: (groupid=0, jobs=1): err= 0: pid=10438: Mon Mar 25 08:41:31 2024
+  read: IOPS=152k, BW=595MiB/s (624MB/s)(2049MiB/3442msec)
+   bw (  KiB/s): min=603440, max=612096, per=99.91%, avg=609152.00, stdev=3106.31, samples=6
+   iops        : min=150860, max=153024, avg=152288.00, stdev=776.58, samples=6
+  write: IOPS=152k, BW=595MiB/s (624MB/s)(2047MiB/3442msec); 0 zone resets
+   bw (  KiB/s): min=600232, max=614552, per=99.91%, avg=608326.67, stdev=5399.33, samples=6
+   iops        : min=150058, max=153638, avg=152082.00, stdev=1350.01, samples=6
+  cpu          : usr=18.34%, sys=81.55%, ctx=360, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=595MiB/s (624MB/s), 595MiB/s-595MiB/s (624MB/s-624MB/s), io=2049MiB (2149MB), run=3442-3442msec
+  WRITE: bw=595MiB/s (624MB/s), 595MiB/s-595MiB/s (624MB/s-624MB/s), io=2047MiB (2146MB), run=3442-3442msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 2 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10496: Mon Mar 25 08:41:49 2024
+  read: IOPS=149k, BW=582MiB/s (610MB/s)(2049MiB/3521msec)
+   bw (  KiB/s): min=590536, max=597104, per=50.20%, avg=593850.67, stdev=2116.18, samples=6
+   iops        : min=147634, max=149276, avg=148462.67, stdev=529.04, samples=6
+  write: IOPS=149k, BW=581MiB/s (610MB/s)(2047MiB/3521msec); 0 zone resets
+   bw (  KiB/s): min=586712, max=598744, per=50.11%, avg=593276.00, stdev=4440.82, samples=6
+   iops        : min=146680, max=149684, avg=148319.00, stdev=1109.12, samples=6
+  cpu          : usr=17.22%, sys=82.64%, ctx=362, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10497: Mon Mar 25 08:41:49 2024
+  read: IOPS=148k, BW=577MiB/s (605MB/s)(2045MiB/3544msec)
+   bw (  KiB/s): min=574968, max=596440, per=49.94%, avg=590768.00, stdev=7446.89, samples=7
+   iops        : min=143744, max=149110, avg=147692.29, stdev=1861.28, samples=7
+  write: IOPS=148k, BW=579MiB/s (607MB/s)(2051MiB/3544msec); 0 zone resets
+   bw (  KiB/s): min=578968, max=598864, per=50.05%, avg=592598.86, stdev=7236.02, samples=7
+   iops        : min=144742, max=149716, avg=148149.71, stdev=1809.01, samples=7
+  cpu          : usr=18.09%, sys=81.80%, ctx=375, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1155MiB/s (1211MB/s), 577MiB/s-582MiB/s (605MB/s-610MB/s), io=4094MiB (4293MB), run=3521-3544msec
+  WRITE: bw=1156MiB/s (1212MB/s), 579MiB/s-581MiB/s (607MB/s-610MB/s), io=4098MiB (4297MB), run=3521-3544msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 2 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10554: Mon Mar 25 08:42:07 2024
+  read: IOPS=150k, BW=586MiB/s (615MB/s)(2049MiB/3495msec)
+   bw (  KiB/s): min=594744, max=601096, per=50.32%, avg=598164.00, stdev=2463.61, samples=6
+   iops        : min=148686, max=150274, avg=149541.00, stdev=615.90, samples=6
+  write: IOPS=150k, BW=586MiB/s (614MB/s)(2047MiB/3495msec); 0 zone resets
+   bw (  KiB/s): min=590640, max=603152, per=50.23%, avg=597641.33, stdev=4768.66, samples=6
+   iops        : min=147660, max=150788, avg=149410.33, stdev=1192.16, samples=6
+  cpu          : usr=17.77%, sys=82.17%, ctx=365, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10555: Mon Mar 25 08:42:07 2024
+  read: IOPS=148k, BW=580MiB/s (608MB/s)(2045MiB/3527msec)
+   bw (  KiB/s): min=581344, max=598232, per=49.93%, avg=593497.14, stdev=5855.79, samples=7
+   iops        : min=145336, max=149558, avg=148374.29, stdev=1463.91, samples=7
+  write: IOPS=149k, BW=582MiB/s (610MB/s)(2051MiB/3527msec); 0 zone resets
+   bw (  KiB/s): min=585160, max=599872, per=50.04%, avg=595374.86, stdev=5078.52, samples=7
+   iops        : min=146290, max=149968, avg=148843.71, stdev=1269.63, samples=7
+  cpu          : usr=18.41%, sys=81.54%, ctx=371, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1161MiB/s (1217MB/s), 580MiB/s-586MiB/s (608MB/s-615MB/s), io=4094MiB (4293MB), run=3495-3527msec
+  WRITE: bw=1162MiB/s (1218MB/s), 582MiB/s-586MiB/s (610MB/s-614MB/s), io=4098MiB (4297MB), run=3495-3527msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 2 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10612: Mon Mar 25 08:42:26 2024
+  read: IOPS=150k, BW=586MiB/s (614MB/s)(2049MiB/3498msec)
+   bw (  KiB/s): min=590592, max=602232, per=50.84%, avg=598340.00, stdev=4255.07, samples=6
+   iops        : min=147650, max=150560, avg=149585.67, stdev=1063.41, samples=6
+  write: IOPS=150k, BW=585MiB/s (614MB/s)(2047MiB/3498msec); 0 zone resets
+   bw (  KiB/s): min=595376, max=599496, per=50.75%, avg=597837.33, stdev=1624.78, samples=6
+   iops        : min=148844, max=149874, avg=149459.33, stdev=406.20, samples=6
+  cpu          : usr=19.27%, sys=80.58%, ctx=365, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10613: Mon Mar 25 08:42:26 2024
+  read: IOPS=147k, BW=574MiB/s (602MB/s)(2045MiB/3562msec)
+   bw (  KiB/s): min=573424, max=595392, per=49.93%, avg=587662.86, stdev=7571.91, samples=7
+   iops        : min=143356, max=148848, avg=146915.71, stdev=1892.98, samples=7
+  write: IOPS=147k, BW=576MiB/s (604MB/s)(2051MiB/3562msec); 0 zone resets
+   bw (  KiB/s): min=577616, max=596744, per=50.04%, avg=589506.29, stdev=7227.89, samples=7
+   iops        : min=144404, max=149186, avg=147376.57, stdev=1806.97, samples=7
+  cpu          : usr=16.48%, sys=83.43%, ctx=377, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1149MiB/s (1205MB/s), 574MiB/s-586MiB/s (602MB/s-614MB/s), io=4094MiB (4293MB), run=3498-3562msec
+  WRITE: bw=1150MiB/s (1206MB/s), 576MiB/s-585MiB/s (604MB/s-614MB/s), io=4098MiB (4297MB), run=3498-3562msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 4 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10670: Mon Mar 25 08:42:47 2024
+  read: IOPS=143k, BW=557MiB/s (584MB/s)(2049MiB/3678msec)
+   bw (  KiB/s): min=558816, max=575696, per=24.99%, avg=569934.86, stdev=5949.54, samples=7
+   iops        : min=139704, max=143924, avg=142483.71, stdev=1487.38, samples=7
+  write: IOPS=142k, BW=556MiB/s (583MB/s)(2047MiB/3678msec); 0 zone resets
+   bw (  KiB/s): min=555416, max=576016, per=24.94%, avg=568932.57, stdev=6691.63, samples=7
+   iops        : min=138854, max=144004, avg=142233.14, stdev=1672.91, samples=7
+  cpu          : usr=18.98%, sys=80.88%, ctx=386, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10671: Mon Mar 25 08:42:47 2024
+  read: IOPS=143k, BW=560MiB/s (587MB/s)(2045MiB/3653msec)
+   bw (  KiB/s): min=567912, max=576832, per=25.12%, avg=572909.71, stdev=2914.10, samples=7
+   iops        : min=141978, max=144208, avg=143227.43, stdev=728.53, samples=7
+  write: IOPS=144k, BW=561MiB/s (589MB/s)(2051MiB/3653msec); 0 zone resets
+   bw (  KiB/s): min=570760, max=575952, per=25.19%, avg=574536.00, stdev=1804.09, samples=7
+   iops        : min=142690, max=143988, avg=143634.00, stdev=451.02, samples=7
+  cpu          : usr=18.32%, sys=81.57%, ctx=379, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=10672: Mon Mar 25 08:42:47 2024
+  read: IOPS=144k, BW=561MiB/s (588MB/s)(2050MiB/3652msec)
+   bw (  KiB/s): min=566056, max=578992, per=25.16%, avg=573866.29, stdev=5047.66, samples=7
+   iops        : min=141514, max=144748, avg=143466.57, stdev=1261.92, samples=7
+  write: IOPS=143k, BW=560MiB/s (588MB/s)(2046MiB/3652msec); 0 zone resets
+   bw (  KiB/s): min=565328, max=576520, per=25.13%, avg=573142.86, stdev=4883.85, samples=7
+   iops        : min=141332, max=144130, avg=143285.71, stdev=1220.96, samples=7
+  cpu          : usr=15.53%, sys=84.33%, ctx=379, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=10673: Mon Mar 25 08:42:47 2024
+  read: IOPS=144k, BW=564MiB/s (591MB/s)(2048MiB/3631msec)
+   bw (  KiB/s): min=572880, max=579544, per=25.29%, avg=576883.43, stdev=2854.26, samples=7
+   iops        : min=143220, max=144886, avg=144220.57, stdev=713.38, samples=7
+  write: IOPS=144k, BW=564MiB/s (591MB/s)(2048MiB/3631msec); 0 zone resets
+   bw (  KiB/s): min=572720, max=580928, per=25.29%, avg=576827.43, stdev=3049.59, samples=7
+   iops        : min=143180, max=145232, avg=144206.86, stdev=762.40, samples=7
+  cpu          : usr=15.70%, sys=84.19%, ctx=375, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2227MiB/s (2335MB/s), 557MiB/s-564MiB/s (584MB/s-591MB/s), io=8192MiB (8590MB), run=3631-3678msec
+  WRITE: bw=2227MiB/s (2336MB/s), 556MiB/s-564MiB/s (583MB/s-591MB/s), io=8192MiB (8590MB), run=3631-3678msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 4 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10731: Mon Mar 25 08:43:11 2024
+  read: IOPS=143k, BW=561MiB/s (588MB/s)(2049MiB/3656msec)
+   bw (  KiB/s): min=565736, max=579048, per=25.04%, avg=573384.00, stdev=4527.39, samples=7
+   iops        : min=141434, max=144762, avg=143346.00, stdev=1131.85, samples=7
+  write: IOPS=143k, BW=560MiB/s (587MB/s)(2047MiB/3656msec); 0 zone resets
+   bw (  KiB/s): min=566912, max=577984, per=25.00%, avg=572524.57, stdev=4517.58, samples=7
+   iops        : min=141728, max=144496, avg=143131.43, stdev=1129.20, samples=7
+  cpu          : usr=16.94%, sys=82.95%, ctx=381, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10732: Mon Mar 25 08:43:11 2024
+  read: IOPS=143k, BW=558MiB/s (585MB/s)(2045MiB/3663msec)
+   bw (  KiB/s): min=565568, max=576024, per=24.95%, avg=571291.43, stdev=3215.60, samples=7
+   iops        : min=141392, max=144006, avg=142822.86, stdev=803.90, samples=7
+  write: IOPS=143k, BW=560MiB/s (587MB/s)(2051MiB/3663msec); 0 zone resets
+   bw (  KiB/s): min=568360, max=575208, per=25.02%, avg=572904.00, stdev=2249.29, samples=7
+   iops        : min=142090, max=143802, avg=143226.00, stdev=562.32, samples=7
+  cpu          : usr=17.18%, sys=82.71%, ctx=380, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=10733: Mon Mar 25 08:43:11 2024
+  read: IOPS=143k, BW=560MiB/s (587MB/s)(2050MiB/3663msec)
+   bw (  KiB/s): min=566208, max=576976, per=24.97%, avg=571932.57, stdev=4311.56, samples=7
+   iops        : min=141552, max=144244, avg=142983.43, stdev=1077.91, samples=7
+  write: IOPS=143k, BW=559MiB/s (586MB/s)(2046MiB/3663msec); 0 zone resets
+   bw (  KiB/s): min=565864, max=575320, per=24.94%, avg=571214.86, stdev=3605.93, samples=7
+   iops        : min=141466, max=143830, avg=142803.71, stdev=901.48, samples=7
+  cpu          : usr=16.79%, sys=83.12%, ctx=380, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=10734: Mon Mar 25 08:43:11 2024
+  read: IOPS=143k, BW=560MiB/s (588MB/s)(2048MiB/3655msec)
+   bw (  KiB/s): min=568152, max=575888, per=25.03%, avg=573116.57, stdev=2835.97, samples=7
+   iops        : min=142038, max=143972, avg=143278.86, stdev=709.20, samples=7
+  write: IOPS=143k, BW=560MiB/s (588MB/s)(2048MiB/3655msec); 0 zone resets
+   bw (  KiB/s): min=568080, max=577432, per=25.03%, avg=573219.43, stdev=3407.72, samples=7
+   iops        : min=142020, max=144358, avg=143304.86, stdev=851.93, samples=7
+  cpu          : usr=16.45%, sys=83.47%, ctx=386, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2236MiB/s (2345MB/s), 558MiB/s-561MiB/s (585MB/s-588MB/s), io=8192MiB (8590MB), run=3655-3663msec
+  WRITE: bw=2236MiB/s (2345MB/s), 559MiB/s-560MiB/s (586MB/s-588MB/s), io=8192MiB (8590MB), run=3655-3663msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 4 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10791: Mon Mar 25 08:43:35 2024
+  read: IOPS=145k, BW=565MiB/s (592MB/s)(2049MiB/3629msec)
+   bw (  KiB/s): min=571536, max=580360, per=25.29%, avg=577824.00, stdev=3271.08, samples=7
+   iops        : min=142884, max=145090, avg=144456.00, stdev=817.77, samples=7
+  write: IOPS=144k, BW=564MiB/s (591MB/s)(2047MiB/3629msec); 0 zone resets
+   bw (  KiB/s): min=572320, max=580704, per=25.26%, avg=577034.29, stdev=2496.73, samples=7
+   iops        : min=143080, max=145176, avg=144258.57, stdev=624.18, samples=7
+  cpu          : usr=17.45%, sys=82.44%, ctx=368, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10792: Mon Mar 25 08:43:35 2024
+  read: IOPS=143k, BW=557MiB/s (584MB/s)(2045MiB/3672msec)
+   bw (  KiB/s): min=562488, max=575104, per=24.93%, avg=569601.14, stdev=4243.75, samples=7
+   iops        : min=140622, max=143776, avg=142400.29, stdev=1060.94, samples=7
+  write: IOPS=143k, BW=559MiB/s (586MB/s)(2051MiB/3672msec); 0 zone resets
+   bw (  KiB/s): min=565632, max=575056, per=25.01%, avg=571274.29, stdev=3798.97, samples=7
+   iops        : min=141408, max=143764, avg=142818.57, stdev=949.74, samples=7
+  cpu          : usr=18.33%, sys=81.56%, ctx=372, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=10793: Mon Mar 25 08:43:35 2024
+  read: IOPS=143k, BW=558MiB/s (585MB/s)(2050MiB/3671msec)
+   bw (  KiB/s): min=562072, max=576760, per=24.99%, avg=570814.43, stdev=5867.32, samples=7
+   iops        : min=140518, max=144190, avg=142703.57, stdev=1466.87, samples=7
+  write: IOPS=143k, BW=557MiB/s (585MB/s)(2046MiB/3671msec); 0 zone resets
+   bw (  KiB/s): min=564408, max=574904, per=24.95%, avg=570090.00, stdev=5010.05, samples=7
+   iops        : min=141102, max=143726, avg=142522.43, stdev=1252.60, samples=7
+  cpu          : usr=17.19%, sys=82.62%, ctx=381, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=10794: Mon Mar 25 08:43:35 2024
+  read: IOPS=144k, BW=561MiB/s (588MB/s)(2048MiB/3650msec)
+   bw (  KiB/s): min=569544, max=577232, per=25.13%, avg=573986.29, stdev=2534.97, samples=7
+   iops        : min=142386, max=144308, avg=143496.57, stdev=633.74, samples=7
+  write: IOPS=144k, BW=561MiB/s (588MB/s)(2048MiB/3650msec); 0 zone resets
+   bw (  KiB/s): min=568464, max=577712, per=25.13%, avg=574052.57, stdev=2892.63, samples=7
+   iops        : min=142116, max=144428, avg=143513.14, stdev=723.16, samples=7
+  cpu          : usr=17.27%, sys=82.63%, ctx=382, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2231MiB/s (2339MB/s), 557MiB/s-565MiB/s (584MB/s-592MB/s), io=8192MiB (8590MB), run=3629-3672msec
+  WRITE: bw=2231MiB/s (2339MB/s), 557MiB/s-564MiB/s (585MB/s-591MB/s), io=8192MiB (8590MB), run=3629-3672msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job4: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job5: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job6: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job7: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 8 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10851: Mon Mar 25 08:44:05 2024
+  read: IOPS=116k, BW=453MiB/s (475MB/s)(2049MiB/4528msec)
+   bw (  KiB/s): min=456888, max=471264, per=12.59%, avg=463189.00, stdev=4360.17, samples=8
+   iops        : min=114222, max=117816, avg=115797.25, stdev=1090.04, samples=8
+  write: IOPS=116k, BW=452MiB/s (474MB/s)(2047MiB/4528msec); 0 zone resets
+   bw (  KiB/s): min=457280, max=469736, per=12.56%, avg=462581.00, stdev=3767.47, samples=8
+   iops        : min=114320, max=117434, avg=115645.25, stdev=941.87, samples=8
+  cpu          : usr=15.64%, sys=84.25%, ctx=453, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10852: Mon Mar 25 08:44:05 2024
+  read: IOPS=117k, BW=455MiB/s (478MB/s)(2045MiB/4490msec)
+   bw (  KiB/s): min=458864, max=483720, per=12.66%, avg=465824.00, stdev=7862.74, samples=8
+   iops        : min=114716, max=120930, avg=116456.00, stdev=1965.68, samples=8
+  write: IOPS=117k, BW=457MiB/s (479MB/s)(2051MiB/4490msec); 0 zone resets
+   bw (  KiB/s): min=459376, max=486480, per=12.69%, avg=467064.00, stdev=8397.18, samples=8
+   iops        : min=114844, max=121620, avg=116766.00, stdev=2099.30, samples=8
+  cpu          : usr=16.89%, sys=83.05%, ctx=453, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=10853: Mon Mar 25 08:44:05 2024
+  read: IOPS=117k, BW=457MiB/s (479MB/s)(2050MiB/4484msec)
+   bw (  KiB/s): min=452528, max=491880, per=12.70%, avg=467446.00, stdev=11097.59, samples=8
+   iops        : min=113130, max=122970, avg=116861.25, stdev=2774.78, samples=8
+  write: IOPS=117k, BW=456MiB/s (479MB/s)(2046MiB/4484msec); 0 zone resets
+   bw (  KiB/s): min=452320, max=492440, per=12.68%, avg=466886.00, stdev=11451.93, samples=8
+   iops        : min=113080, max=123110, avg=116721.50, stdev=2862.98, samples=8
+  cpu          : usr=16.33%, sys=83.58%, ctx=448, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=10854: Mon Mar 25 08:44:05 2024
+  read: IOPS=116k, BW=452MiB/s (474MB/s)(2048MiB/4534msec)
+   bw (  KiB/s): min=449248, max=477026, per=12.56%, avg=462063.33, stdev=7421.31, samples=9
+   iops        : min=112312, max=119256, avg=115516.00, stdev=1855.17, samples=9
+  write: IOPS=116k, BW=452MiB/s (474MB/s)(2048MiB/4534msec); 0 zone resets
+   bw (  KiB/s): min=443744, max=477210, per=12.55%, avg=461999.33, stdev=8624.19, samples=9
+   iops        : min=110936, max=119302, avg=115499.78, stdev=2155.94, samples=9
+  cpu          : usr=15.53%, sys=84.40%, ctx=458, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job4: (groupid=0, jobs=1): err= 0: pid=10855: Mon Mar 25 08:44:05 2024
+  read: IOPS=115k, BW=449MiB/s (471MB/s)(2046MiB/4558msec)
+   bw (  KiB/s): min=430888, max=474968, per=12.44%, avg=457892.44, stdev=12856.38, samples=9
+   iops        : min=107722, max=118742, avg=114473.11, stdev=3214.09, samples=9
+  write: IOPS=115k, BW=450MiB/s (472MB/s)(2050MiB/4558msec); 0 zone resets
+   bw (  KiB/s): min=429656, max=478184, per=12.46%, avg=458640.00, stdev=13635.21, samples=9
+   iops        : min=107414, max=119546, avg=114660.00, stdev=3408.80, samples=9
+  cpu          : usr=14.57%, sys=85.30%, ctx=472, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523855,524721,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job5: (groupid=0, jobs=1): err= 0: pid=10856: Mon Mar 25 08:44:05 2024
+  read: IOPS=117k, BW=456MiB/s (478MB/s)(2047MiB/4494msec)
+   bw (  KiB/s): min=459272, max=465976, per=12.59%, avg=463107.00, stdev=2368.45, samples=8
+   iops        : min=114818, max=116494, avg=115776.75, stdev=592.11, samples=8
+  write: IOPS=117k, BW=456MiB/s (478MB/s)(2049MiB/4494msec); 0 zone resets
+   bw (  KiB/s): min=456216, max=467528, per=12.58%, avg=463231.00, stdev=3380.72, samples=8
+   iops        : min=114054, max=116882, avg=115807.75, stdev=845.18, samples=8
+  cpu          : usr=14.22%, sys=85.69%, ctx=454, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524099,524477,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job6: (groupid=0, jobs=1): err= 0: pid=10857: Mon Mar 25 08:44:05 2024
+  read: IOPS=117k, BW=456MiB/s (478MB/s)(2048MiB/4490msec)
+   bw (  KiB/s): min=461176, max=466168, per=12.60%, avg=463690.00, stdev=1953.75, samples=8
+   iops        : min=115294, max=116542, avg=115922.50, stdev=488.44, samples=8
+  write: IOPS=117k, BW=456MiB/s (478MB/s)(2048MiB/4490msec); 0 zone resets
+   bw (  KiB/s): min=459144, max=468168, per=12.60%, avg=463815.00, stdev=2854.73, samples=8
+   iops        : min=114786, max=117042, avg=115953.75, stdev=713.68, samples=8
+  cpu          : usr=16.22%, sys=83.69%, ctx=450, majf=0, minf=6
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524191,524385,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job7: (groupid=0, jobs=1): err= 0: pid=10858: Mon Mar 25 08:44:05 2024
+  read: IOPS=116k, BW=452MiB/s (473MB/s)(2046MiB/4532msec)
+   bw (  KiB/s): min=455680, max=471416, per=12.55%, avg=461888.00, stdev=4578.24, samples=9
+   iops        : min=113920, max=117854, avg=115472.00, stdev=1144.56, samples=9
+  write: IOPS=116k, BW=452MiB/s (474MB/s)(2050MiB/4532msec); 0 zone resets
+   bw (  KiB/s): min=456744, max=472048, per=12.56%, avg=462495.11, stdev=4199.36, samples=9
+   iops        : min=114186, max=118012, avg=115623.78, stdev=1049.84, samples=9
+  cpu          : usr=14.30%, sys=85.61%, ctx=455, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523845,524731,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=3594MiB/s (3768MB/s), 449MiB/s-457MiB/s (471MB/s-479MB/s), io=16.0GiB (17.2GB), run=4484-4558msec
+  WRITE: bw=3596MiB/s (3770MB/s), 450MiB/s-457MiB/s (472MB/s-479MB/s), io=16.0GiB (17.2GB), run=4484-4558msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job4: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job5: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job6: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job7: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 8 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10930: Mon Mar 25 08:44:39 2024
+  read: IOPS=116k, BW=451MiB/s (473MB/s)(2049MiB/4539msec)
+   bw (  KiB/s): min=439664, max=471096, per=12.50%, avg=461861.00, stdev=8845.47, samples=9
+   iops        : min=109916, max=117774, avg=115465.44, stdev=2211.44, samples=9
+  write: IOPS=115k, BW=451MiB/s (473MB/s)(2047MiB/4539msec); 0 zone resets
+   bw (  KiB/s): min=439424, max=470720, per=12.47%, avg=461158.11, stdev=9100.65, samples=9
+   iops        : min=109856, max=117682, avg=115289.56, stdev=2275.39, samples=9
+  cpu          : usr=17.47%, sys=82.46%, ctx=454, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10931: Mon Mar 25 08:44:39 2024
+  read: IOPS=116k, BW=453MiB/s (475MB/s)(2045MiB/4517msec)
+   bw (  KiB/s): min=453072, max=469448, per=12.54%, avg=463562.67, stdev=4558.13, samples=9
+   iops        : min=113268, max=117362, avg=115890.67, stdev=1139.53, samples=9
+  write: IOPS=116k, BW=454MiB/s (476MB/s)(2051MiB/4517msec); 0 zone resets
+   bw (  KiB/s): min=453992, max=471968, per=12.58%, avg=464988.44, stdev=4829.10, samples=9
+   iops        : min=113498, max=117992, avg=116247.11, stdev=1207.28, samples=9
+  cpu          : usr=14.77%, sys=85.08%, ctx=458, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=10932: Mon Mar 25 08:44:39 2024
+  read: IOPS=117k, BW=455MiB/s (477MB/s)(2050MiB/4502msec)
+   bw (  KiB/s): min=457664, max=469896, per=12.60%, avg=465508.00, stdev=3960.13, samples=8
+   iops        : min=114416, max=117474, avg=116377.00, stdev=990.01, samples=8
+  write: IOPS=116k, BW=455MiB/s (477MB/s)(2046MiB/4502msec); 0 zone resets
+   bw (  KiB/s): min=459976, max=470384, per=12.58%, avg=464949.00, stdev=3419.71, samples=8
+   iops        : min=114994, max=117596, avg=116237.25, stdev=854.83, samples=8
+  cpu          : usr=14.55%, sys=85.36%, ctx=444, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=10933: Mon Mar 25 08:44:39 2024
+  read: IOPS=117k, BW=456MiB/s (478MB/s)(2048MiB/4495msec)
+   bw (  KiB/s): min=461872, max=469024, per=12.62%, avg=466186.00, stdev=2441.08, samples=8
+   iops        : min=115468, max=117256, avg=116546.50, stdev=610.27, samples=8
+  write: IOPS=117k, BW=456MiB/s (478MB/s)(2048MiB/4495msec); 0 zone resets
+   bw (  KiB/s): min=460008, max=471696, per=12.60%, avg=465983.00, stdev=3922.81, samples=8
+   iops        : min=115002, max=117924, avg=116495.75, stdev=980.70, samples=8
+  cpu          : usr=13.60%, sys=86.27%, ctx=452, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job4: (groupid=0, jobs=1): err= 0: pid=10934: Mon Mar 25 08:44:39 2024
+  read: IOPS=116k, BW=453MiB/s (475MB/s)(2046MiB/4518msec)
+   bw (  KiB/s): min=449832, max=469024, per=12.53%, avg=462869.00, stdev=7011.64, samples=8
+   iops        : min=112458, max=117256, avg=115717.25, stdev=1752.91, samples=8
+  write: IOPS=116k, BW=454MiB/s (476MB/s)(2050MiB/4518msec); 0 zone resets
+   bw (  KiB/s): min=451160, max=468936, per=12.54%, avg=463522.00, stdev=6957.81, samples=8
+   iops        : min=112790, max=117234, avg=115880.50, stdev=1739.45, samples=8
+  cpu          : usr=14.85%, sys=85.03%, ctx=455, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523855,524721,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job5: (groupid=0, jobs=1): err= 0: pid=10935: Mon Mar 25 08:44:39 2024
+  read: IOPS=116k, BW=453MiB/s (475MB/s)(2047MiB/4515msec)
+   bw (  KiB/s): min=456400, max=471983, per=12.57%, avg=464363.44, stdev=3963.94, samples=9
+   iops        : min=114100, max=117995, avg=116090.78, stdev=990.78, samples=9
+  write: IOPS=116k, BW=454MiB/s (476MB/s)(2049MiB/4515msec); 0 zone resets
+   bw (  KiB/s): min=456392, max=469418, per=12.57%, avg=464635.78, stdev=3606.07, samples=9
+   iops        : min=114098, max=117354, avg=116158.89, stdev=901.43, samples=9
+  cpu          : usr=16.42%, sys=83.45%, ctx=456, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524099,524477,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job6: (groupid=0, jobs=1): err= 0: pid=10936: Mon Mar 25 08:44:39 2024
+  read: IOPS=117k, BW=457MiB/s (480MB/s)(2048MiB/4476msec)
+   bw (  KiB/s): min=456056, max=471864, per=12.67%, avg=468153.00, stdev=5123.06, samples=8
+   iops        : min=114014, max=117968, avg=117038.50, stdev=1280.97, samples=8
+  write: IOPS=117k, BW=458MiB/s (480MB/s)(2048MiB/4476msec); 0 zone resets
+   bw (  KiB/s): min=454805, max=472072, per=12.66%, avg=468211.62, stdev=5653.51, samples=8
+   iops        : min=113701, max=118018, avg=117052.88, stdev=1413.46, samples=8
+  cpu          : usr=15.71%, sys=84.20%, ctx=452, majf=0, minf=5
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524191,524385,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job7: (groupid=0, jobs=1): err= 0: pid=10937: Mon Mar 25 08:44:39 2024
+  read: IOPS=116k, BW=454MiB/s (476MB/s)(2046MiB/4510msec)
+   bw (  KiB/s): min=454632, max=473808, per=12.57%, avg=464648.00, stdev=5624.07, samples=9
+   iops        : min=113658, max=118452, avg=116162.00, stdev=1406.02, samples=9
+  write: IOPS=116k, BW=454MiB/s (477MB/s)(2050MiB/4510msec); 0 zone resets
+   bw (  KiB/s): min=457272, max=472656, per=12.59%, avg=465441.78, stdev=5025.62, samples=9
+   iops        : min=114318, max=118164, avg=116360.44, stdev=1256.40, samples=9
+  cpu          : usr=15.06%, sys=84.81%, ctx=456, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523845,524731,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=3609MiB/s (3784MB/s), 451MiB/s-457MiB/s (473MB/s-480MB/s), io=16.0GiB (17.2GB), run=4476-4539msec
+  WRITE: bw=3611MiB/s (3786MB/s), 451MiB/s-458MiB/s (473MB/s-480MB/s), io=16.0GiB (17.2GB), run=4476-4539msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job4: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job5: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job6: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job7: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 8 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=10995: Mon Mar 25 08:45:14 2024
+  read: IOPS=116k, BW=452MiB/s (474MB/s)(2049MiB/4530msec)
+   bw (  KiB/s): min=453576, max=470064, per=12.51%, avg=462971.89, stdev=4855.24, samples=9
+   iops        : min=113394, max=117516, avg=115742.89, stdev=1213.87, samples=9
+  write: IOPS=116k, BW=452MiB/s (474MB/s)(2047MiB/4530msec); 0 zone resets
+   bw (  KiB/s): min=453624, max=465808, per=12.49%, avg=462339.67, stdev=4195.63, samples=9
+   iops        : min=113406, max=116452, avg=115584.89, stdev=1048.93, samples=9
+  cpu          : usr=14.42%, sys=85.49%, ctx=456, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=10996: Mon Mar 25 08:45:14 2024
+  read: IOPS=116k, BW=455MiB/s (477MB/s)(2045MiB/4497msec)
+   bw (  KiB/s): min=459632, max=468376, per=12.57%, avg=465253.00, stdev=2706.44, samples=8
+   iops        : min=114908, max=117094, avg=116313.25, stdev=676.61, samples=8
+  write: IOPS=117k, BW=456MiB/s (478MB/s)(2051MiB/4497msec); 0 zone resets
+   bw (  KiB/s): min=460184, max=470888, per=12.60%, avg=466499.00, stdev=2970.63, samples=8
+   iops        : min=115046, max=117722, avg=116624.75, stdev=742.66, samples=8
+  cpu          : usr=17.04%, sys=82.83%, ctx=454, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=10997: Mon Mar 25 08:45:14 2024
+  read: IOPS=117k, BW=456MiB/s (478MB/s)(2050MiB/4492msec)
+   bw (  KiB/s): min=463688, max=468416, per=12.62%, avg=466828.75, stdev=1753.44, samples=8
+   iops        : min=115922, max=117106, avg=116707.38, stdev=438.60, samples=8
+  write: IOPS=117k, BW=456MiB/s (478MB/s)(2046MiB/4492msec); 0 zone resets
+   bw (  KiB/s): min=462256, max=468056, per=12.60%, avg=466329.00, stdev=1904.72, samples=8
+   iops        : min=115564, max=117014, avg=116582.25, stdev=476.18, samples=8
+  cpu          : usr=14.83%, sys=85.08%, ctx=456, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=10998: Mon Mar 25 08:45:14 2024
+  read: IOPS=116k, BW=454MiB/s (476MB/s)(2048MiB/4516msec)
+   bw (  KiB/s): min=451648, max=471248, per=12.55%, avg=464269.33, stdev=6385.84, samples=9
+   iops        : min=112912, max=117812, avg=116067.33, stdev=1596.46, samples=9
+  write: IOPS=116k, BW=453MiB/s (476MB/s)(2048MiB/4516msec); 0 zone resets
+   bw (  KiB/s): min=452064, max=472464, per=12.54%, avg=464239.11, stdev=7184.42, samples=9
+   iops        : min=113018, max=118116, avg=116060.00, stdev=1795.68, samples=9
+  cpu          : usr=15.88%, sys=84.03%, ctx=454, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job4: (groupid=0, jobs=1): err= 0: pid=10999: Mon Mar 25 08:45:14 2024
+  read: IOPS=116k, BW=453MiB/s (475MB/s)(2046MiB/4516msec)
+   bw (  KiB/s): min=455408, max=470488, per=12.53%, avg=463621.33, stdev=4026.50, samples=9
+   iops        : min=113852, max=117622, avg=115905.33, stdev=1006.63, samples=9
+  write: IOPS=116k, BW=454MiB/s (476MB/s)(2050MiB/4516msec); 0 zone resets
+   bw (  KiB/s): min=459848, max=472312, per=12.54%, avg=464419.56, stdev=3408.61, samples=9
+   iops        : min=114962, max=118078, avg=116104.89, stdev=852.15, samples=9
+  cpu          : usr=15.57%, sys=84.30%, ctx=465, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523855,524721,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job5: (groupid=0, jobs=1): err= 0: pid=11000: Mon Mar 25 08:45:14 2024
+  read: IOPS=116k, BW=452MiB/s (474MB/s)(2047MiB/4533msec)
+   bw (  KiB/s): min=456488, max=469955, per=12.49%, avg=462283.00, stdev=4287.45, samples=9
+   iops        : min=114122, max=117488, avg=115570.67, stdev=1071.70, samples=9
+  write: IOPS=116k, BW=452MiB/s (474MB/s)(2049MiB/4533msec); 0 zone resets
+   bw (  KiB/s): min=457120, max=467366, per=12.49%, avg=462492.22, stdev=3895.62, samples=9
+   iops        : min=114280, max=116841, avg=115623.00, stdev=973.83, samples=9
+  cpu          : usr=12.91%, sys=86.98%, ctx=460, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524099,524477,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job6: (groupid=0, jobs=1): err= 0: pid=11001: Mon Mar 25 08:45:14 2024
+  read: IOPS=116k, BW=453MiB/s (475MB/s)(2048MiB/4520msec)
+   bw (  KiB/s): min=460840, max=467120, per=12.53%, avg=463602.67, stdev=1874.61, samples=9
+   iops        : min=115210, max=116778, avg=115900.44, stdev=468.18, samples=9
+  write: IOPS=116k, BW=453MiB/s (475MB/s)(2048MiB/4520msec); 0 zone resets
+   bw (  KiB/s): min=458960, max=467520, per=12.53%, avg=463722.67, stdev=2264.07, samples=9
+   iops        : min=114740, max=116880, avg=115930.67, stdev=566.02, samples=9
+  cpu          : usr=14.87%, sys=85.06%, ctx=457, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524191,524385,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job7: (groupid=0, jobs=1): err= 0: pid=11002: Mon Mar 25 08:45:14 2024
+  read: IOPS=116k, BW=454MiB/s (476MB/s)(2046MiB/4510msec)
+   bw (  KiB/s): min=459704, max=467464, per=12.56%, avg=464575.11, stdev=2623.41, samples=9
+   iops        : min=114924, max=116866, avg=116143.56, stdev=656.32, samples=9
+  write: IOPS=116k, BW=454MiB/s (477MB/s)(2050MiB/4510msec); 0 zone resets
+   bw (  KiB/s): min=460248, max=466800, per=12.57%, avg=465373.33, stdev=2068.88, samples=9
+   iops        : min=115062, max=116700, avg=116343.56, stdev=517.37, samples=9
+  cpu          : usr=13.86%, sys=86.01%, ctx=450, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523845,524731,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=3613MiB/s (3789MB/s), 452MiB/s-456MiB/s (474MB/s-478MB/s), io=16.0GiB (17.2GB), run=4492-4533msec
+  WRITE: bw=3615MiB/s (3791MB/s), 452MiB/s-456MiB/s (474MB/s-478MB/s), io=16.0GiB (17.2GB), run=4492-4533msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job4: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job5: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job6: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job7: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job8: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job9: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job10: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job11: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job12: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job13: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job14: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job15: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 16 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=11076: Mon Mar 25 08:46:06 2024
+  read: IOPS=40.9k, BW=160MiB/s (168MB/s)(2049MiB/12828msec)
+   bw (  KiB/s): min=151840, max=210064, per=6.33%, avg=161769.92, stdev=10656.29, samples=25
+   iops        : min=37960, max=52516, avg=40442.48, stdev=2664.07, samples=25
+  write: IOPS=40.8k, BW=160MiB/s (167MB/s)(2047MiB/12828msec); 0 zone resets
+   bw (  KiB/s): min=151992, max=210064, per=6.32%, avg=161546.56, stdev=10601.44, samples=25
+   iops        : min=37998, max=52516, avg=40386.64, stdev=2650.36, samples=25
+  cpu          : usr=5.32%, sys=94.32%, ctx=1266, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=11077: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.2k, BW=161MiB/s (169MB/s)(2045MiB/12692msec)
+   bw (  KiB/s): min=159608, max=246552, per=6.46%, avg=165107.20, stdev=17024.62, samples=25
+   iops        : min=39902, max=61638, avg=41276.80, stdev=4256.15, samples=25
+  write: IOPS=41.4k, BW=162MiB/s (169MB/s)(2051MiB/12692msec); 0 zone resets
+   bw (  KiB/s): min=159696, max=248760, per=6.48%, avg=165637.76, stdev=17347.70, samples=25
+   iops        : min=39924, max=62190, avg=41409.44, stdev=4336.92, samples=25
+  cpu          : usr=5.26%, sys=94.67%, ctx=1253, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=11078: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.2k, BW=161MiB/s (169MB/s)(2050MiB/12722msec)
+   bw (  KiB/s): min=153056, max=244424, per=6.46%, avg=164953.60, stdev=17056.89, samples=25
+   iops        : min=38264, max=61106, avg=41238.32, stdev=4264.23, samples=25
+  write: IOPS=41.2k, BW=161MiB/s (169MB/s)(2046MiB/12722msec); 0 zone resets
+   bw (  KiB/s): min=152720, max=244328, per=6.44%, avg=164694.08, stdev=17024.97, samples=25
+   iops        : min=38180, max=61082, avg=41173.52, stdev=4256.24, samples=25
+  cpu          : usr=5.16%, sys=94.77%, ctx=1254, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=11079: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.3k, BW=161MiB/s (169MB/s)(2048MiB/12694msec)
+   bw (  KiB/s): min=152144, max=229936, per=6.47%, avg=165296.64, stdev=14204.63, samples=25
+   iops        : min=38036, max=57484, avg=41324.24, stdev=3551.09, samples=25
+  write: IOPS=41.3k, BW=161MiB/s (169MB/s)(2048MiB/12694msec); 0 zone resets
+   bw (  KiB/s): min=153064, max=233288, per=6.47%, avg=165275.52, stdev=14743.61, samples=25
+   iops        : min=38266, max=58322, avg=41318.88, stdev=3685.90, samples=25
+  cpu          : usr=5.42%, sys=94.52%, ctx=1246, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job4: (groupid=0, jobs=1): err= 0: pid=11080: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2046MiB/12766msec)
+   bw (  KiB/s): min=153216, max=244952, per=6.40%, avg=163596.48, stdev=17300.66, samples=25
+   iops        : min=38304, max=61238, avg=40899.12, stdev=4325.17, samples=25
+  write: IOPS=41.1k, BW=161MiB/s (168MB/s)(2050MiB/12766msec); 0 zone resets
+   bw (  KiB/s): min=152368, max=246776, per=6.41%, avg=163854.72, stdev=17621.61, samples=25
+   iops        : min=38092, max=61694, avg=40963.76, stdev=4405.38, samples=25
+  cpu          : usr=5.33%, sys=94.59%, ctx=1277, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523855,524721,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job5: (groupid=0, jobs=1): err= 0: pid=11081: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.2k, BW=161MiB/s (169MB/s)(2047MiB/12717msec)
+   bw (  KiB/s): min=153016, max=241336, per=6.45%, avg=164797.76, stdev=16241.83, samples=25
+   iops        : min=38254, max=60334, avg=41199.44, stdev=4060.46, samples=25
+  write: IOPS=41.2k, BW=161MiB/s (169MB/s)(2049MiB/12717msec); 0 zone resets
+   bw (  KiB/s): min=152576, max=238072, per=6.45%, avg=164910.40, stdev=15571.72, samples=25
+   iops        : min=38144, max=59518, avg=41227.68, stdev=3892.93, samples=25
+  cpu          : usr=5.69%, sys=94.24%, ctx=1250, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524099,524477,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job6: (groupid=0, jobs=1): err= 0: pid=11082: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2048MiB/12786msec)
+   bw (  KiB/s): min=151632, max=226200, per=6.39%, avg=163322.56, stdev=13482.87, samples=25
+   iops        : min=37908, max=56550, avg=40830.64, stdev=3370.72, samples=25
+  write: IOPS=41.0k, BW=160MiB/s (168MB/s)(2048MiB/12786msec); 0 zone resets
+   bw (  KiB/s): min=152256, max=225744, per=6.39%, avg=163369.92, stdev=13264.77, samples=25
+   iops        : min=38064, max=56436, avg=40842.48, stdev=3316.19, samples=25
+  cpu          : usr=5.87%, sys=94.06%, ctx=1256, majf=0, minf=5
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524191,524385,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job7: (groupid=0, jobs=1): err= 0: pid=11083: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.1k, BW=160MiB/s (168MB/s)(2046MiB/12751msec)
+   bw (  KiB/s): min=150576, max=290152, per=6.44%, avg=164589.12, stdev=26437.71, samples=25
+   iops        : min=37644, max=72538, avg=41147.20, stdev=6609.46, samples=25
+  write: IOPS=41.2k, BW=161MiB/s (169MB/s)(2050MiB/12751msec); 0 zone resets
+   bw (  KiB/s): min=152008, max=288656, per=6.45%, avg=164810.56, stdev=26047.82, samples=25
+   iops        : min=38002, max=72164, avg=41202.64, stdev=6511.95, samples=25
+  cpu          : usr=5.33%, sys=94.59%, ctx=1247, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523845,524731,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job8: (groupid=0, jobs=1): err= 0: pid=11084: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2045MiB/12773msec)
+   bw (  KiB/s): min=159168, max=166800, per=6.36%, avg=162477.76, stdev=1873.81, samples=25
+   iops        : min=39792, max=41702, avg=40619.44, stdev=468.71, samples=25
+  write: IOPS=41.1k, BW=161MiB/s (168MB/s)(2051MiB/12773msec); 0 zone resets
+   bw (  KiB/s): min=161296, max=167592, per=6.37%, avg=162852.48, stdev=1320.80, samples=25
+   iops        : min=40324, max=41898, avg=40713.12, stdev=330.20, samples=25
+  cpu          : usr=4.82%, sys=94.60%, ctx=1241, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523643,524933,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job9: (groupid=0, jobs=1): err= 0: pid=11085: Mon Mar 25 08:46:06 2024
+  read: IOPS=40.8k, BW=159MiB/s (167MB/s)(2049MiB/12865msec)
+   bw (  KiB/s): min=158424, max=172680, per=6.33%, avg=161660.48, stdev=2739.00, samples=25
+   iops        : min=39606, max=43170, avg=40415.28, stdev=684.70, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2047MiB/12865msec); 0 zone resets
+   bw (  KiB/s): min=158640, max=169296, per=6.32%, avg=161519.68, stdev=1995.82, samples=25
+   iops        : min=39660, max=42324, avg=40379.92, stdev=498.96, samples=25
+  cpu          : usr=5.64%, sys=93.27%, ctx=1254, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524484,524092,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job10: (groupid=0, jobs=1): err= 0: pid=11086: Mon Mar 25 08:46:06 2024
+  read: IOPS=39.9k, BW=156MiB/s (163MB/s)(2047MiB/13132msec)
+   bw (  KiB/s): min=148840, max=164176, per=6.22%, avg=158810.24, stdev=3609.87, samples=25
+   iops        : min=37210, max=41044, avg=39702.56, stdev=902.47, samples=25
+  write: IOPS=39.9k, BW=156MiB/s (164MB/s)(2049MiB/13132msec); 0 zone resets
+   bw (  KiB/s): min=151584, max=162264, per=6.22%, avg=158912.64, stdev=3058.87, samples=25
+   iops        : min=37896, max=40566, avg=39728.16, stdev=764.72, samples=25
+  cpu          : usr=4.94%, sys=92.38%, ctx=1314, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524054,524522,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job11: (groupid=0, jobs=1): err= 0: pid=11087: Mon Mar 25 08:46:06 2024
+  read: IOPS=40.1k, BW=157MiB/s (164MB/s)(2046MiB/13070msec)
+   bw (  KiB/s): min=150416, max=166872, per=6.29%, avg=160606.72, stdev=3995.40, samples=25
+   iops        : min=37604, max=41718, avg=40151.52, stdev=998.79, samples=25
+  write: IOPS=40.1k, BW=157MiB/s (164MB/s)(2050MiB/13070msec); 0 zone resets
+   bw (  KiB/s): min=152376, max=164592, per=6.29%, avg=160839.04, stdev=3654.19, samples=25
+   iops        : min=38094, max=41148, avg=40209.76, stdev=913.55, samples=25
+  cpu          : usr=4.94%, sys=92.54%, ctx=1258, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523876,524700,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job12: (groupid=0, jobs=1): err= 0: pid=11088: Mon Mar 25 08:46:06 2024
+  read: IOPS=40.5k, BW=158MiB/s (166MB/s)(2052MiB/12963msec)
+   bw (  KiB/s): min=151408, max=167456, per=6.32%, avg=161423.48, stdev=4369.21, samples=25
+   iops        : min=37852, max=41864, avg=40355.84, stdev=1092.30, samples=25
+  write: IOPS=40.4k, BW=158MiB/s (165MB/s)(2044MiB/12963msec); 0 zone resets
+   bw (  KiB/s): min=152328, max=164408, per=6.29%, avg=160657.56, stdev=3438.01, samples=25
+   iops        : min=38082, max=41102, avg=40164.44, stdev=859.51, samples=25
+  cpu          : usr=5.69%, sys=92.53%, ctx=1260, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=525403,523173,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job13: (groupid=0, jobs=1): err= 0: pid=11089: Mon Mar 25 08:46:06 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2044MiB/12755msec)
+   bw (  KiB/s): min=159160, max=166344, per=6.36%, avg=162377.92, stdev=1885.26, samples=25
+   iops        : min=39790, max=41586, avg=40594.40, stdev=471.34, samples=25
+  write: IOPS=41.2k, BW=161MiB/s (169MB/s)(2052MiB/12755msec); 0 zone resets
+   bw (  KiB/s): min=160176, max=167840, per=6.38%, avg=162962.56, stdev=1585.44, samples=25
+   iops        : min=40042, max=41960, avg=40740.64, stdev=396.44, samples=25
+  cpu          : usr=5.32%, sys=94.23%, ctx=1266, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523301,525275,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job14: (groupid=0, jobs=1): err= 0: pid=11090: Mon Mar 25 08:46:06 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2048MiB/12892msec)
+   bw (  KiB/s): min=150584, max=166864, per=6.32%, avg=161565.84, stdev=3686.13, samples=25
+   iops        : min=37646, max=41716, avg=40391.36, stdev=921.47, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2048MiB/12892msec); 0 zone resets
+   bw (  KiB/s): min=152952, max=165840, per=6.32%, avg=161449.64, stdev=3497.33, samples=25
+   iops        : min=38238, max=41460, avg=40362.40, stdev=874.33, samples=25
+  cpu          : usr=5.16%, sys=93.51%, ctx=1268, majf=0, minf=5
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524407,524169,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job15: (groupid=0, jobs=1): err= 0: pid=11091: Mon Mar 25 08:46:06 2024
+  read: IOPS=40.9k, BW=160MiB/s (168MB/s)(2050MiB/12819msec)
+   bw (  KiB/s): min=142088, max=166448, per=6.37%, avg=162780.80, stdev=4746.74, samples=25
+   iops        : min=35522, max=41612, avg=40695.12, stdev=1186.63, samples=25
+  write: IOPS=40.9k, BW=160MiB/s (167MB/s)(2046MiB/12819msec); 0 zone resets
+   bw (  KiB/s): min=143008, max=165128, per=6.36%, avg=162474.88, stdev=4230.13, samples=25
+   iops        : min=35752, max=41282, avg=40618.72, stdev=1057.51, samples=25
+  cpu          : usr=4.97%, sys=94.13%, ctx=1254, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524858,523718,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2495MiB/s (2616MB/s), 156MiB/s-161MiB/s (163MB/s-169MB/s), io=32.0GiB (34.4GB), run=12692-13132msec
+  WRITE: bw=2496MiB/s (2617MB/s), 156MiB/s-162MiB/s (164MB/s-169MB/s), io=32.0GiB (34.4GB), run=12692-13132msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job4: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job5: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job6: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job7: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job8: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job9: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job10: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job11: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job12: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job13: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job14: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job15: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 16 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=11178: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2049MiB/12892msec)
+   bw (  KiB/s): min=155896, max=165384, per=6.18%, avg=160499.72, stdev=2305.55, samples=25
+   iops        : min=38974, max=41346, avg=40125.00, stdev=576.50, samples=25
+  write: IOPS=40.6k, BW=159MiB/s (166MB/s)(2047MiB/12892msec); 0 zone resets
+   bw (  KiB/s): min=157688, max=162576, per=6.17%, avg=160260.12, stdev=1530.13, samples=25
+   iops        : min=39422, max=40644, avg=40065.00, stdev=382.53, samples=25
+  cpu          : usr=6.02%, sys=93.93%, ctx=1268, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=11179: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.5k, BW=158MiB/s (166MB/s)(2045MiB/12912msec)
+   bw (  KiB/s): min=156744, max=195024, per=6.24%, avg=161950.48, stdev=7301.40, samples=25
+   iops        : min=39186, max=48756, avg=40487.56, stdev=1825.37, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2051MiB/12912msec); 0 zone resets
+   bw (  KiB/s): min=157224, max=195984, per=6.26%, avg=162417.36, stdev=7289.58, samples=25
+   iops        : min=39306, max=48996, avg=40604.32, stdev=1822.40, samples=25
+  cpu          : usr=5.17%, sys=94.75%, ctx=1273, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=11180: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.8k, BW=160MiB/s (167MB/s)(2050MiB/12848msec)
+   bw (  KiB/s): min=158912, max=165712, per=6.28%, avg=163086.52, stdev=1859.67, samples=25
+   iops        : min=39728, max=41428, avg=40771.60, stdev=464.90, samples=25
+  write: IOPS=40.8k, BW=159MiB/s (167MB/s)(2046MiB/12848msec); 0 zone resets
+   bw (  KiB/s): min=158792, max=165576, per=6.27%, avg=162822.32, stdev=1805.15, samples=25
+   iops        : min=39698, max=41394, avg=40705.52, stdev=451.25, samples=25
+  cpu          : usr=5.92%, sys=93.98%, ctx=1275, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=11181: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2048MiB/12870msec)
+   bw (  KiB/s): min=158928, max=184656, per=6.28%, avg=162872.40, stdev=5033.47, samples=25
+   iops        : min=39732, max=46164, avg=40717.96, stdev=1258.32, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2048MiB/12870msec); 0 zone resets
+   bw (  KiB/s): min=158821, max=187552, per=6.27%, avg=162876.52, stdev=5351.79, samples=25
+   iops        : min=39705, max=46888, avg=40719.08, stdev=1337.97, samples=25
+  cpu          : usr=5.25%, sys=94.68%, ctx=1272, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job4: (groupid=0, jobs=1): err= 0: pid=11182: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2046MiB/12874msec)
+   bw (  KiB/s): min=156600, max=166344, per=6.24%, avg=161889.20, stdev=2208.09, samples=25
+   iops        : min=39150, max=41586, avg=40472.28, stdev=552.03, samples=25
+  write: IOPS=40.8k, BW=159MiB/s (167MB/s)(2050MiB/12874msec); 0 zone resets
+   bw (  KiB/s): min=156864, max=165232, per=6.24%, avg=162114.56, stdev=1809.07, samples=25
+   iops        : min=39216, max=41308, avg=40528.68, stdev=452.30, samples=25
+  cpu          : usr=6.09%, sys=93.86%, ctx=1268, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523855,524721,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job5: (groupid=0, jobs=1): err= 0: pid=11183: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2047MiB/12864msec)
+   bw (  KiB/s): min=156080, max=185120, per=6.28%, avg=162859.28, stdev=5065.97, samples=25
+   iops        : min=39020, max=46280, avg=40714.80, stdev=1266.49, samples=25
+  write: IOPS=40.8k, BW=159MiB/s (167MB/s)(2049MiB/12864msec); 0 zone resets
+   bw (  KiB/s): min=158696, max=182224, per=6.28%, avg=162977.48, stdev=4408.91, samples=25
+   iops        : min=39674, max=45556, avg=40744.32, stdev=1102.23, samples=25
+  cpu          : usr=5.06%, sys=94.87%, ctx=1268, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524099,524477,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job6: (groupid=0, jobs=1): err= 0: pid=11184: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.6k, BW=158MiB/s (166MB/s)(2048MiB/12927msec)
+   bw (  KiB/s): min=155872, max=164736, per=6.19%, avg=160628.28, stdev=2162.38, samples=25
+   iops        : min=38968, max=41184, avg=40157.04, stdev=540.61, samples=25
+  write: IOPS=40.6k, BW=158MiB/s (166MB/s)(2048MiB/12927msec); 0 zone resets
+   bw (  KiB/s): min=157812, max=163240, per=6.19%, avg=160669.48, stdev=1481.02, samples=25
+   iops        : min=39453, max=40810, avg=40167.36, stdev=370.47, samples=25
+  cpu          : usr=5.40%, sys=94.31%, ctx=1289, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524191,524385,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job7: (groupid=0, jobs=1): err= 0: pid=11185: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2046MiB/12881msec)
+   bw (  KiB/s): min=158256, max=204888, per=6.27%, avg=162758.48, stdev=9009.45, samples=25
+   iops        : min=39564, max=51222, avg=40689.64, stdev=2252.36, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2050MiB/12881msec); 0 zone resets
+   bw (  KiB/s): min=158496, max=204328, per=6.28%, avg=162944.56, stdev=8737.03, samples=25
+   iops        : min=39624, max=51082, avg=40736.12, stdev=2184.26, samples=25
+  cpu          : usr=4.95%, sys=94.98%, ctx=1281, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523845,524731,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job8: (groupid=0, jobs=1): err= 0: pid=11186: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.6k, BW=159MiB/s (166MB/s)(2045MiB/12884msec)
+   bw (  KiB/s): min=154840, max=173752, per=6.24%, avg=162066.60, stdev=3385.37, samples=25
+   iops        : min=38710, max=43438, avg=40516.72, stdev=846.29, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2051MiB/12884msec); 0 zone resets
+   bw (  KiB/s): min=156184, max=176560, per=6.26%, avg=162410.12, stdev=3487.46, samples=25
+   iops        : min=39046, max=44140, avg=40602.52, stdev=871.82, samples=25
+  cpu          : usr=4.87%, sys=95.05%, ctx=1271, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523643,524933,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job9: (groupid=0, jobs=1): err= 0: pid=11187: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2049MiB/12889msec)
+   bw (  KiB/s): min=155696, max=166600, per=6.20%, avg=160845.44, stdev=2496.70, samples=25
+   iops        : min=38924, max=41650, avg=40211.36, stdev=624.17, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2047MiB/12889msec); 0 zone resets
+   bw (  KiB/s): min=155928, max=164736, per=6.19%, avg=160701.76, stdev=1903.13, samples=25
+   iops        : min=38982, max=41184, avg=40175.44, stdev=475.78, samples=25
+  cpu          : usr=5.64%, sys=94.27%, ctx=1280, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524484,524092,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job10: (groupid=0, jobs=1): err= 0: pid=11188: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.6k, BW=159MiB/s (166MB/s)(2047MiB/12906msec)
+   bw (  KiB/s): min=156288, max=184992, per=6.23%, avg=161749.60, stdev=5152.23, samples=25
+   iops        : min=39072, max=46248, avg=40437.36, stdev=1288.07, samples=25
+  write: IOPS=40.6k, BW=159MiB/s (166MB/s)(2049MiB/12906msec); 0 zone resets
+   bw (  KiB/s): min=158072, max=183760, per=6.23%, avg=161801.72, stdev=4742.22, samples=25
+   iops        : min=39518, max=45940, avg=40450.40, stdev=1185.57, samples=25
+  cpu          : usr=5.35%, sys=94.59%, ctx=1274, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524054,524522,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job11: (groupid=0, jobs=1): err= 0: pid=11189: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2046MiB/12876msec)
+   bw (  KiB/s): min=156808, max=167352, per=6.25%, avg=162134.68, stdev=2130.81, samples=25
+   iops        : min=39202, max=41838, avg=40533.64, stdev=532.74, samples=25
+  write: IOPS=40.8k, BW=159MiB/s (167MB/s)(2050MiB/12876msec); 0 zone resets
+   bw (  KiB/s): min=159488, max=170096, per=6.25%, avg=162328.80, stdev=2198.51, samples=25
+   iops        : min=39872, max=42524, avg=40582.16, stdev=549.66, samples=25
+  cpu          : usr=5.58%, sys=94.36%, ctx=1273, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523876,524700,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job12: (groupid=0, jobs=1): err= 0: pid=11190: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.8k, BW=160MiB/s (167MB/s)(2052MiB/12867msec)
+   bw (  KiB/s): min=158544, max=167912, per=6.27%, avg=162833.40, stdev=2320.47, samples=25
+   iops        : min=39636, max=41978, avg=40708.32, stdev=580.13, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2044MiB/12867msec); 0 zone resets
+   bw (  KiB/s): min=158416, max=166032, per=6.24%, avg=162073.72, stdev=1826.49, samples=25
+   iops        : min=39604, max=41508, avg=40518.40, stdev=456.61, samples=25
+  cpu          : usr=5.06%, sys=94.82%, ctx=1294, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=525403,523173,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job13: (groupid=0, jobs=1): err= 0: pid=11191: Mon Mar 25 08:47:07 2024
+  read: IOPS=40.7k, BW=159MiB/s (167MB/s)(2044MiB/12870msec)
+   bw (  KiB/s): min=158040, max=168512, per=6.25%, avg=162130.44, stdev=2765.73, samples=25
+   iops        : min=39510, max=42128, avg=40532.56, stdev=691.47, samples=25
+  write: IOPS=40.8k, BW=159MiB/s (167MB/s)(2052MiB/12870msec); 0 zone resets
+   bw (  KiB/s): min=157256, max=169624, per=6.27%, avg=162718.76, stdev=2277.27, samples=25
+   iops        : min=39314, max=42406, avg=40679.68, stdev=569.32, samples=25
+  cpu          : usr=6.05%, sys=93.86%, ctx=1262, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523301,525275,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job14: (groupid=0, jobs=1): err= 0: pid=11192: Mon Mar 25 08:47:07 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2048MiB/12782msec)
+   bw (  KiB/s): min=159384, max=192976, per=6.33%, avg=164261.12, stdev=6251.44, samples=25
+   iops        : min=39846, max=48244, avg=41065.28, stdev=1562.86, samples=25
+  write: IOPS=41.0k, BW=160MiB/s (168MB/s)(2048MiB/12782msec); 0 zone resets
+   bw (  KiB/s): min=160440, max=192680, per=6.32%, avg=164169.28, stdev=6091.46, samples=25
+   iops        : min=40110, max=48170, avg=41042.32, stdev=1522.87, samples=25
+  cpu          : usr=5.09%, sys=94.83%, ctx=1266, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524407,524169,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job15: (groupid=0, jobs=1): err= 0: pid=11193: Mon Mar 25 08:47:07 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2050MiB/12814msec)
+   bw (  KiB/s): min=159264, max=169680, per=6.31%, avg=163831.68, stdev=2423.01, samples=25
+   iops        : min=39816, max=42420, avg=40957.84, stdev=605.76, samples=25
+  write: IOPS=40.9k, BW=160MiB/s (167MB/s)(2046MiB/12814msec); 0 zone resets
+   bw (  KiB/s): min=160840, max=171832, per=6.30%, avg=163488.96, stdev=2217.61, samples=25
+   iops        : min=40210, max=42958, avg=40872.16, stdev=554.42, samples=25
+  cpu          : usr=5.21%, sys=94.73%, ctx=1251, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524858,523718,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2534MiB/s (2658MB/s), 158MiB/s-160MiB/s (166MB/s-168MB/s), io=32.0GiB (34.4GB), run=12782-12927msec
+  WRITE: bw=2535MiB/s (2658MB/s), 158MiB/s-160MiB/s (166MB/s-168MB/s), io=32.0GiB (34.4GB), run=12782-12927msec
+sudo umount /mnt/nvpcssd/
+sudo mount /dev/nvme0n1 /mnt/nvpcssd/ ; /home/shh/git_clone/nvpc/utils/nvpcctl open /mnt/nvpcssd/ s
+nvpcctl: enabling nvpc on fs @ /mnt/nvpcssd/
+nvpcctl: done
+job0: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job1: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job2: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job3: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job4: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job5: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job6: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job7: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job8: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job9: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job10: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job11: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job12: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job13: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job14: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+job15: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+fio-3.36-90-g5ae4
+Starting 16 processes
+
+job0: (groupid=0, jobs=1): err= 0: pid=11254: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.9k, BW=160MiB/s (167MB/s)(2049MiB/12838msec)
+   bw (  KiB/s): min=146928, max=188696, per=6.56%, avg=162991.68, stdev=9793.66, samples=25
+   iops        : min=36732, max=47174, avg=40747.92, stdev=2448.41, samples=25
+  write: IOPS=40.8k, BW=159MiB/s (167MB/s)(2047MiB/12838msec); 0 zone resets
+   bw (  KiB/s): min=147816, max=187992, per=6.55%, avg=162742.72, stdev=9308.00, samples=25
+   iops        : min=36954, max=46998, avg=40685.68, stdev=2327.00, samples=25
+  cpu          : usr=6.30%, sys=93.11%, ctx=1341, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524625,523951,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job1: (groupid=0, jobs=1): err= 0: pid=11255: Mon Mar 25 08:48:09 2024
+  read: IOPS=39.8k, BW=156MiB/s (163MB/s)(2045MiB/13143msec)
+   bw (  KiB/s): min=150120, max=181680, per=6.37%, avg=158127.68, stdev=7677.70, samples=25
+   iops        : min=37530, max=45420, avg=39531.92, stdev=1919.43, samples=25
+  write: IOPS=39.9k, BW=156MiB/s (164MB/s)(2051MiB/13143msec); 0 zone resets
+   bw (  KiB/s): min=150824, max=182072, per=6.38%, avg=158626.56, stdev=7695.97, samples=25
+   iops        : min=37706, max=45518, avg=39656.64, stdev=1923.99, samples=25
+  cpu          : usr=5.46%, sys=92.61%, ctx=1306, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523509,525067,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job2: (groupid=0, jobs=1): err= 0: pid=11256: Mon Mar 25 08:48:09 2024
+  read: IOPS=38.9k, BW=152MiB/s (159MB/s)(2050MiB/13505msec)
+   bw (  KiB/s): min=123008, max=180424, per=6.18%, avg=153561.96, stdev=9990.43, samples=26
+   iops        : min=30752, max=45106, avg=38390.46, stdev=2497.65, samples=26
+  write: IOPS=38.8k, BW=152MiB/s (159MB/s)(2046MiB/13505msec); 0 zone resets
+   bw (  KiB/s): min=122896, max=180456, per=6.17%, avg=153371.42, stdev=10030.63, samples=26
+   iops        : min=30724, max=45114, avg=38342.85, stdev=2507.67, samples=26
+  cpu          : usr=4.94%, sys=87.16%, ctx=59919, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524702,523874,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job3: (groupid=0, jobs=1): err= 0: pid=11257: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.1k, BW=157MiB/s (164MB/s)(2048MiB/13075msec)
+   bw (  KiB/s): min=151408, max=188800, per=6.47%, avg=160812.58, stdev=9673.37, samples=26
+   iops        : min=37852, max=47198, avg=40203.12, stdev=2418.37, samples=26
+  write: IOPS=40.1k, BW=157MiB/s (164MB/s)(2048MiB/13075msec); 0 zone resets
+   bw (  KiB/s): min=150880, max=188752, per=6.47%, avg=160804.96, stdev=9512.70, samples=26
+   iops        : min=37720, max=47188, avg=40201.23, stdev=2378.18, samples=26
+  cpu          : usr=5.68%, sys=92.83%, ctx=1302, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524302,524274,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job4: (groupid=0, jobs=1): err= 0: pid=11258: Mon Mar 25 08:48:09 2024
+  read: IOPS=41.1k, BW=161MiB/s (168MB/s)(2046MiB/12735msec)
+   bw (  KiB/s): min=145568, max=206680, per=6.60%, avg=164069.12, stdev=10973.26, samples=25
+   iops        : min=36392, max=51670, avg=41017.20, stdev=2743.32, samples=25
+  write: IOPS=41.2k, BW=161MiB/s (169MB/s)(2050MiB/12735msec); 0 zone resets
+   bw (  KiB/s): min=147088, max=208016, per=6.61%, avg=164322.88, stdev=11116.81, samples=25
+   iops        : min=36772, max=52004, avg=41080.72, stdev=2779.20, samples=25
+  cpu          : usr=5.83%, sys=94.09%, ctx=1293, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523855,524721,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job5: (groupid=0, jobs=1): err= 0: pid=11259: Mon Mar 25 08:48:09 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2047MiB/12773msec)
+   bw (  KiB/s): min=149832, max=189456, per=6.57%, avg=163307.52, stdev=9128.43, samples=25
+   iops        : min=37458, max=47364, avg=40826.88, stdev=2282.11, samples=25
+  write: IOPS=41.1k, BW=160MiB/s (168MB/s)(2049MiB/12773msec); 0 zone resets
+   bw (  KiB/s): min=150736, max=186680, per=6.58%, avg=163433.92, stdev=8858.20, samples=25
+   iops        : min=37684, max=46670, avg=40858.48, stdev=2214.49, samples=25
+  cpu          : usr=5.14%, sys=94.79%, ctx=1283, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524099,524477,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job6: (groupid=0, jobs=1): err= 0: pid=11260: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.1k, BW=157MiB/s (164MB/s)(2048MiB/13059msec)
+   bw (  KiB/s): min=140936, max=183336, per=6.42%, avg=159443.52, stdev=8216.20, samples=25
+   iops        : min=35234, max=45834, avg=39860.88, stdev=2054.05, samples=25
+  write: IOPS=40.2k, BW=157MiB/s (164MB/s)(2048MiB/13059msec); 0 zone resets
+   bw (  KiB/s): min=139776, max=183896, per=6.42%, avg=159449.60, stdev=8256.38, samples=25
+   iops        : min=34944, max=45974, avg=39862.40, stdev=2064.10, samples=25
+  cpu          : usr=5.21%, sys=93.26%, ctx=1294, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524191,524385,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job7: (groupid=0, jobs=1): err= 0: pid=11261: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.6k, BW=159MiB/s (166MB/s)(2046MiB/12895msec)
+   bw (  KiB/s): min=149208, max=185640, per=6.49%, avg=161194.56, stdev=8460.70, samples=25
+   iops        : min=37302, max=46410, avg=40298.64, stdev=2115.18, samples=25
+  write: IOPS=40.7k, BW=159MiB/s (167MB/s)(2050MiB/12895msec); 0 zone resets
+   bw (  KiB/s): min=150720, max=186192, per=6.49%, avg=161347.84, stdev=8199.58, samples=25
+   iops        : min=37680, max=46548, avg=40336.88, stdev=2049.90, samples=25
+  cpu          : usr=5.58%, sys=93.88%, ctx=1292, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523845,524731,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job8: (groupid=0, jobs=1): err= 0: pid=11262: Mon Mar 25 08:48:09 2024
+  read: IOPS=39.8k, BW=156MiB/s (163MB/s)(2045MiB/13146msec)
+   bw (  KiB/s): min=148512, max=190536, per=6.36%, avg=158100.16, stdev=9510.89, samples=25
+   iops        : min=37128, max=47634, avg=39525.12, stdev=2377.72, samples=25
+  write: IOPS=39.9k, BW=156MiB/s (164MB/s)(2051MiB/13146msec); 0 zone resets
+   bw (  KiB/s): min=149680, max=192048, per=6.38%, avg=158430.40, stdev=9521.87, samples=25
+   iops        : min=37420, max=48012, avg=39607.60, stdev=2380.47, samples=25
+  cpu          : usr=5.60%, sys=92.54%, ctx=1301, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523643,524933,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job9: (groupid=0, jobs=1): err= 0: pid=11263: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.1k, BW=157MiB/s (164MB/s)(2049MiB/13063msec)
+   bw (  KiB/s): min=150840, max=212384, per=6.47%, avg=160695.08, stdev=14732.50, samples=26
+   iops        : min=37710, max=53096, avg=40173.69, stdev=3683.16, samples=26
+  write: IOPS=40.1k, BW=157MiB/s (164MB/s)(2047MiB/13063msec); 0 zone resets
+   bw (  KiB/s): min=150400, max=209536, per=6.46%, avg=160597.23, stdev=14458.74, samples=26
+   iops        : min=37600, max=52384, avg=40149.31, stdev=3614.62, samples=26
+  cpu          : usr=5.14%, sys=93.63%, ctx=1332, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524484,524092,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job10: (groupid=0, jobs=1): err= 0: pid=11264: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.3k, BW=157MiB/s (165MB/s)(2047MiB/13013msec)
+   bw (  KiB/s): min=150216, max=230730, per=6.43%, avg=159663.12, stdev=16679.13, samples=25
+   iops        : min=37554, max=57682, avg=39915.76, stdev=4169.60, samples=25
+  write: IOPS=40.3k, BW=157MiB/s (165MB/s)(2049MiB/13013msec); 0 zone resets
+   bw (  KiB/s): min=148672, max=231656, per=6.43%, avg=159755.20, stdev=16688.40, samples=25
+   iops        : min=37168, max=57914, avg=39938.80, stdev=4172.10, samples=25
+  cpu          : usr=5.26%, sys=93.90%, ctx=1304, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524054,524522,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job11: (groupid=0, jobs=1): err= 0: pid=11265: Mon Mar 25 08:48:09 2024
+  read: IOPS=41.4k, BW=162MiB/s (170MB/s)(2046MiB/12641msec)
+   bw (  KiB/s): min=155248, max=187768, per=6.67%, avg=165588.48, stdev=7193.68, samples=25
+   iops        : min=38812, max=46942, avg=41397.12, stdev=1798.42, samples=25
+  write: IOPS=41.5k, BW=162MiB/s (170MB/s)(2050MiB/12641msec); 0 zone resets
+   bw (  KiB/s): min=155792, max=189936, per=6.67%, avg=165856.96, stdev=7645.98, samples=25
+   iops        : min=38948, max=47484, avg=41464.24, stdev=1911.50, samples=25
+  cpu          : usr=5.63%, sys=94.29%, ctx=1266, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523876,524700,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job12: (groupid=0, jobs=1): err= 0: pid=11266: Mon Mar 25 08:48:09 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2052MiB/12800msec)
+   bw (  KiB/s): min=152320, max=192288, per=6.57%, avg=163307.68, stdev=8819.58, samples=25
+   iops        : min=38080, max=48072, avg=40826.92, stdev=2204.90, samples=25
+  write: IOPS=40.9k, BW=160MiB/s (167MB/s)(2044MiB/12800msec); 0 zone resets
+   bw (  KiB/s): min=154632, max=188472, per=6.54%, avg=162556.20, stdev=7811.19, samples=25
+   iops        : min=38658, max=47118, avg=40639.04, stdev=1952.80, samples=25
+  cpu          : usr=5.93%, sys=93.98%, ctx=1290, majf=0, minf=4
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=525403,523173,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job13: (groupid=0, jobs=1): err= 0: pid=11267: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.8k, BW=159MiB/s (167MB/s)(2044MiB/12828msec)
+   bw (  KiB/s): min=145816, max=192992, per=6.50%, avg=161516.16, stdev=10209.42, samples=25
+   iops        : min=36454, max=48248, avg=40379.04, stdev=2552.35, samples=25
+  write: IOPS=40.9k, BW=160MiB/s (168MB/s)(2052MiB/12828msec); 0 zone resets
+   bw (  KiB/s): min=144904, max=193424, per=6.52%, avg=162105.60, stdev=10332.85, samples=25
+   iops        : min=36226, max=48356, avg=40526.40, stdev=2583.21, samples=25
+  cpu          : usr=5.50%, sys=94.43%, ctx=1299, majf=0, minf=2
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=523301,525275,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job14: (groupid=0, jobs=1): err= 0: pid=11268: Mon Mar 25 08:48:09 2024
+  read: IOPS=40.5k, BW=158MiB/s (166MB/s)(2048MiB/12940msec)
+   bw (  KiB/s): min=144032, max=181627, per=6.48%, avg=160972.36, stdev=7882.52, samples=25
+   iops        : min=36008, max=45406, avg=40242.92, stdev=1970.45, samples=25
+  write: IOPS=40.5k, BW=158MiB/s (166MB/s)(2048MiB/12940msec); 0 zone resets
+   bw (  KiB/s): min=143728, max=180008, per=6.47%, avg=160889.48, stdev=7513.31, samples=25
+   iops        : min=35932, max=45002, avg=40222.32, stdev=1878.21, samples=25
+  cpu          : usr=5.56%, sys=93.92%, ctx=1305, majf=0, minf=5
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524407,524169,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+job15: (groupid=0, jobs=1): err= 0: pid=11269: Mon Mar 25 08:48:09 2024
+  read: IOPS=41.0k, BW=160MiB/s (168MB/s)(2050MiB/12807msec)
+   bw (  KiB/s): min=150224, max=189760, per=6.55%, avg=162593.60, stdev=9617.19, samples=25
+   iops        : min=37556, max=47440, avg=40648.40, stdev=2404.30, samples=25
+  write: IOPS=40.9k, BW=160MiB/s (167MB/s)(2046MiB/12807msec); 0 zone resets
+   bw (  KiB/s): min=150904, max=191344, per=6.53%, avg=162280.32, stdev=9657.80, samples=25
+   iops        : min=37726, max=47836, avg=40570.08, stdev=2414.46, samples=25
+  cpu          : usr=4.96%, sys=94.96%, ctx=1293, majf=0, minf=3
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=524858,523718,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2426MiB/s (2544MB/s), 152MiB/s-162MiB/s (159MB/s-170MB/s), io=32.0GiB (34.4GB), run=12641-13505msec
+  WRITE: bw=2427MiB/s (2545MB/s), 152MiB/s-162MiB/s (159MB/s-170MB/s), io=32.0GiB (34.4GB), run=12641-13505msec
+sudo umount /mnt/nvpcssd/
