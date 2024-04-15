@@ -1,4 +1,7 @@
 # Evaluation of NVPC Paper
+
+> Authored by Haoyang Wei
+
 This repository contains scripts to reproduce the microbenchmark and macrobenchmark results from the NVPC paper.
 
 > **Note:**
@@ -9,13 +12,13 @@ This repository contains scripts to reproduce the microbenchmark and macrobenchm
 Before you run, something must be set up. You need to
 
 #### Build Fio
-The version of Fio used in this experiment is fio-3.36-90-g5ae4 , and the installation process for Fio can be found at this website: `https://github.com/axboe/fio`.
+The version of Fio used in this experiment is fio-3.36-90-g5ae4 , and the installation process for Fio can be found at this website: <https://github.com/axboe/fio>.
 
 #### Build Filebench
-The version of Filebench used in this experiment is 1.5-alpha3 , and the installation process for Filebench can be found at this website: `https://github.com/filebench/filebench`.
+The version of Filebench used in this experiment is 1.5-alpha3 , and the installation process for Filebench can be found at this website: <https://github.com/filebench/filebench>.
 
 #### Build db_bench 
-The version of RocksDB used in this experiment is version 9.2.0 , and the installation process for RocksDB can be found at this website: `https://github.com/facebook/rocksdb/blob/master/INSTALL.md`.
+The version of RocksDB used in this experiment is version 9.2.0 , and the installation process for RocksDB can be found at this website: <https://github.com/facebook/rocksdb/blob/master/INSTALL.md>.
 
 ## Reproduce results from the paper
 
