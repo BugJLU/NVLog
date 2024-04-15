@@ -4,12 +4,6 @@ This repository contains artifacts of the system **NVPC** we implemented in the 
 
 > **WARNING:** Only use this work for experimental tests. DO NOT install it under production environment! 
 
-<!-- ## Description
-
-We propose NVPC, a transparent **N**on-**V**olatile Memory **P**age **C**ache that integrates NVM devices into the system page cache, and helps almost all file systems store their data need synchronized into storages in NVM instead of lower-level slow storage.
-
-Our implementation is based on Linux 5.15.125, and our core code has undergone `~7000` lines of changes, and the test and utility code amounts to `~3000` lines. -->
-
 ## Artifacts Structure
 
 Directory structure:
@@ -27,8 +21,6 @@ NVPC
 Now we will start guiding you step by step on how to deploy and run the code we've implemented in the repository.
 
 ### Prerequisites
-
-<!-- Since our code implementation is based on a specific linux kernel (5.15.125), please check first if the environment you are using requires support from other specific versions of the kernel. If so, please resolve the version-specific dependencies first. -->
 
 NVPC is implemented on kernel version 5.15.125. Make sure that your Linux distribution supports this kernel version if you want to install this kernel to your machine.
 
@@ -61,16 +53,6 @@ Once you have installed the operating system, you will need to use `root` for al
 
 #### Install Kernel
 
-<!-- First, you need to compile the Linux Kernel on another computer, with the same requirements as for normal Kernel compilation.
-
-Then, copy the compiled kernel and modules to a disk accessible on the target system and install the kernel on the target system. Simple scripts are provided for installing the kernel. Copy `env.sh` and `_install_kernel.sh` to the kernel directory and run `_install_kernel.sh` directly to install the kernel and its modules automatically.
-
-```shell
-sh ./_install_kernel.sh
-```
-
-Note that the path names in `env.sh` are the same as your current kernel paths, which may need to be changed. -->
-
 Make sure that you have the relevant tools installed to compile a Linux kernel. 
 
 - Move to `utils/ndctl` dir, make the ndctl toolchain first. This tool is a modified version to support NVPC, so you need to do this step even if you already have the relevant tools installed. 
@@ -92,7 +74,7 @@ Make sure that you have the relevant tools installed to compile a Linux kernel.
 - If you want to install NVPC on your physical machine, just move to `dev_vm` dir, and run `./_install_kernel.sh && reboot`.
 
 
-### Test Basic Functions in VM (QEMU)
+### Test Basic Functions
 
 Note that deploying NVPC needs NVM devices, whether virtual or real hardwares. Be sure that you have NVM and the NVM is **NOT IN USE** and **DOES NOT CONTAIN ANY USEFUL DATA**. The following steps may erase and modify the data on the NVM. 
 
