@@ -1,7 +1,5 @@
 # Evaluation of NVPC Paper
 
-> Authored by Haoyang Wei
-
 This repository contains scripts to reproduce the microbenchmark and macrobenchmark results from the NVPC paper.
 
 > **Note:**
