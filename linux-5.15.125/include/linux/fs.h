@@ -775,7 +775,7 @@ struct inode {
 
 		nvpc_sync_attr_entry *latest_logged_attr;
 		// atomic_t log_cntr;
-		uint32_t log_cntr;
+		uint64_t log_cntr;
 	} nvpc_sync_ilog;
 	struct nvpc_sync_active {
 		unsigned long nr_dirtied;

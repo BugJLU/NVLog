@@ -247,7 +247,7 @@ static void do_nvpc_test1(char *name, size_t len, __user char *data)
     
     // pr_info("Libnvpc TEST: ino %lu log_head %px\n", inode, inode->nvpc_sync_ilog.log_head);
     
-    nvpc_print_inode_pages(inode);
+    // nvpc_print_inode_pages(inode);
 
     debug_ino = inode->i_ino;
     path_put(&path);
