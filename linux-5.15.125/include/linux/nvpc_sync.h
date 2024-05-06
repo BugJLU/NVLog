@@ -107,7 +107,7 @@ typedef union log_inode_head_entry_u
     {
         dev_t           s_dev;  /* use UUID instead */
         unsigned long   i_ino;
-        uintptr_t       head_log_page;
+        uint32_t       head_log_page;   // the index, use nvpc_get_addr_pg
 
         /* logs before this pointer are successfully committed to NVM */
         struct nvpc_sync_log_entry_s    *committed_log_tail;
@@ -123,7 +123,7 @@ typedef union next_sl_page_entry_u
     struct __attribute__((__packed__))
     {
         uint32_t flags;  /* always == -1 */
-        uintptr_t *next_sl_page;
+        uint32_t next_sl_page; // the index, use nvpc_get_addr_pg
     };
     nvpc_sync_head_entry raw;
 } next_sl_page_entry;
@@ -132,7 +132,7 @@ NVPC_HEAD_ESASSERT(next_sl_page_entry);
 /* helpers to find next superlog page */
 #define NVPC_SL_ENTRY_NEXT(addr) ((next_sl_page_entry*)(((uintptr_t)addr&PAGE_MASK)+PAGE_SIZE-NVPC_HEAD_ENTRY_SIZE))
 #define NVPC_SL_HAS_NEXT(addr) (NVPC_SL_ENTRY_NEXT(addr)->flags == NVPC_LOG_HEAD_FLAG_NEXT)
-#define NVPC_SL_NEXT(addr) (NVPC_SL_ENTRY_NEXT(addr)->next_sl_page)
+#define NVPC_SL_NEXT(addr) (nvpc_get_addr_pg(NVPC_SL_ENTRY_NEXT(addr)->next_sl_page))
 
 
 /* --- NVPC LOG ENTRIES --- */
@@ -140,17 +140,22 @@ NVPC_HEAD_ESASSERT(next_sl_page_entry);
 /* types */
 #define NVPC_LOG_TYPE_WRITE 1   /* write */
 #define NVPC_LOG_TYPE_NEXT  2   /* next page */
-#define NVPC_LOG_TYPE_RM    3   /* the page at this offset is removed from NVPC */
+#define NVPC_LOG_TYPE_WB    3   /* writeback */
 #define NVPC_LOG_TYPE_ATTR  4   /* inode attr (metadata) modify */
+#define NVPC_LOG_TYPE_GARB  5   /* garbage entry */
 /* flags */
 #define _NVPC_LOG_FLAG_WREXP    0
 #define _NVPC_LOG_FLAG_WRFRE    1
-#define _NVPC_LOG_FLAG_WRRET    2
-#define _NVPC_LOG_FLAG_WRLAT    3
+#define _NVPC_LOG_FLAG_WRCLR    2
+#define _NVPC_LOG_FLAG_WRDST    3
+// #define _NVPC_LOG_FLAG_WRRET    2
+// #define _NVPC_LOG_FLAG_WRLAT    3
 #define NVPC_LOG_FLAG_WREXP (1<<_NVPC_LOG_FLAG_WREXP)   /* write, expired */
 #define NVPC_LOG_FLAG_WRFRE (1<<_NVPC_LOG_FLAG_WRFRE)   /* write, freed */
-#define NVPC_LOG_FLAG_WRRET (1<<_NVPC_LOG_FLAG_WRRET)   /* write, can be returned */
-#define NVPC_LOG_FLAG_WRLAT (1<<_NVPC_LOG_FLAG_WRLAT)   /* write, last previous write, can't return */
+#define NVPC_LOG_FLAG_WRCLR (1<<_NVPC_LOG_FLAG_WRCLR)   /* write, clear, can be removed */
+#define NVPC_LOG_FLAG_WRDST (1<<_NVPC_LOG_FLAG_WRDST)   /* write, under distill */
+// #define NVPC_LOG_FLAG_WRRET (1<<_NVPC_LOG_FLAG_WRRET)   /* write, can be returned */
+// #define NVPC_LOG_FLAG_WRLAT (1<<_NVPC_LOG_FLAG_WRLAT)   /* write, last previous write, can't return */
 
 /* log entry length is 64 bytes */
 #define NVPC_LOG_ENTRY_SIZE     64
@@ -168,8 +173,8 @@ typedef struct __attribute__((__packed__)) nvpc_sync_log_entry_s
 {
     uint8_t     type;
     uint8_t     flags;
-    uint32_t    id;
-    uint8_t     data[NVPC_LOG_ENTRY_SIZE-6];
+    uint64_t    id;
+    uint8_t     data[NVPC_LOG_ENTRY_SIZE-10];
 } nvpc_sync_log_entry;
 
 #define NVPC_LOG_ESASSERT(entry) \
@@ -180,7 +185,8 @@ typedef union nvpc_sync_write_entry_u
 {
     struct __attribute__((__packed__))
     {
-        uint64_t    __reserved;     /* first 8 bit is flag, should always be 0 */
+        uint64_t    __reserved0;     /* first 8 bit is flag, should always be 0 */
+        uint64_t    __reserved1;
         uint64_t    file_offset;    
         uint16_t    data_len;       /* no more than page size, unit is byte */
         
@@ -192,7 +198,7 @@ typedef union nvpc_sync_write_entry_u
         uint64_t    last_write;     /* offset from nvpc's dax_kaddr */
         
         /* for strict mode to mark the start ent of a journal transaction */
-        uint32_t    jid;
+        uint64_t    jid;
     };
     nvpc_sync_log_entry raw;
 } nvpc_sync_write_entry;
@@ -203,7 +209,8 @@ typedef union nvpc_sync_attr_entry_u
 {
     struct __attribute__((__packed__))
     {
-        uint64_t    __reserved;     /* first 8 bit is flag, should always be 0 */
+        uint64_t    __reserved0;     /* first 8 bit is flag, should always be 0 */
+        uint64_t    __reserved1;
         uint64_t    new_size;       /* truncate size */
 
         /* pointer to find the previous truncate */
@@ -213,13 +220,29 @@ typedef union nvpc_sync_attr_entry_u
 } nvpc_sync_attr_entry;
 NVPC_LOG_ESASSERT(nvpc_sync_attr_entry);
 
+/* writeback log entry */
+typedef union nvpc_sync_wb_entry_u
+{
+    struct __attribute__((__packed__))
+    {
+        uint64_t    __reserved0;     /* first 8 bit is flag, should always be 0 */
+        uint64_t    __reserved1;
+        uint64_t    committed_jid;
+        uint32_t    file_offset_pg;
+    };
+    nvpc_sync_log_entry raw;
+} nvpc_sync_wb_entry;
+NVPC_LOG_ESASSERT(nvpc_sync_wb_entry);
+
 /* next log page entry */
 typedef union nvpc_next_log_entry_u
 {
     struct __attribute__((__packed__))
     {
-        uint64_t __reserved;
-        uintptr_t next_log_page;
+        uint64_t __reserved0;
+        uint64_t __reserved1;
+        // uintptr_t next_log_page;
+        uint32_t next_log_page; // the index, use nvpc_get_addr_pg
     };
     nvpc_sync_log_entry raw;
 } nvpc_next_log_entry;
@@ -230,7 +253,7 @@ NVPC_LOG_ESASSERT(nvpc_next_log_entry);
 /* helpers to find next log page */
 #define NVPC_LOG_ENTRY_NEXT(addr) ((nvpc_next_log_entry*)(((uintptr_t)addr&PAGE_MASK)+PAGE_SIZE-NVPC_LOG_ENTRY_SIZE))
 #define NVPC_LOG_HAS_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->raw.type == NVPC_LOG_TYPE_NEXT)
-#define NVPC_LOG_NEXT(addr) (NVPC_LOG_ENTRY_NEXT(addr)->next_log_page)
+#define NVPC_LOG_NEXT(addr) (nvpc_get_addr_pg(NVPC_LOG_ENTRY_NEXT(addr)->next_log_page))
 
 // #define NVPC_LOG_FILE_OFF_MASK ((1UL) << 56) - 1
 // #define NVPC_LOG_FILE_OFF(x) (x.file_offset)|NVPC_LOG_FILE_OFF_MASK
@@ -240,28 +263,36 @@ NVPC_LOG_ESASSERT(nvpc_next_log_entry);
 typedef struct nvpc_sync_page_info
 {
     struct inode *inode;
-    nvpc_sync_write_entry *latest_write;
-    struct page *latest_p_page; // latest persistent page
+    // nvpc_sync_write_entry *latest_write;
+    // struct page *latest_p_page; // latest persistent page
     // struct page *np_page;   // non-persistent (page cache) page
 
     // the latest write entry before this page is marked as writeback
-    nvpc_sync_write_entry *latest_write_on_wb;
+    // nvpc_sync_write_entry *latest_write_on_wb;
     // the entry to be committed to log, recorded when the writeback is done
-    nvpc_sync_write_entry *wb_write_committed;
-    bool wb_clear_pin;
+    // nvpc_sync_write_entry *wb_write_committed;
+    // bool wb_clear_pin;
     struct page *pagecache_page; // used in writeback log only
 
     struct work_struct wb_log_work;
 
+    pgoff_t idx;
+
+    uint64_t jid;
+    uint64_t committed_jid;
+    // pgoff_t committed_idx;
+
+    uint64_t abandoned_jid;
+
     spinlock_t infolock;
 } nvpc_sync_page_info_t;
 
-#define NVPC_LOG_LATEST_IP(page_info) (!((page_info)->latest_p_page))
-#define NVPC_LOG_LATEST_OOP(page_info) ((page_info)->latest_p_page)
+// #define NVPC_LOG_LATEST_IP(page_info) (!((page_info)->latest_p_page))
+// #define NVPC_LOG_LATEST_OOP(page_info) ((page_info)->latest_p_page)
 
 
 /* --- compact --- */
-#define NVPC_COMPACT_INTERVAL_DEFAULT 1000  // 1 sec
+#define NVPC_COMPACT_INTERVAL_DEFAULT 10000  // 10 sec
 
 
 /* --- Functions --- */
@@ -274,7 +305,7 @@ int write_ip(struct inode *inode, struct iov_iter *from, loff_t file_off, uint32
         nvpc_sync_log_entry **new_head, nvpc_sync_log_entry **new_tail);
 
 int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync);
-int nvpc_copy_pending_page(struct page *page);
+// int nvpc_copy_pending_page(struct page *page);
 
 void nvpc_mark_page_writeback(struct page *page);
 void nvpc_log_page_writeback(struct page *page);
@@ -284,7 +315,7 @@ int nvpc_sync_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
 		   struct iattr *iattr);
 
 void nvpc_print_inode_log(struct inode *inode);
-void nvpc_print_inode_pages(struct inode *inode);
+// void nvpc_print_inode_pages(struct inode *inode);
 
 bool nvpc_sync_detect(void);
 int nvpc_sync_rebuild(void);

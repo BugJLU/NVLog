@@ -4,7 +4,7 @@ fsnames = ['Ext-4', 'NOVA', 'SPFS', 'P2CACHE (sim)', 'NVPC']
 legends1 = ['Ext-4', 'NOVA', 'SPFS']
 legends2 = ['P2CACHE (sim)', 'NVPC']
 
-# 生成随机数据
+
 data_0_10 = {
     fsnames[0]: [3061.46,   871.62,     516.06,     367.95,     284.6,      231.34],
     fsnames[1]: [813.98,    820.09,    824.39,    803.81,     822.14,    811.25 ],
