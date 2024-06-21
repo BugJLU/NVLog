@@ -2226,8 +2226,8 @@ int _nvpc_inode_rebuild_fromstart(log_inode_head_entry *head)
     if (!inode)
     {
         pr_info("[NVPC MSG]: rebuild worker cannot find inode %d on block device %u:%u. \n", (int)head->i_ino, MAJOR(head->s_dev), MINOR(head->s_dev));
-        drop_super(sb);
-        return -1;
+        // drop_super(sb);
+        // return -1;
     }
 
     // copy current file to a new recover file
