@@ -2087,9 +2087,216 @@ struct file *make_recover_file(struct inode *inode)
 //     return -1;
 // }
 
+struct _rebuild_state
+{
+    struct xarray latest_pg_logs;
+    nvpc_sync_attr_entry *latest_attr;
+};
+
+static bool __rebuild_page_chain_wkr(nvpc_sync_log_entry *ent, void *opaque)
+{
+    struct _rebuild_state *rs = (struct _rebuild_state*)opaque;
+    // struct xarray *avail_logs = &rs->latest_pg_logs;
+    
+    if (ent->type == NVPC_LOG_TYPE_WRITE)
+    {
+        nvpc_sync_write_entry *went = ((nvpc_sync_write_entry*)ent);
+        nvpc_sync_write_entry *prev = xa_load(&rs->latest_pg_logs, went->file_offset >> PAGE_SHIFT);
+        went->last_write = prev?nvpc_get_off(prev):0;
+        xa_store(&rs->latest_pg_logs, went->file_offset >> PAGE_SHIFT, went, GFP_KERNEL);
+    }
+    else if (ent->type == NVPC_LOG_TYPE_WB)
+    {
+        nvpc_sync_wb_entry *wbent = ((nvpc_sync_wb_entry*)ent);
+        nvpc_sync_write_entry *prev = xa_load(&rs->latest_pg_logs, wbent->file_offset_pg);
+        if (prev->jid > wbent->committed_jid)
+        {
+            // cut the chain
+            while (prev && prev->last_write)
+            {
+                nvpc_sync_write_entry *tmp;
+                tmp = (nvpc_sync_write_entry *)nvpc_get_addr(prev->last_write);
+                if (tmp->jid < wbent->committed_jid)
+                {
+                    prev->last_write = 0;
+                    tmp = 0;
+                }
+                prev = tmp;
+            }
+        }
+    }
+    else if (ent->type == NVPC_LOG_TYPE_ATTR)
+    {
+        nvpc_sync_attr_entry *aent = ((nvpc_sync_attr_entry*)ent);
+        aent->last_attr = rs->latest_attr?nvpc_get_off(rs->latest_attr):0;
+        rs->latest_attr = aent;
+    }
+
+    return false;
+}
+
+/*
+ * return 1: oop
+ * return 0: ip
+ */
+int __get_data_from_write_ent(nvpc_sync_write_entry *went, void *dst_page)
+{
+    // oop
+    if (went->page_index)
+    {
+        // memcpy(dst_page, nvpc_get_addr_pg(went->page_index)+(went->file_offset&(~PAGE_MASK)), went->data_len);
+        memcpy(dst_page, nvpc_get_addr_pg(went->page_index), PAGE_SIZE);
+        return 1;
+    }
+    // ip
+    else
+    {
+        struct iov_iter i;
+        struct kvec kvec;
+        kvec.iov_base = dst_page + ((went->file_offset)&(~PAGE_MASK));
+        kvec.iov_len = went->data_len;
+        iov_iter_kvec(&i, WRITE, &kvec, 1, went->data_len);
+        walk_log((nvpc_sync_log_entry *)went+1, NULL, __copy_from_ip_log_wkr, &i, false);
+        return 0;
+    }
+}
+
 int _nvpc_inode_rebuild_fromstart(log_inode_head_entry *head)
 {
-    // TODO:
+    struct block_device *bdev;
+    struct super_block *sb;
+    struct inode *inode;
+
+    // struct xarray avail_logs;
+    struct _rebuild_state rs;
+
+    struct file *rec_fp;
+
+    pgoff_t i;
+    nvpc_sync_write_entry *went;
+
+    void *datapg, *maskpg, *tmppg;
+    datapg = (void*)get_zeroed_page(GFP_KERNEL);
+    if (!datapg)
+        return -1;
+    maskpg = (void*)get_zeroed_page(GFP_KERNEL);
+    if (!maskpg)
+    {
+        free_page((unsigned long)datapg);
+        return -1;
+    }
+    tmppg = (void*)get_zeroed_page(GFP_KERNEL);
+    if (!tmppg)
+    {
+        free_page((unsigned long)datapg);
+        free_page((unsigned long)maskpg);
+        return -1;
+    }
+
+    /* find the inode */
+    bdev = blkdev_get_by_dev(head->s_dev, FMODE_READ, NULL);
+    if (IS_ERR(bdev) || !bdev)
+    {
+        pr_info("[NVPC MSG]: rebuild worker cannot find block device %u:%u. \n", MAJOR(head->s_dev), MINOR(head->s_dev));
+        return -1;
+    }
+    sb = get_super(bdev);
+    // WARN_ON(!sb);
+    blkdev_put(bdev, FMODE_READ);
+    if (!sb)
+    {
+        pr_info("[NVPC MSG]: rebuild worker cannot find superblock on block device %u:%u. mount it first. \n", MAJOR(head->s_dev), MINOR(head->s_dev));
+        return -1;
+    }
+    inode = ilookup(sb, head->i_ino);
+    // WARN_ON(!inode);
+    if (!inode)
+    {
+        pr_info("[NVPC MSG]: rebuild worker cannot find inode %d on block device %u:%u. \n", (int)head->i_ino, MAJOR(head->s_dev), MINOR(head->s_dev));
+        drop_super(sb);
+        return -1;
+    }
+
+    // copy current file to a new recover file
+    rec_fp = make_recover_file(inode);
+    if (IS_ERR(rec_fp))
+    {
+        pr_debug("[NVPC DEBUG]: rebuild fail to make recover file. \n");
+        goto err;
+    }
+
+    // 1. for each page, build a chain to link all its entries, meanwhile find the latest WRITEBACK
+    xa_init(&rs.latest_pg_logs);
+    rs.latest_attr = NULL;
+    walk_log((nvpc_sync_log_entry *)nvpc_get_addr_pg(head->head_log_page), 
+        head->committed_log_tail, __rebuild_page_chain_wkr, &rs, false);
+
+    // 2. recover each page to the rebuild file
+    xa_for_each(&rs.latest_pg_logs, i, went) 
+    {
+        loff_t pos;
+        if (!went) continue;
+
+        pos = went->file_offset & PAGE_MASK;
+        kernel_read(rec_fp, datapg, PAGE_SIZE, &pos);
+        memset(maskpg, 0, PAGE_SIZE);
+
+        do
+        {
+            int off = went->file_offset & (PAGE_SIZE-1);
+            int len = went->data_len;
+            char *data_bytes = datapg;  // final page to rebuild
+            char *mask_bytes = maskpg;  // mark already written bytes
+            char *tmp_bytes = tmppg;    // extract data from current ent
+            int enttype = __get_data_from_write_ent(went, tmppg);
+
+            if (enttype)
+            {
+                // for oop ent, build the whole page
+                len = PAGE_SIZE;
+                off = 0;
+            }
+            
+            while (len--)
+            {
+                if (!mask_bytes[off])
+                {
+                    data_bytes[off] = tmp_bytes[off];
+                    mask_bytes[off] = 1;
+                }
+                off++;
+            }
+
+            if (enttype)
+                break;  // stop at oop ent
+            
+            went = went->last_write ? 
+                (nvpc_sync_write_entry *)nvpc_get_addr(went->last_write) : 
+                0;
+        } while (went);
+        
+        
+        pos = went->file_offset & PAGE_MASK;
+        kernel_write(rec_fp, datapg, PAGE_SIZE, &pos);
+
+    }
+
+    filp_close(rec_fp, NULL);
+
+    free_page((unsigned long)datapg);
+    free_page((unsigned long)maskpg);
+    free_page((unsigned long)tmppg);
+    xa_destroy(&rs.latest_pg_logs);
+    iput(inode);
+    drop_super(sb);
+    return 0;
+err:
+    free_page((unsigned long)datapg);
+    free_page((unsigned long)maskpg);
+    free_page((unsigned long)tmppg);
+    xa_destroy(&rs.latest_pg_logs);
+    iput(inode);
+    drop_super(sb);
     return -1;
 }
 
