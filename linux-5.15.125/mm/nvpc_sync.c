@@ -1924,47 +1924,60 @@ typedef struct nvpc_rebuild_control nvpc_rebuild_control_t;
 // out:
 //     return false;
 // }
-struct file *make_recover_file(struct inode *inode)
+struct file *make_recover_file(struct inode *inode, unsigned long ino)
 {
     struct dentry *old_dent;
     struct file *old_fp;
     struct file *new_fp;
     char *newpath;
+    int oldfound = 0;
+
+    newpath = kmalloc(PATH_MAX, GFP_KERNEL);
+    if (!newpath)
+        return ERR_PTR(-ENOMEM);
+
+    if (!inode)
+        goto oldnotfound;
 
     old_dent = d_find_alias(inode);
     if (IS_ERR(old_dent))
-        return ERR_CAST(old_dent);
+        // return ERR_CAST(old_dent);
+        goto oldnotfound;
     old_fp = filp_open(old_dent->d_name.name, O_RDONLY | O_LARGEFILE, 0);
     if (IS_ERR(old_fp))
     {
         pr_debug("[NVPC DEBUG]: rebuild make_recover_file open old file %s fail. \n", old_dent->d_name.name);
         dput(old_dent);
-        return ERR_CAST(old_fp);
-    }
-    
-    newpath = kmalloc(PATH_MAX, GFP_KERNEL);
-    if (!newpath)
-    {
-        dput(old_dent);
-        filp_close(old_fp, NULL);
-        return ERR_PTR(-ENOMEM);
+        // return ERR_CAST(old_fp);
+        goto oldnotfound;
     }
     
     strcat(strcpy(newpath, old_dent->d_name.name), ".recover");
+    oldfound = 1;
     dput(old_dent);
+oldnotfound:
+    if (!oldfound)
+    {
+        sprintf(newpath, "lost_%lu.recover", ino);
+        // strcat(strcpy(newpath, old_dent->d_name.name), ".recover");
+    }
     
     new_fp = filp_open(newpath, O_CREAT | O_RDWR | O_LARGEFILE, 0);
     if (IS_ERR(new_fp))
     {
         pr_debug("[NVPC DEBUG]: rebuild make_recover_file open new file %s fail. \n", newpath);
-        filp_close(old_fp, NULL);
+        if (oldfound)
+            filp_close(old_fp, NULL);
         kfree(newpath);
         return ERR_CAST(new_fp);
     }
 
-    vfs_copy_file_range(old_fp, 0, new_fp, 0, i_size_read(inode), 0);
-
-    filp_close(old_fp, NULL);
+    if (oldfound)
+    {
+        vfs_copy_file_range(old_fp, 0, new_fp, 0, i_size_read(inode), 0);
+        filp_close(old_fp, NULL);
+    }
+    
     kfree(newpath);
     return new_fp;
 }
@@ -2218,7 +2231,7 @@ int _nvpc_inode_rebuild_fromstart(log_inode_head_entry *head)
     }
 
     // copy current file to a new recover file
-    rec_fp = make_recover_file(inode);
+    rec_fp = make_recover_file(inode, head->i_ino);
     if (IS_ERR(rec_fp))
     {
         pr_debug("[NVPC DEBUG]: rebuild fail to make recover file. \n");
@@ -2238,6 +2251,7 @@ int _nvpc_inode_rebuild_fromstart(log_inode_head_entry *head)
         if (!went) continue;
 
         pos = went->file_offset & PAGE_MASK;
+        memset(datapg, 0, PAGE_SIZE);
         kernel_read(rec_fp, datapg, PAGE_SIZE, &pos);
         memset(maskpg, 0, PAGE_SIZE);
 
@@ -2287,7 +2301,7 @@ int _nvpc_inode_rebuild_fromstart(log_inode_head_entry *head)
     free_page((unsigned long)maskpg);
     free_page((unsigned long)tmppg);
     xa_destroy(&rs.latest_pg_logs);
-    iput(inode);
+    if (inode) iput(inode);
     drop_super(sb);
     return 0;
 err:
@@ -2295,7 +2309,7 @@ err:
     free_page((unsigned long)maskpg);
     free_page((unsigned long)tmppg);
     xa_destroy(&rs.latest_pg_logs);
-    iput(inode);
+    if (inode) iput(inode);
     drop_super(sb);
     return -1;
 }
