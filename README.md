@@ -1,6 +1,9 @@
-# NVPC: It's Time to Drop NVM File Systems: A Case for A Transparent NVM Page Cache
+# NVLog(NVPC)
 
-This repository contains artifacts of the system **NVPC** we implemented in the paper. NVPC is an NVM-enhanced page cache that can absorb sync writes and extend the DRAM page cache for existing disk file systems to improve their performance transparently. For more information, please refer to the paper. 
+This repository contains artifacts of the system **NVLog** (i.e. **NVPC**) we implemented in the paper. NVLog is a transparent NVM write-ahead log for disk file systems. For more information, please refer to the paper. 
+
+<!-- This project was previously implemented as an NVM-enhanced page cache, at which time we call it NVPC. Now the page cache extension is deprecated. The work is currently focusing on FS logging. -->
+
 
 > **WARNING:** Only use this work for experimental tests. DO NOT install it under production environment! 
 
