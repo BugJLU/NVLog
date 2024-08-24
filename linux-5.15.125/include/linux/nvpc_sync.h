@@ -143,6 +143,7 @@ NVPC_HEAD_ESASSERT(next_sl_page_entry);
 #define NVPC_LOG_TYPE_WB    3   /* writeback */
 #define NVPC_LOG_TYPE_ATTR  4   /* inode attr (metadata) modify */
 #define NVPC_LOG_TYPE_GARB  5   /* garbage entry */
+#define NVPC_LOG_TYPE_ERR   6   /* should not be this */
 /* flags */
 #define _NVPC_LOG_FLAG_WREXP    0
 #define _NVPC_LOG_FLAG_WRFRE    1

@@ -7,3 +7,4 @@ synctest
 test
 stresstest.c
 test01_mixrws
+constest

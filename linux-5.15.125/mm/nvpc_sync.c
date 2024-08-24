@@ -875,114 +875,6 @@ struct nvpc_copy_pending_s {
     struct work_struct work;
 };
 
-// static void nvpc_copy_pending_page_fn(struct work_struct *work)
-// {
-//     struct page *origin;
-//     // struct inode *inode;
-//     struct nvpc_copy_pending_s *pending;
-//     nvpc_sync_log_entry *old_tail, *new_tail, *ent;
-//     bool free_pg = false;
-
-//     pr_debug("[NVPC DEBUG]: copy_pending_page work 0\n");
-
-//     pending = container_of(work, struct nvpc_copy_pending_s, work);
-
-//     mutex_lock(&pending->inode->nvpc_sync_ilog.log_lock);
-//     old_tail = new_tail = pending->inode->nvpc_sync_ilog.log_tail;
-
-//     origin = pagecache_get_page(pending->inode->i_mapping, pending->index, 
-//         FGP_LOCK, mapping_gfp_mask(pending->inode->i_mapping));
-
-//     WARN_ON(!origin);
-//     if (!origin)
-//         goto free;
-
-//     // NVTODO: if we don't need to log this page
-//     if ()
-//     {
-//         free_pg = true;
-//         goto unlock;
-//     }
-
-//     // copy_highpage(log_pg, page);
-//     arch_wb_cache_pmem(page_to_virt(pending->nvpg), PAGE_SIZE);
-
-//     if (write_oop(pending->inode, pending->nvpg, pending->index << PAGE_SHIFT, 
-//         PAGE_SIZE, &ent, &new_tail))
-//     {
-//         free_pg = true;
-//         goto unlock;
-//     }
-
-//     // NVTODO: add log_pg to nvpc index, commit
-    
-
-// unlock:
-//     unlock_page(origin);
-//     put_page(origin);
-// free:
-//     mutex_unlock(&pending->inode->nvpc_sync_ilog.log_lock);
-//     if (free_pg)
-//     {
-//         pr_debug("[NVPC DEBUG]: copy_pending_page work free\n");
-//         nvpc_free_page(pending->nvpg, 0);
-//     }
-//     kfree(pending);
-//     pr_debug("[NVPC DEBUG]: copy_pending_page work ok\n");
-// }
-
-// DEPRECATED
-// int nvpc_copy_pending_page(struct page *page) 
-// {
-//     struct page *log_pg;
-//     struct inode *inode;
-//     // nvpc_sync_log_entry *old_tail, *new_tail;
-//     nvpc_sync_page_info_t *prev_ent_info;
-//     // struct nvpc_copy_pending_s *pending;
-//     // int ret;
-
-//     WARN_ON(!PageLocked(page));
-//     pr_debug("[NVPC DEBUG]: copy_pending_page 0\n");
-    
-//     inode = page->mapping->host;
-
-//     log_pg = nvpc_get_new_page(NULL, 0);
-//     if (!log_pg)
-//         goto err;
-    
-//     // issue a new work
-//     // pending = kzalloc(sizeof(struct nvpc_copy_pending_s), GFP_ATOMIC);
-//     // if (!pending)
-//     //     goto err1;
-    
-//     copy_highpage(log_pg, page);
-
-//     // pending->index = page->index;
-//     // pending->inode = inode;
-//     // pending->nvpg = log_pg;
-//     // INIT_WORK(&pending->work, nvpc_copy_pending_page_fn);
-//     // ret = queue_work(nvpc_sync.nvpc_sync_wq, &pending->work);
-
-//     // find the entry and rewrite it directly, meanwhile nobody may race with us so we don't need lock
-    
-//     prev_ent_info = xa_load(&inode->nvpc_sync_ilog.inode_log_pages, page->index);
-//     WARN_ON(!prev_ent_info);
-//     if (unlikely(!prev_ent_info))
-//         goto err1;
-    
-//     mutex_lock(&inode->nvpc_sync_ilog.compact_lock);
-//     // the latest write should always be oop
-//     WARN_ON(prev_ent_info->latest_write->page_index == 0);
-//     prev_ent_info->latest_write->page_index = nvpc_get_off_pg(page_to_virt(page));
-//     arch_wb_cache_pmem(prev_ent_info->latest_write, sizeof(nvpc_sync_write_entry*));
-//     mutex_unlock(&inode->nvpc_sync_ilog.compact_lock);
-
-//     return 0;
-// err1:
-//     nvpc_free_page(log_pg, 0);
-// err:
-//     return -ENOMEM;
-// }
 
 /* 
  * NVPC truncate log represents that the data before this point inside NVPC
@@ -1507,15 +1399,38 @@ struct nvpc_compact_one_control {
     int reclaim_d_pages;    // num of data pages reclaimed
     int reclaim_l_pages;    // num of log pages reclaimed
     int reclaim_goal;       // num of pages we want to reclaim, 0 for no limit
-    bool distill_page;      // take available entry from existing log page and build new log page
+    int scan_d_pages;
+    int scan_l_pages;
+    bool free_l_pages;      // take available entry from existing log page and build new log page
     bool free_d_pages;      // free expired oop data pages and mark ip/oop entries as WRFRE
     // bool boot;              // we are during boot compact, feel free to do anything
     struct inode *_inode;
     nvpc_sync_log_entry *_working_tail_ent;
     int _jump;
+    bool found_useful;
+
+    log_inode_head_entry *head;
+    nvpc_next_log_entry *prev_pgtail;
+    bool log_page_useful;
+    bool _start;
 };
 typedef struct nvpc_compact_one_control nvpc_compact_one_control_t;
 
+void write_garbage(nvpc_sync_write_entry *went, int ent_left)
+{
+    size_t len = ent_left * NVPC_LOG_ENTRY_SIZE;
+        
+    went->raw.id = 0;
+    went->raw.type = NVPC_LOG_TYPE_GARB;
+    went->raw.flags = 0;
+    went->file_offset = -1;
+    went->data_len = len;
+    went->page_index = 0;
+    went->jid = 0;
+    arch_wb_cache_pmem((void*)went, sizeof(nvpc_sync_write_entry));
+
+    nvpc_write_commit();
+}
 
 // We don't need to clwb those changed flags, because they don't need to be persisted. 
 // Take special care of the ip entries with data crossing the log page boundary!!!
@@ -1524,13 +1439,78 @@ static bool __nvpc_compact_log_wkr(nvpc_sync_log_entry *ent, void *opaque)
     nvpc_compact_one_control_t *ncoc = (nvpc_compact_one_control_t *)opaque;
     void *xa_ent;
     pgoff_t index;
-    unsigned long flags;
 
     // pr_info("[NVPC DEBUG] compacting ent %px type %d\n", ent, ent->type);
 
     // reaching the last working page, stop walking
     if (((uintptr_t)ent&PAGE_MASK) == ((uintptr_t)(ncoc->_working_tail_ent)&PAGE_MASK))
         return true;
+
+
+    // if page start
+    if (((uintptr_t)ent&(~PAGE_MASK)) == 0)
+    {
+        pr_debug("[NVPC DEBUG] compact pg\n");
+        ncoc->scan_l_pages++;
+        /*
+         * log_page_useful is set to true before walking by nvpc_sync_compact_onehead, 
+         * so the following block will only be executed when reaching the second page
+         */
+        if (!ncoc->log_page_useful)
+        {
+            if (ncoc->free_l_pages)
+            {
+                void *tofree;
+                /*
+                 * if ip ent is crossing log page, add a new placeholder entry at the 
+                 * start of the next page
+                 */
+                if (ncoc->_jump > 0)
+                {
+                    nvpc_sync_write_entry *went = (nvpc_sync_write_entry*)ent;
+                    write_garbage(went, ncoc->_jump - 1);
+                }
+                
+                if (!ncoc->prev_pgtail) // should link from log head
+                {
+                    tofree = nvpc_get_addr_pg(ncoc->head->head_log_page);
+                    ncoc->head->head_log_page = nvpc_get_off_pg(ent);
+                    arch_wb_cache_pmem((void*)ncoc->head, sizeof(log_inode_head_entry));
+                    nvpc_write_commit();
+                }
+                else    // should link from prev prev tail
+                {
+                    tofree = nvpc_get_addr_pg(ncoc->prev_pgtail->next_log_page);
+                    ncoc->prev_pgtail->next_log_page = nvpc_get_off_pg(ent);
+                    arch_wb_cache_pmem((void*)ncoc->prev_pgtail, sizeof(nvpc_next_log_entry));
+                    nvpc_write_commit();
+                }
+
+                nvpc_free_page(virt_to_page(tofree), 0);
+                ncoc->reclaim_l_pages++;
+            }
+        }
+        else if (unlikely(ncoc->_start))
+        {
+            // just started at the first page, don't move prev_pgtail
+            ncoc->_start = false;
+        }
+        else    // log page not reclaimed, move prev_pgtail to the next
+        {
+            if (ncoc->prev_pgtail)  // move from prev prev tail to prev tail
+            {
+                ncoc->prev_pgtail = NVPC_LOG_ENTRY_NEXT(nvpc_get_addr_pg(ncoc->prev_pgtail->next_log_page));
+            }
+            else    // move from head to prev tail
+            {
+                ncoc->prev_pgtail = NVPC_LOG_ENTRY_NEXT(nvpc_get_addr_pg(ncoc->head->head_log_page));
+            }
+            WARN_ON(NVPC_LOG_NEXT(ncoc->prev_pgtail) != ent);
+        }
+        
+        ncoc->log_page_useful = false;
+    }
+    
 
     if (ncoc->_jump)
     {
@@ -1539,9 +1519,18 @@ static bool __nvpc_compact_log_wkr(nvpc_sync_log_entry *ent, void *opaque)
     }
 
     if (ent->type == NVPC_LOG_TYPE_ATTR)
-        return false;
+    {
+        if (ncoc->found_useful)
+        {
+            // useful w entry before this attr
+            ncoc->log_page_useful = true;
+            return false;
+        }
+        else
+            ent->flags |= NVPC_LOG_FLAG_WREXP;
+    }
     
-    if (ent->type == NVPC_LOG_TYPE_WB)
+    else if (ent->type == NVPC_LOG_TYPE_WB)
     {
         nvpc_sync_wb_entry *wbent = (nvpc_sync_wb_entry*)ent;
         nvpc_sync_page_info_t *info;
@@ -1551,13 +1540,23 @@ static bool __nvpc_compact_log_wkr(nvpc_sync_log_entry *ent, void *opaque)
         if (!xa_ent)
             return false;
         info = (nvpc_sync_page_info_t*)xa_ent;
-        if (info->committed_jid > info->abandoned_jid)
+        // if (info->committed_jid > info->abandoned_jid)
+        // {
+        //     spin_lock_irqsave(&info->infolock, flags);
+        //     if (info->committed_jid > info->abandoned_jid)
+        //         info->abandoned_jid = info->committed_jid;
+        //     spin_unlock_irqrestore(&info->infolock, flags);
+        // }
+
+        // current wb jid is larger than golbal exp jid
+        if (wbent->committed_jid > info->abandoned_jid)
         {
-            spin_lock_irqsave(&info->infolock, flags);
-            if (info->committed_jid > info->abandoned_jid)
-                info->abandoned_jid = info->committed_jid;
-            spin_unlock_irqrestore(&info->infolock, flags);
+            info->abandoned_jid = wbent->committed_jid;
         }
+        if (ncoc->found_useful)
+            ncoc->log_page_useful = true;
+        else
+            ent->flags |= NVPC_LOG_FLAG_WREXP;
     }
 
     else if (ent->type == NVPC_LOG_TYPE_WRITE)
@@ -1569,12 +1568,17 @@ static bool __nvpc_compact_log_wkr(nvpc_sync_log_entry *ent, void *opaque)
         {
             ncoc->_jump = (went->data_len + NVPC_LOG_ENTRY_SIZE - 1) / NVPC_LOG_ENTRY_SIZE;
         }
+        else if (!(went->raw.flags & NVPC_LOG_FLAG_WRFRE))
+        {
+            ncoc->scan_d_pages++;
+        }
+        
 
         index = went->file_offset >> PAGE_SHIFT;
         xa_ent = xa_load(&ncoc->_inode->nvpc_sync_ilog.inode_log_pages, index);
         pr_debug("[NVPC DEBUG] compacting ent %px type wr xa %px\n", ent, xa_ent);
         if (!xa_ent)
-            return false;
+            goto wnoinf;
         info = (nvpc_sync_page_info_t*)xa_ent;
         // unmarked entry, maybe expired and pending mark, maybe fresh
         // don't need the infolock, only this thread can access abandoned_jid
@@ -1592,7 +1596,7 @@ static bool __nvpc_compact_log_wkr(nvpc_sync_log_entry *ent, void *opaque)
             }
         }
         
-
+wnoinf:
         if (went->raw.flags & NVPC_LOG_FLAG_WREXP)
         {
             // ip
@@ -1612,6 +1616,11 @@ static bool __nvpc_compact_log_wkr(nvpc_sync_log_entry *ent, void *opaque)
                 }
             }
         }
+        else
+        {
+            ncoc->found_useful = true;
+            ncoc->log_page_useful = true;   // entry not expired
+        }
 
         if (went->raw.flags & NVPC_LOG_FLAG_WRCLR)
         {
@@ -1619,16 +1628,18 @@ static bool __nvpc_compact_log_wkr(nvpc_sync_log_entry *ent, void *opaque)
             if (!went->page_index)  // ip, add its data zone
                 len += (went->data_len + NVPC_LOG_ENTRY_SIZE - 1) / NVPC_LOG_ENTRY_SIZE;
         }
+        else
+        {
+            ncoc->log_page_useful = true;   // entry expired but not free
+        }
         
     }
 
-    // // TODO:
-    // if (ncoc->distill_page)
-    // {
-        
-    // }
-    
-    
+    else if (ent->type >= NVPC_LOG_TYPE_ERR)
+    {
+        pr_warn("[NVPC DEBUG] Compact err: Unrecognized log entry type \n");
+    }
+
     return false;
 }
 
@@ -1665,6 +1676,11 @@ int nvpc_sync_compact_onehead(log_inode_head_entry *head, nvpc_compact_one_contr
     ncoc->_inode = inode;
     ncoc->_working_tail_ent = working_tail_ent;
 
+    ncoc->head = head;
+    ncoc->prev_pgtail = NULL;
+    ncoc->log_page_useful = true;
+    ncoc->_start = true;
+
     walk_log(first_log_ent, working_tail_ent, __nvpc_compact_log_wkr, ncoc, false);
 
 // out:
@@ -1679,11 +1695,14 @@ struct npvc_compact_control {
     int fail_inodes;        // num of inodes that are broken
     int reclaim_d_pages;    // num of data pages reclaimed
     int reclaim_l_pages;    // num of log pages reclaimed
+    int scan_d_pages;
+    int scan_l_pages;
     
     /* caller sets the following fields */
     int reclaim_goal;       // num of pages we want to reclaim, 0 for no limit
-    bool distill_page;      // take available entry from existing log page and build new log page
+    // bool distill_page;      // take available entry from existing log page and build new log page
     bool free_d_pages;      // free expired oop data pages and mark ip/oop entries as WRFRE
+    bool free_l_pages;      // free log page if all entries are expired
 };
 typedef struct npvc_compact_control npvc_compact_control_t;
 
@@ -1695,8 +1714,8 @@ static bool __nvpc_inode_compact_wkr(nvpc_sync_head_entry *curr, void *opaque)
     bool nolimit = (ncc->reclaim_goal == 0);
 
     ncoc.reclaim_goal = ncc->reclaim_goal;
-    ncoc.distill_page = ncc->distill_page;
     ncoc.free_d_pages = ncc->free_d_pages;
+    ncoc.free_l_pages = ncc->free_d_pages && ncc->free_l_pages;
     // ncoc.boot = false;
     ret = nvpc_sync_compact_onehead((log_inode_head_entry *)curr, &ncoc);
     if (unlikely(ret))  // should not happen
@@ -1706,6 +1725,8 @@ static bool __nvpc_inode_compact_wkr(nvpc_sync_head_entry *curr, void *opaque)
     
     ncc->reclaim_d_pages += ncoc.reclaim_d_pages;
     ncc->reclaim_l_pages += ncoc.reclaim_l_pages;
+    ncc->scan_d_pages += ncoc.scan_d_pages;
+    ncc->scan_l_pages += ncoc.scan_l_pages;
 
     // no limit, never stop
     if (nolimit)
@@ -1737,10 +1758,11 @@ int nvpc_sync_compact_thread_fn(void *data)
         npvc_compact_control_t ncc = {0};
         pr_debug("nvpc compact start\n");
         ncc.free_d_pages = true;
+        ncc.free_l_pages = true;
         ncc.reclaim_goal = 0;
         nvpc_sync_compact_all(&ncc);
-        pr_debug("nvpc compact done, succ_i %d, fail_i %d, r_logp %d, r_datap %d\n", 
-            ncc.success_inodes, ncc.fail_inodes, ncc.reclaim_l_pages, ncc.reclaim_d_pages);
+        pr_debug("nvpc compact done, succ_i %d, fail_i %d, r_logp %d, r_datap %d, s_logp %d, s_datap %d\n", 
+            ncc.success_inodes, ncc.fail_inodes, ncc.reclaim_l_pages, ncc.reclaim_d_pages, ncc.scan_l_pages, ncc.scan_d_pages);
         msleep(nvpc_sync.compact_interval);
     }
     return 0;
@@ -1761,335 +1783,307 @@ struct nvpc_rebuild_control
 };
 typedef struct nvpc_rebuild_control nvpc_rebuild_control_t;
 
-// struct __first_pass_state
-// {
-//     int _jump_entries;
-//     nvpc_sync_log_entry *first_ne;
-//     uint32_t jid_want;
-//     nvpc_sync_log_entry *jid_first;
-//     nvpc_sync_log_entry *jid_last;
-//     struct xarray avail_logs;
-//     nvpc_sync_attr_entry *latest_attr;
-// };
 
-// static bool __rebuild_first_pass_wkr(nvpc_sync_log_entry *ent, void *opaque)
-// {
-//     struct __first_pass_state *st = (struct __first_pass_state *)opaque;
-
-//     if (st->_jump_entries)   // ip write, jump contents
-//     {
-//         st->_jump_entries--;
-//         goto out;
-//     }
-
-//     // find the latest jid; find the latest attr
-
-//     if (ent->type == NVPC_LOG_TYPE_WRITE && !(ent->flags & NVPC_LOG_FLAG_WREXP))
-//     {
-//         // record the first page/ent that has non-expired ent
-//         if (st->first_ne == NULL)
-//             st->first_ne = ent;
-        
-//         // store the entry in xarray index for third pass to find it
-//         xa_store(&st->avail_logs, ((nvpc_sync_write_entry*)ent)->file_offset >> PAGE_SHIFT, ent, GFP_KERNEL);
-//     }
-
-//     if (ent->type == NVPC_LOG_TYPE_WRITE && ((nvpc_sync_write_entry*)ent)->page_index == 0) // ip write
-//         st->_jump_entries = (((nvpc_sync_write_entry*)ent)->data_len + NVPC_LOG_ENTRY_SIZE - 1) / NVPC_LOG_ENTRY_SIZE;
-    
-//     // if (((nvpc_sync_write_entry*)ent)->jid != st->jid_want)
-//     //     goto out;
-
-//     switch (ent->type)
-//     {
-//     case NVPC_LOG_TYPE_WRITE:
-//         if (((nvpc_sync_write_entry*)ent)->jid != st->jid_want)
-//         {
-//             st->jid_want = ((nvpc_sync_write_entry*)ent)->jid;
-//             if (!st->jid_first)
-//             {
-//                 st->jid_first = ent;
-//             }
-//         }
-//         st->jid_last = ent;
-//         break;
-//     case NVPC_LOG_TYPE_ATTR:
-//         st->latest_attr = (nvpc_sync_attr_entry*)ent;
-//         fallthrough;
-//     default:
-//         st->jid_want = 0;
-//         st->jid_first = st->jid_last = NULL;
-//         break;
-//     }
-
-// out:
-//     return false;
-// }
-
-// struct __second_pass_state
-// {
-//     uint32_t jid_want;
-//     int _jump_entries;
-//     int err;
-// };
-
-// static bool __rebuild_second_pass_wkr(nvpc_sync_log_entry *ent, void *opaque)
-// {
-//     struct __second_pass_state *st = (struct __second_pass_state *)opaque;
-//     nvpc_sync_write_entry* prev;
-
-//     if (st->_jump_entries)  // ip write, jump contents
-//     {
-//         st->_jump_entries--;
-//         return false;
-//     }
-    
-//     // for each ent, check if it is write, but no matter if it is marked as WREXP
-//     WARN_ON(ent->type != NVPC_LOG_TYPE_WRITE);
-//     if (ent->type != NVPC_LOG_TYPE_WRITE)
-//     {
-//         st->err = 1;
-//         return true;
-//     }
-
-//     WARN_ON(((nvpc_sync_write_entry*)ent)->jid != st->jid_want);
-//     if (((nvpc_sync_write_entry*)ent)->jid != st->jid_want)
-//     {
-//         st->err = 2;
-//         return true;
-//     }
-
-//     // check previous write, for oop, mark WREXP; for ip, chained mark WREXP
-//     if (!((nvpc_sync_write_entry*)ent)->last_write) // no previous, move on
-//         return false;
-    
-//     prev = (nvpc_sync_write_entry *)nvpc_get_addr(((nvpc_sync_write_entry*)ent)->last_write);
-//     if (prev->page_index)  // oop
-//     {
-//         prev->raw.flags |= NVPC_LOG_FLAG_WREXP;
-//         arch_wb_cache_pmem(ent, sizeof(nvpc_sync_write_entry*));
-//     }
-//     else    // ip
-//     {
-//         __nvpc_mark_free_chained_entries(prev, false, false);
-//     }
-
-//     if (!((nvpc_sync_write_entry*)ent)->page_index) // this ent is ip
-//         st->_jump_entries = (((nvpc_sync_write_entry*)ent)->data_len + NVPC_LOG_ENTRY_SIZE - 1) / NVPC_LOG_ENTRY_SIZE;
-    
-//     return false;
-// }
-
-// struct __third_pass_state
-// {
-//     nvpc_sync_log_entry *jid_first;
-//     nvpc_sync_log_entry *jid_last;
-//     int _jump_entries;
-// };
-
-
-// static bool __rebuild_third_pass_wkr(nvpc_sync_log_entry *ent, void *opaque)
-// {
-//     struct __third_pass_state *st = (struct __third_pass_state *)opaque;
-
-//     if (st->_jump_entries)   // ip write, jump contents
-//     {
-//         st->_jump_entries--;
-//         goto out;
-//     }
-
-//     if (ent->type == NVPC_LOG_TYPE_WRITE && ((nvpc_sync_write_entry*)ent)->page_index == 0) // ip write
-//         st->_jump_entries = (((nvpc_sync_write_entry*)ent)->data_len + NVPC_LOG_ENTRY_SIZE - 1) / NVPC_LOG_ENTRY_SIZE;
-
-//     switch (ent->type)
-//     {
-//     case NVPC_LOG_TYPE_WRITE:
-//         if (((nvpc_sync_write_entry*)ent)->jid != st->jid_want)
-//         {
-//             st->jid_want = ((nvpc_sync_write_entry*)ent)->jid;
-//             if (!st->jid_first)
-//             {
-//                 st->jid_first = ent;
-//             }
-//         }
-//         st->jid_last = ent;
-//         break;
-    
-//     default:
-//         st->jid_want = 0;
-//         st->jid_first = st->jid_last = NULL;
-//         break;
-//     }
-
-// out:
-//     return false;
-// }
-struct file *make_recover_file(struct inode *inode)
+struct file *make_recover_file(struct inode *inode, unsigned long ino)
 {
     struct dentry *old_dent;
     struct file *old_fp;
     struct file *new_fp;
     char *newpath;
+    int oldfound = 0;
+
+    newpath = kmalloc(PATH_MAX, GFP_KERNEL);
+    if (!newpath)
+        return ERR_PTR(-ENOMEM);
+
+    if (!inode)
+        goto oldnotfound;
 
     old_dent = d_find_alias(inode);
     if (IS_ERR(old_dent))
-        return ERR_CAST(old_dent);
+        // return ERR_CAST(old_dent);
+        goto oldnotfound;
     old_fp = filp_open(old_dent->d_name.name, O_RDONLY | O_LARGEFILE, 0);
     if (IS_ERR(old_fp))
     {
         pr_debug("[NVPC DEBUG]: rebuild make_recover_file open old file %s fail. \n", old_dent->d_name.name);
         dput(old_dent);
-        return ERR_CAST(old_fp);
-    }
-    
-    newpath = kmalloc(PATH_MAX, GFP_KERNEL);
-    if (!newpath)
-    {
-        dput(old_dent);
-        filp_close(old_fp, NULL);
-        return ERR_PTR(-ENOMEM);
+        // return ERR_CAST(old_fp);
+        goto oldnotfound;
     }
     
     strcat(strcpy(newpath, old_dent->d_name.name), ".recover");
+    oldfound = 1;
     dput(old_dent);
+oldnotfound:
+    if (!oldfound)
+    {
+        sprintf(newpath, "lost_%lu.recover", ino);
+        // strcat(strcpy(newpath, old_dent->d_name.name), ".recover");
+    }
     
     new_fp = filp_open(newpath, O_CREAT | O_RDWR | O_LARGEFILE, 0);
     if (IS_ERR(new_fp))
     {
         pr_debug("[NVPC DEBUG]: rebuild make_recover_file open new file %s fail. \n", newpath);
-        filp_close(old_fp, NULL);
+        if (oldfound)
+            filp_close(old_fp, NULL);
         kfree(newpath);
         return ERR_CAST(new_fp);
     }
 
-    vfs_copy_file_range(old_fp, 0, new_fp, 0, i_size_read(inode), 0);
-
-    filp_close(old_fp, NULL);
+    if (oldfound)
+    {
+        vfs_copy_file_range(old_fp, 0, new_fp, 0, i_size_read(inode), 0);
+        filp_close(old_fp, NULL);
+    }
+    
     kfree(newpath);
     return new_fp;
 }
 
-// int _nvpc_inode_rebuild_withtrans(log_inode_head_entry *head)
-// {
-//     nvpc_sync_log_entry *ent;
-//     struct __first_pass_state fps = {0};
-//     struct __second_pass_state sps = {0};
-//     // struct __third_pass_state tps = {0};
 
-//     struct block_device *bdev;
-//     struct super_block *sb;
-//     struct inode *inode;
+struct _rebuild_state
+{
+    struct xarray latest_pg_logs;
+    nvpc_sync_attr_entry *latest_attr;
+    int _jump;
+    bool fail;
+};
 
-//     pgoff_t i;
+static bool __rebuild_page_chain_wkr(nvpc_sync_log_entry *ent, void *opaque)
+{
+    struct _rebuild_state *rs = (struct _rebuild_state*)opaque;
+    // struct xarray *avail_logs = &rs->latest_pg_logs;
 
-//     struct file *rec_fp;
-//     void *datapg, *maskpg;
-//     datapg = (void*)get_zeroed_page(GFP_KERNEL);
-//     if (!datapg)
-//         return -1;
-//     maskpg = (void*)get_zeroed_page(GFP_KERNEL);
-//     if (!maskpg)
-//     {
-//         free_page((unsigned long)datapg);
-//         return -1;
-//     }
-
-//     pr_info("[NVPC MSG]: rebuild worker work on blk dev %u:%u inode %d. \n", MAJOR(head->s_dev), MINOR(head->s_dev), (int)head->i_ino);
-
-//     /* find the inode */
-//     bdev = blkdev_get_by_dev(head->s_dev, FMODE_READ, NULL);
-//     if (IS_ERR(bdev) || !bdev)
-//     {
-//         pr_info("[NVPC MSG]: rebuild worker cannot find block device %u:%u. \n", MAJOR(head->s_dev), MINOR(head->s_dev));
-//         return -1;
-//     }
-//     sb = get_super(bdev);
-//     // WARN_ON(!sb);
-//     blkdev_put(bdev, FMODE_READ);
-//     if (!sb)
-//     {
-//         pr_info("[NVPC MSG]: rebuild worker cannot find superblock on block device %u:%u. mount it first. \n", MAJOR(head->s_dev), MINOR(head->s_dev));
-//         return -1;
-//     }
-//     inode = ilookup(sb, head->i_ino);
-//     // WARN_ON(!inode);
-//     if (!inode)
-//     {
-//         pr_info("[NVPC MSG]: rebuild worker cannot find inode %d on block device %u:%u. \n", (int)head->i_ino, MAJOR(head->s_dev), MINOR(head->s_dev));
-//         drop_super(sb);
-//         return -1;
-//     }
-
-//     ent = (nvpc_sync_log_entry *)head->head_log_page;
-//     // NVTODO: walk log and do recover
-
-//     // if the last entry is write, find that jid out
-//     xa_init(&fps.avail_logs);
-//     walk_log(ent, head->committed_log_tail, __rebuild_first_pass_wkr, &fps, false);
-//     // iterate over the last jid and redo WREXP mark
-//     if (fps.jid_want)
-//     {
-//         sps.jid_want = fps.jid_want;
-//         walk_log(fps.jid_first, fps.jid_last, __rebuild_second_pass_wkr, &sps, false);
-//         if (sps.err)
-//         {
-//             pr_debug("[NVPC DEBUG]: rebuild second pass error. \n");
-//             goto err;
-//         }
-//     }
-
-//     // NVTODO: copy current file to a new recover file
-//     rec_fp = make_recover_file(inode);
-//     if (IS_ERR(rec_fp))
-//     {
-//         // NVTODO: mark log head as half-done
-//         pr_debug("[NVPC DEBUG]: rebuild fail to make recover file. \n");
-//         goto err;
-//     }
+    if (rs->_jump)
+    {
+        rs->_jump--;
+        return false;
+    }
     
-//     // for each page, if ent not marked as WREXP, redo entries (cross out(with same jid))
-//     // NVNEXT: redo all entries that have same jid with the non-expired write
-//     xa_for_each(&fps.avail_logs, i, ent) 
-//     {
-//         // struct page *page;
-//         loff_t pos = ((nvpc_sync_write_entry*)ent)->file_offset & PAGE_MASK;
-//         // if the entry is just marked in the first pass
-//         if (ent->flags & NVPC_LOG_FLAG_WREXP)
-//             continue;
-        
-//         nvpc_get_page_from_entry(
-//             (nvpc_sync_write_entry*)ent, 
-//             fps.latest_attr, datapg, maskpg);
+    if (ent->type == NVPC_LOG_TYPE_WRITE)
+    {
+        nvpc_sync_write_entry *went = ((nvpc_sync_write_entry*)ent);
+        nvpc_sync_write_entry *prev = xa_load(&rs->latest_pg_logs, went->file_offset >> PAGE_SHIFT);
+        went->last_write = prev?nvpc_get_off(prev):0;
+        xa_store(&rs->latest_pg_logs, went->file_offset >> PAGE_SHIFT, went, GFP_KERNEL);
+    }
+    else if (ent->type == NVPC_LOG_TYPE_WB)
+    {
+        nvpc_sync_wb_entry *wbent = ((nvpc_sync_wb_entry*)ent);
+        nvpc_sync_write_entry *prev = xa_load(&rs->latest_pg_logs, wbent->file_offset_pg);
+        if (prev && prev->jid > wbent->committed_jid)
+        {
+            // cut the chain
+            while (prev && prev->last_write)
+            {
+                nvpc_sync_write_entry *tmp;
+                tmp = (nvpc_sync_write_entry *)nvpc_get_addr(prev->last_write);
+                if (tmp->jid < wbent->committed_jid)
+                {
+                    prev->last_write = 0;
+                    tmp = 0;
+                }
+                prev = tmp;
+            }
+        }
+    }
+    else if (ent->type == NVPC_LOG_TYPE_ATTR)
+    {
+        nvpc_sync_attr_entry *aent = ((nvpc_sync_attr_entry*)ent);
+        aent->last_attr = rs->latest_attr?nvpc_get_off(rs->latest_attr):0;
+        rs->latest_attr = aent;
+    }
+    else if (ent->type >= NVPC_LOG_TYPE_ERR)
+    {
+        rs->fail = true;
+        return true;
+    }
+    
+    if (ent->type == NVPC_LOG_TYPE_WRITE || ent->type == NVPC_LOG_TYPE_GARB)
+    {
+        nvpc_sync_write_entry *went = ((nvpc_sync_write_entry*)ent);
+        if (!went->page_index)
+        {
+            rs->_jump = (went->data_len + NVPC_LOG_ENTRY_SIZE - 1) / NVPC_LOG_ENTRY_SIZE;
+        }
+    }
 
-//         // NVNEXT: apply maskpg to datapg
-        
-//         kernel_write(rec_fp, datapg, PAGE_SIZE, &pos);
+    return false;
+}
 
-//         // NVTODO: cut by i_size? not necessary
-//         // NVTODO: write this page to file
-
-//     }
-
-//     filp_close(rec_fp, NULL);
-
-//     free_page((unsigned long)datapg);
-//     free_page((unsigned long)maskpg);
-//     xa_destroy(&fps.avail_logs);
-//     iput(inode);
-//     drop_super(sb);
-//     return 0;
-// err:
-//     free_page((unsigned long)datapg);
-//     free_page((unsigned long)maskpg);
-//     xa_destroy(&fps.avail_logs);
-//     iput(inode);
-//     drop_super(sb);
-//     return -1;
-// }
+/*
+ * return 1: oop
+ * return 0: ip
+ */
+int __get_data_from_write_ent(nvpc_sync_write_entry *went, void *dst_page)
+{
+    // oop
+    if (went->page_index)
+    {
+        // memcpy(dst_page, nvpc_get_addr_pg(went->page_index)+(went->file_offset&(~PAGE_MASK)), went->data_len);
+        memcpy(dst_page, nvpc_get_addr_pg(went->page_index), PAGE_SIZE);
+        return 1;
+    }
+    // ip
+    else
+    {
+        struct iov_iter i;
+        struct kvec kvec;
+        kvec.iov_base = dst_page + ((went->file_offset)&(~PAGE_MASK));
+        kvec.iov_len = went->data_len;
+        iov_iter_kvec(&i, WRITE, &kvec, 1, went->data_len);
+        walk_log((nvpc_sync_log_entry *)went+1, NULL, __copy_from_ip_log_wkr, &i, false);
+        return 0;
+    }
+}
 
 int _nvpc_inode_rebuild_fromstart(log_inode_head_entry *head)
 {
-    // TODO:
+    struct block_device *bdev;
+    struct super_block *sb;
+    struct inode *inode;
+
+    // struct xarray avail_logs;
+    struct _rebuild_state rs;
+
+    struct file *rec_fp;
+
+    pgoff_t i;
+    nvpc_sync_write_entry *went;
+
+    void *datapg, *maskpg, *tmppg;
+    datapg = (void*)get_zeroed_page(GFP_KERNEL);
+    if (!datapg)
+        return -1;
+    maskpg = (void*)get_zeroed_page(GFP_KERNEL);
+    if (!maskpg)
+    {
+        free_page((unsigned long)datapg);
+        return -1;
+    }
+    tmppg = (void*)get_zeroed_page(GFP_KERNEL);
+    if (!tmppg)
+    {
+        free_page((unsigned long)datapg);
+        free_page((unsigned long)maskpg);
+        return -1;
+    }
+
+    /* find the inode */
+    bdev = blkdev_get_by_dev(head->s_dev, FMODE_READ, NULL);
+    if (IS_ERR(bdev) || !bdev)
+    {
+        pr_info("[NVPC MSG]: rebuild worker cannot find block device %u:%u. \n", MAJOR(head->s_dev), MINOR(head->s_dev));
+        return -1;
+    }
+    sb = get_super(bdev);
+    // WARN_ON(!sb);
+    blkdev_put(bdev, FMODE_READ);
+    if (!sb)
+    {
+        pr_info("[NVPC MSG]: rebuild worker cannot find superblock on block device %u:%u. mount it first. \n", MAJOR(head->s_dev), MINOR(head->s_dev));
+        return -1;
+    }
+    inode = ilookup(sb, head->i_ino);
+    // WARN_ON(!inode);
+    if (!inode)
+    {
+        pr_info("[NVPC MSG]: rebuild worker cannot find inode %d on block device %u:%u. \n", (int)head->i_ino, MAJOR(head->s_dev), MINOR(head->s_dev));
+        // drop_super(sb);
+        // return -1;
+    }
+
+    // copy current file to a new recover file
+    rec_fp = make_recover_file(inode, head->i_ino);
+    if (IS_ERR(rec_fp))
+    {
+        pr_debug("[NVPC DEBUG]: rebuild fail to make recover file. \n");
+        goto err;
+    }
+
+    // 1. for each page, build a chain to link all its entries, meanwhile find the latest WRITEBACK
+    xa_init(&rs.latest_pg_logs);
+    rs.latest_attr = NULL;
+    rs._jump = 0;
+    rs.fail = false;
+    walk_log((nvpc_sync_log_entry *)nvpc_get_addr_pg(head->head_log_page), 
+        head->committed_log_tail, __rebuild_page_chain_wkr, &rs, false);
+    if (rs.fail)
+    {
+        pr_info("[NVPC MSG]: rebuild worker failed while rebuilding page chain for inode %d on block device %u:%u. \n", (int)head->i_ino, MAJOR(head->s_dev), MINOR(head->s_dev));
+        return -1;
+    }
+    
+
+    // 2. recover each page to the rebuild file
+    xa_for_each(&rs.latest_pg_logs, i, went) 
+    {
+        loff_t pos;
+        if (!went) continue;
+
+        pos = went->file_offset & PAGE_MASK;
+        memset(datapg, 0, PAGE_SIZE);
+        kernel_read(rec_fp, datapg, PAGE_SIZE, &pos);
+        memset(maskpg, 0, PAGE_SIZE);
+
+        do
+        {
+            int off = went->file_offset & (PAGE_SIZE-1);
+            int len = went->data_len;
+            char *data_bytes = datapg;  // final page to rebuild
+            char *mask_bytes = maskpg;  // mark already written bytes
+            char *tmp_bytes = tmppg;    // extract data from current ent
+            int enttype = __get_data_from_write_ent(went, tmppg);
+
+            if (enttype)
+            {
+                // for oop ent, build the whole page
+                len = PAGE_SIZE;
+                off = 0;
+            }
+            
+            while (len--)
+            {
+                if (!mask_bytes[off])
+                {
+                    data_bytes[off] = tmp_bytes[off];
+                    mask_bytes[off] = 1;
+                }
+                off++;
+            }
+
+            if (enttype)
+                break;  // stop at oop ent
+            
+            went = went->last_write ? 
+                (nvpc_sync_write_entry *)nvpc_get_addr(went->last_write) : 
+                0;
+        } while (went);
+        
+        
+        pos = went->file_offset & PAGE_MASK;
+        kernel_write(rec_fp, datapg, PAGE_SIZE, &pos);
+
+    }
+
+    filp_close(rec_fp, NULL);
+
+    free_page((unsigned long)datapg);
+    free_page((unsigned long)maskpg);
+    free_page((unsigned long)tmppg);
+    xa_destroy(&rs.latest_pg_logs);
+    if (inode) iput(inode);
+    drop_super(sb);
+    return 0;
+err:
+    free_page((unsigned long)datapg);
+    free_page((unsigned long)maskpg);
+    free_page((unsigned long)tmppg);
+    xa_destroy(&rs.latest_pg_logs);
+    if (inode) iput(inode);
+    drop_super(sb);
     return -1;
 }
 
@@ -2144,6 +2138,4 @@ int nvpc_sync_rebuild()
 
 // NVTODO: when OOM, fsync the inode and mark the inode as drained to prevent further access
 
-// NVTODO: we can remove last_write, it's useless now // nooooope
 
-// NVTODO: do more work in log compact
