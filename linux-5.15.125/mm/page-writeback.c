@@ -2502,20 +2502,33 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
 		__xa_set_mark(&mapping->i_pages, page_index(page),
 				PAGECACHE_TAG_DIRTY);
 	}
-	xa_unlock_irqrestore(&mapping->i_pages, flags);
 #ifdef CONFIG_NVPC
 	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
 	{
 		WARN_ON(!PageLocked(page));
 		SetPageNVPCNpDirty(page);
-		xa_lock_irqsave(&mapping->i_pages, flags);
+		// xa_lock_irqsave(&mapping->i_pages, flags);
 		__xa_set_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
-		xa_unlock_irqrestore(&mapping->i_pages, flags);
+		// xa_unlock_irqrestore(&mapping->i_pages, flags);
 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty\n");
 		if (page->mapping)
 			page->mapping->host->nvpc_sync_active.nr_dirtied++;
 	}
 #endif
+	xa_unlock_irqrestore(&mapping->i_pages, flags);
+// #ifdef CONFIG_NVPC
+// 	if (PageSBNVPC(page) && get_nvpc()->absorb_syn)
+// 	{
+// 		WARN_ON(!PageLocked(page));
+// 		SetPageNVPCNpDirty(page);
+// 		xa_lock_irqsave(&mapping->i_pages, flags);
+// 		__xa_set_mark(&mapping->i_pages, page->index, PAGECACHE_TAG_TOWRITE);
+// 		xa_unlock_irqrestore(&mapping->i_pages, flags);
+// 		// pr_info("[NVPC DEBUG]: set NVPCNp dirty @ __set_page_dirty\n");
+// 		if (page->mapping)
+// 			page->mapping->host->nvpc_sync_active.nr_dirtied++;
+// 	}
+// #endif
 }
 
 /*
