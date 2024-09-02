@@ -1,6 +1,6 @@
 # NVLog(NVPC)
 
-This repository contains artifacts of the system **NVLog** (i.e. **NVPC**) we implemented in the paper. NVLog is a transparent NVM write-ahead log for disk file systems. For more information, please refer to the paper. 
+This repository contains the prototype of the system **NVLog** (i.e. **NVPC**) we designed in the paper. NVLog is a transparent NVM write-ahead log for disk file systems. For more information, please refer to the paper. 
 
 <!-- This project was previously implemented as an NVM-enhanced page cache, at which time we call it NVPC. Now the page cache extension is deprecated. The work is currently focusing on FS logging. -->
 
