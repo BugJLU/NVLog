@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-fsnames = ['Ext-4', 'SPFS', 'NVLog (AS)', 'NOVA', 'NVLog'] # P2CACHE
+fsnames = ['Ext-4', 'SPFS', 'P2CACHE (sim)', 'NOVA', 'NVPC'] # P2CACHE
 clusters = ['Fileserver', 'Webserver', 'Varmail']
 
 data = {
@@ -26,7 +26,7 @@ hatches = [
 ]
 
 plt.rcParams['hatch.color'] = 'white'
-plt.figure(figsize=(5, 2.5))
+plt.figure(figsize=(6, 3))
 # plt.xlabel("Thread number")
 plt.ylabel("Throughput (MB/s)")
 plt.xticks(np.arange(3)*6+2, clusters)
@@ -36,4 +36,4 @@ for i, clust in enumerate(clusters):
     h = plt.bar(np.arange(5)+6*i, data[clust], color=colors, hatch=hatches, label=fsnames)
 
 plt.legend(h, fsnames)
-plt.savefig('filebench.pdf', bbox_inches='tight')
+plt.savefig('plot5.pdf', bbox_inches='tight')

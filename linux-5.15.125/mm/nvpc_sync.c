@@ -1754,6 +1754,7 @@ int nvpc_sync_compact_all(npvc_compact_control_t *ncc)
 
 int nvpc_sync_compact_thread_fn(void *data)
 {
+    pr_info("[NVPC INFO]: NVPC compact kernel thread started\n");
     while (!kthread_should_stop()) {
         npvc_compact_control_t ncc = {0};
         pr_debug("nvpc compact start\n");
