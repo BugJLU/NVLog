@@ -618,6 +618,9 @@ int nvpc_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
     int nr_pages;
     pgoff_t index_off;
     pgoff_t end_off;
+
+    if (nvpc.nvpc_free_pgnum < nvpc.nvpc_sz / 10)
+        goto fallback2;
     
     fsize = i_size_read(inode);
     if (end > fsize)    // truncate end to fsize
@@ -862,7 +865,7 @@ fallback1:
     // {
     //     try_to_free_pages
     // }
-
+fallback2:
     ret = file->f_op->fsync(file, start, end, datasync);
     return ret;
 }
