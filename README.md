@@ -1,6 +1,6 @@
-# NVLog(NVPC)
+# NVLog
 
-This repository contains the prototype of the system **NVLog** (i.e. **NVPC**) we designed in the paper. NVLog is a transparent NVM write-ahead log for disk file systems. For more information, please refer to the paper. 
+This repository contains the prototype of the system **NVLog** (i.e. **NVPC**) we designed in the paper. NVLog is a transparent NVM write-ahead log for disk file systems. For more information, please refer to our paper: **Boosting File Systems Elegantly: A Transparent NVM Write-ahead Log for Disk File Systems**. 
 
 <!-- This project was previously implemented as an NVM-enhanced page cache, at which time we call it NVPC. Now the page cache extension is deprecated. The work is currently focusing on FS logging. -->
 
@@ -13,11 +13,18 @@ Directory structure:
 
 ```dir
 NVPC
+├── ae                      --- Document and scripts for artifact evaluation
 ├── dev_vm                  --- Scripts to build kernel, etc.
 ├── linux-5.15.125          --- Our modified linux kernel
-├── utils                   --- Evaluation scripts and utilities code
+├── utils                   --- Scripts for diagrams and code for utilities
 └── README.md               --- Doc you are watching
 ```
+
+## Artifact Evaluation
+
+*To swiftly evaluate the performance of NVLog, please refer to [this link](ae/README.md). It will guide you through the performance evaluation process in the environment we have prepared.*
+
+The following content provides instructions for building NVLog from scratch.
 
 ## Getting Started
 
@@ -94,7 +101,4 @@ Run `./nvpcctl open <path>` under `utils` dir. This will open NVPC on the mount 
 Then all FS operations on the opened mount point will be handled by NVPC. E.g. write something to a file with sync, NVPC will absorb the sync (if absorb_syn is on in the configuration). `./nvpcctl usage` will display the pages used by NVPC. 
 
 
-## Evaluation
-
-Refer to [this link](utils/evaluation/README.md).
 
