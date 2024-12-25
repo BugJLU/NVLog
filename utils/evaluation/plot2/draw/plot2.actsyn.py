@@ -110,7 +110,7 @@ for i, title in enumerate(titles):
     # legend_handlers = []
     axes[i].set_title(title)
     this_data = data[:, :, i]
-    for j, cluster in enumerate(fsnames):
+    for j, size in enumerate(sizes):
         # print(data[:, j, i])
         b = axes[i].bar(np.arange(4)+5*j, this_data[j, :], color=list(colors.values()), hatch=list(hatches.values()), label=fsnames)
         # legend_handlers.append(b)
